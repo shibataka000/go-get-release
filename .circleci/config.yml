@@ -1,0 +1,32 @@
+version: 2.1
+executors:
+  golang:
+    docker:
+      - image: circleci/golang:1.13.3
+    working_directory: /go/src/github.com/shibataka000/go-get-release
+jobs:
+  build:
+    executor:
+      name: golang
+    steps:
+      - checkout
+      - run:
+          name: Setup
+          command: make setup
+      - run:
+          name: Run tests
+          command: make ci
+workflows:
+  build:
+    jobs:
+      - build
+  nightly:
+    jobs:
+      - build
+    triggers:
+      - schedule:
+          cron: "0 0 * * 0"
+          filters:
+            branches:
+              only:
+                - master
