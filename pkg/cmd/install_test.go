@@ -25,6 +25,10 @@ func TestInstall(t *testing.T) {
 			pkgName:       "helm",
 			verifyCommand: []string{"helm", "version"},
 		},
+		{
+			pkgName:       "protocolbuffers/protobuf",
+			verifyCommand: []string{"protoc", "--version"},
+		},
 	}
 
 	option := Option{

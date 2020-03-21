@@ -27,6 +27,8 @@ func (r *release) GetAsset(goos, goarch string) (Asset, error) {
 		return getTerraformAsset(r.client, r.repo, r, goos, goarch)
 	case r.repo.owner == "argoproj" && r.repo.name == "argo-cd":
 		return getArgoCDAsset(r.client, r.repo, r, goos, goarch)
+	case r.repo.owner == "protocolbuffers" && r.repo.name == "protobuf":
+		return getProtobufAsset(r.client, r.repo, r, goos, goarch)
 	default:
 		return getGeneralAsset(r.client, r.repo, r, goos, goarch)
 	}

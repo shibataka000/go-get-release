@@ -66,6 +66,10 @@ func getGoosByAsset(asset string) (string, error) {
 		return "windows", nil
 	case strings.Contains(s, "darwin"):
 		return "darwin", nil
+	case strings.Contains(s, "osx"):
+		return "darwin", nil
+	case strings.Contains(s, "win"):
+		return "windows", nil
 	default:
 		return "", fmt.Errorf("Fail to guess GOOS by asset: %s", asset)
 	}
