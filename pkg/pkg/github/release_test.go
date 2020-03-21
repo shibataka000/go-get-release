@@ -215,6 +215,28 @@ func TestGetAsset(t *testing.T) {
 			goos:        "darwin",
 			goarch:      "amd64",
 		},
+		{
+			description: "argoproj/argo-cd:v1.4.2(linux,amd64)",
+			owner:       "argoproj",
+			repo:        "argo-cd",
+			tag:         "v1.4.2",
+			asset:       "argocd-linux-amd64",
+			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v1.4.2/argocd-linux-amd64",
+			binaryName:  "argocd",
+			goos:        "linux",
+			goarch:      "amd64",
+		},
+		{
+			description: "argoproj/argo-cd:v1.4.2(darwin,amd64)",
+			owner:       "argoproj",
+			repo:        "argo-cd",
+			tag:         "v1.4.2",
+			asset:       "argocd-darwin-amd64",
+			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v1.4.2/argocd-darwin-amd64",
+			binaryName:  "argocd",
+			goos:        "darwin",
+			goarch:      "amd64",
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")

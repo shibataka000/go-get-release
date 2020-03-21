@@ -25,6 +25,8 @@ func (r *release) GetAsset(goos, goarch string) (Asset, error) {
 		return getIstioAsset(r.client, r.repo, r, goos, goarch)
 	case r.repo.owner == "hashicorp" && r.repo.name == "terraform":
 		return getTerraformAsset(r.client, r.repo, r, goos, goarch)
+	case r.repo.owner == "argoproj" && r.repo.name == "argo-cd":
+		return getArgoCDAsset(r.client, r.repo, r, goos, goarch)
 	default:
 		return getGeneralAsset(r.client, r.repo, r, goos, goarch)
 	}
