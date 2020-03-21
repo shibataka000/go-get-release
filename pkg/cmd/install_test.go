@@ -22,8 +22,8 @@ func TestInstall(t *testing.T) {
 			verifyCommand: []string{"terraform", "version"},
 		},
 		{
-			pkgName:       "helm",
-			verifyCommand: []string{"helm", "version"},
+			pkgName:       "istio",
+			verifyCommand: []string{"istioctl", "version", "--remote=false"},
 		},
 		{
 			pkgName:       "protocolbuffers/protobuf",
