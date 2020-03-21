@@ -56,7 +56,7 @@ func Install(pkgName string, option *Option) error {
 		}
 		oldBinaryPath, err = searchBinaryFilePath(tempDir, pkgInfo.BinaryName)
 		if err != nil {
-			return nil
+			return err
 		}
 	} else {
 		oldBinaryPath = downloadPath
