@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/shibataka000/go-get-release/internal/pkg"
+	"github.com/shibataka000/go-get-release/pkg/cmd"
 	"github.com/urfave/cli/v2"
 )
 
@@ -42,17 +42,17 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					option := pkg.Option{
+					option := cmd.Option{
 						GithubToken: c.String("github-personal-access-token"),
-						OS:          c.String("goos"),
-						Arch:        c.String("goarch"),
+						Goos:        c.String("goos"),
+						Goarch:      c.String("goarch"),
 						InstallDir:  c.String("install-dir"),
 						ShowPrompt:  true,
 					}
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("No repository is specified")
 					}
-					return pkg.Install(c.Args().Get(0), &option)
+					return cmd.Install(c.Args().Get(0), &option)
 				},
 			},
 			{

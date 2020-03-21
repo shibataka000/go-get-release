@@ -1,4 +1,4 @@
-package pkg
+package cmd
 
 import (
 	"fmt"
@@ -14,47 +14,23 @@ func TestInstall(t *testing.T) {
 		verifyCommand []string
 	}{
 		{
-			pkgName:       "argo",
-			verifyCommand: []string{"argo", "version"},
-		},
-		// {
-		// 	pkgName:       "docker/compose",
-		// 	verifyCommand: []string{"docker-compose", "version"},
-		// },
-		{
-			pkgName:       "docker/machine",
-			verifyCommand: []string{"docker-machine", "version"},
-		},
-		{
-			pkgName:       "helm=v3.1.0",
-			verifyCommand: []string{"helm", "version"},
-		},
-		{
-			pkgName:       "istio",
-			verifyCommand: []string{"istioctl", "version", "--remote=false"},
-		},
-		{
-			pkgName:       "kubectl-bindrole",
-			verifyCommand: []string{"kubectl-bindrole", "--version"},
-		},
-		{
-			pkgName:       "kustomize",
-			verifyCommand: []string{"kustomize", "version"},
-		},
-		{
-			pkgName:       "stern",
-			verifyCommand: []string{"stern", "--version"},
+			pkgName:       "shibataka000/go-get-release",
+			verifyCommand: []string{"go-get-release", "version"},
 		},
 		{
 			pkgName:       "terraform",
 			verifyCommand: []string{"terraform", "version"},
 		},
+		{
+			pkgName:       "helm",
+			verifyCommand: []string{"helm", "version"},
+		},
 	}
 
 	option := Option{
 		GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
-		OS:          os.Getenv("GOOS"),
-		Arch:        os.Getenv("GOARCH"),
+		Goos:        os.Getenv("GOOS"),
+		Goarch:      os.Getenv("GOARCH"),
 		InstallDir:  filepath.Join(os.Getenv("GOPATH"), "bin"),
 		ShowPrompt:  false,
 	}
@@ -75,7 +51,6 @@ func TestInstall(t *testing.T) {
 				t.Error(err)
 				return
 			}
-			// defer os.Remove(filepath.Join(option.InstallDir, tt.verifyCommand[0]))
 
 			cmd = exec.Command(tt.verifyCommand[0], tt.verifyCommand[1:]...)
 			cmd.Env = append(os.Environ(), pathEnv)
