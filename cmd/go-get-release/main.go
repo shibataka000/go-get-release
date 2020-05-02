@@ -10,6 +10,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+var version string
+
 func main() {
 	log.SetFlags(0)
 
@@ -71,8 +73,9 @@ func main() {
 			},
 			{
 				Name:  "version",
-				Usage: "",
+				Usage: "Show client version",
 				Action: func(c *cli.Context) error {
+					fmt.Println(version)
 					return nil
 				},
 			},
