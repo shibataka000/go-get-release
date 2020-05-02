@@ -1,5 +1,7 @@
 package github
 
+import "path"
+
 // Asset in GitHub repository
 type Asset interface {
 	Name() string
@@ -8,13 +10,13 @@ type Asset interface {
 }
 
 type asset struct {
-	name        string
 	downloadURL string
 	binaryName  string
 }
 
 func (a *asset) Name() string {
-	return a.name
+	_, file := path.Split(a.downloadURL)
+	return file
 }
 
 func (a *asset) DownloadURL() string {

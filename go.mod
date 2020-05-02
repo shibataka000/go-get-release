@@ -5,7 +5,6 @@ go 1.13
 require (
 	github.com/Songmu/prompter v0.3.0
 	github.com/cheggaaa/pb v2.0.7+incompatible
-	github.com/cheggaaa/pb/v3 v3.0.4 // indirect
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect

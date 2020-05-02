@@ -41,8 +41,6 @@ func getGeneralAsset(c *client, repo *repository, release *release, goos, goarch
 		return nil, fmt.Errorf("Too many assets found: %v", strings.Join(assetNames, ", "))
 	}
 
-	name := filteredAssets[0].GetName()
-
 	downloadURL := filteredAssets[0].GetBrowserDownloadURL()
 
 	binaryName := repo.name
@@ -51,7 +49,6 @@ func getGeneralAsset(c *client, repo *repository, release *release, goos, goarch
 	}
 
 	return &asset{
-		name:        name,
 		downloadURL: downloadURL,
 		binaryName:  binaryName,
 	}, nil

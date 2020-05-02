@@ -14,24 +14,10 @@ type release struct {
 }
 
 func (r *release) GetAsset(goos, goarch string) (Asset, error) {
-	switch {
-	case r.repo.owner == "docker" && r.repo.name == "compose":
-		return getDockerComposeAsset(r.client, r.repo, r, goos, goarch)
-	case r.repo.owner == "docker" && r.repo.name == "machine":
-		return getDockerMachineAsset(r.client, r.repo, r, goos, goarch)
-	case r.repo.owner == "helm" && r.repo.name == "helm":
-		return getHelmAsset(r.client, r.repo, r, goos, goarch)
-	case r.repo.owner == "istio" && r.repo.name == "istio":
-		return getIstioAsset(r.client, r.repo, r, goos, goarch)
-	case r.repo.owner == "hashicorp" && r.repo.name == "terraform":
-		return getTerraformAsset(r.client, r.repo, r, goos, goarch)
-	case r.repo.owner == "argoproj" && r.repo.name == "argo-cd":
-		return getArgoCDAsset(r.client, r.repo, r, goos, goarch)
-	case r.repo.owner == "protocolbuffers" && r.repo.name == "protobuf":
-		return getProtobufAsset(r.client, r.repo, r, goos, goarch)
-	default:
-		return getGeneralAsset(r.client, r.repo, r, goos, goarch)
+	if isSpecialAsset(r.repo.owner, r.repo.name) {
+		return getSpecialAsset(r.client, r.repo, r, goos, goarch)
 	}
+	return getGeneralAsset(r.client, r.repo, r, goos, goarch)
 }
 
 func (r *release) Tag() string {
