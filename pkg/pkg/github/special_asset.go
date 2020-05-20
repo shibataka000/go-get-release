@@ -40,6 +40,10 @@ var specialAssetMap = map[string]map[string]*asset{
 		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/protoc-{{.Version}}-osx-x86_64.zip", binaryName: "protoc"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/protoc-{{.Version}}-win64.zip", binaryName: "protoc.exe"},
 	},
+	"mozilla/sops": {
+		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/sops-{{.Tag}}.{{.Goos}}", binaryName: "sops"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/sops-{{.Tag}}.exe", binaryName: "sops.exe"},
+	},
 }
 
 func isSpecialAsset(owner, repo string) bool {
