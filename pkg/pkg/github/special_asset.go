@@ -23,9 +23,9 @@ var specialAssetMap = map[string]map[string]*asset{
 		"windows/amd64": &asset{downloadURL: "https://get.helm.sh/helm-{{.Tag}}-{{.Goos}}-{{.Goarch}}.zip", binaryName: "helm.exe"},
 	},
 	"istio/istio": {
-		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/istio-{{.Tag}}-linux.tar.gz", binaryName: "istioctl"},
-		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/istio-{{.Tag}}-osx.tar.gz", binaryName: "istioctl"},
-		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/istio-{{.Tag}}-win.zip", binaryName: "istioctl.exe"},
+		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/istioctl-{{.Tag}}-{{.Goos}}-{{.Goarch}}.tar.gz", binaryName: "istioctl"},
+		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/istioctl-{{.Tag}}-osx.tar.gz", binaryName: "istioctl"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/istioctl-{{.Tag}}-win.zip", binaryName: "istioctl.exe"},
 	},
 	"hashicorp/terraform": {
 		"default":       &asset{downloadURL: "https://releases.hashicorp.com/terraform/{{.Version}}/terraform_{{.Version}}_{{.Goos}}_{{.Goarch}}.zip", binaryName: "terraform"},
