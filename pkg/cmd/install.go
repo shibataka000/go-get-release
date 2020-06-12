@@ -171,13 +171,21 @@ func extractTarGz(src, dst string) error {
 			return err
 		}
 
+		path := filepath.Join(dst, header.Name)
+
 		switch header.Typeflag {
 		case tar.TypeDir:
-			if err := os.Mkdir(filepath.Join(dst, header.Name), 0755); err != nil {
+			if err := os.MkdirAll(path, 0755); err != nil {
 				return err
 			}
 		case tar.TypeReg:
-			outFile, err := os.Create(filepath.Join(dst, header.Name))
+			dir := filepath.Dir(path)
+			if _, err := os.Stat(dir); os.IsNotExist(err) {
+				if err := os.MkdirAll(dir, 0755); err != nil {
+					return err
+				}
+			}
+			outFile, err := os.Create(path)
 			if err != nil {
 				return err
 			}
