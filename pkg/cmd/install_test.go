@@ -22,7 +22,7 @@ func TestInstall(t *testing.T) {
 			verifyCommand: []string{"terraform", "version"},
 		},
 		{
-			pkgName:       "istio",
+			pkgName:       "istio=1.6.0",
 			verifyCommand: []string{"istioctl", "version", "--remote=false"},
 		},
 		{
