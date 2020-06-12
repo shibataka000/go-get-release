@@ -29,6 +29,10 @@ func TestInstall(t *testing.T) {
 			pkgName:       "protocolbuffers/protobuf",
 			verifyCommand: []string{"protoc", "--version"},
 		},
+		{
+			pkgName:       "vmware-tanzu/velero",
+			verifyCommand: []string{"velero", "--help"},
+		},
 	}
 
 	option := Option{
