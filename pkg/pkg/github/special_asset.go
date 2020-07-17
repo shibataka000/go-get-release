@@ -44,6 +44,10 @@ var specialAssetMap = map[string]map[string]*asset{
 		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/sops-{{.Tag}}.{{.Goos}}", binaryName: "sops"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/sops-{{.Tag}}.exe", binaryName: "sops.exe"},
 	},
+	"CircleCI-Public/circleci-cli": {
+		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/circleci-cli_{{.Version}}_{{.Goos}}_{{.Goarch}}.tar.gz", binaryName: "circleci"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/circleci-cli_{{.Version}}_{{.Goos}}_{{.Goarch}}.zip", binaryName: "circleci.exe"},
+	},
 }
 
 func isSpecialAsset(owner, repo string) bool {
