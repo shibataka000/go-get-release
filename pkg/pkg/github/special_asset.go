@@ -48,6 +48,9 @@ var specialAssetMap = map[string]map[string]*asset{
 		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/circleci-cli_{{.Version}}_{{.Goos}}_{{.Goarch}}.tar.gz", binaryName: "circleci"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/circleci-cli_{{.Version}}_{{.Goos}}_{{.Goarch}}.zip", binaryName: "circleci.exe"},
 	},
+	"argoproj/argo-rollouts": {
+		"default": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/kubectl-argo-rollouts-{{.Goos}}-{{.Goarch}}", binaryName: "kubectl-argo-rollouts"},
+	},
 }
 
 func isSpecialAsset(owner, repo string) bool {
