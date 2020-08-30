@@ -336,6 +336,28 @@ func TestGetAsset(t *testing.T) {
 			goos:        "darwin",
 			goarch:      "amd64",
 		},
+		{
+			description: "argoproj/argo-rollouts:v0.9.0(linux,amd64)",
+			owner:       "argoproj",
+			repo:        "argo-rollouts",
+			tag:         "v0.9.0",
+			asset:       "kubectl-argo-rollouts-linux-amd64",
+			downloadURL: "https://github.com/argoproj/argo-rollouts/releases/download/v0.9.0/kubectl-argo-rollouts-linux-amd64",
+			binaryName:  "kubectl-argo-rollouts",
+			goos:        "linux",
+			goarch:      "amd64",
+		},
+		{
+			description: "argoproj/argo-rollouts:v0.9.0(darwin,amd64)",
+			owner:       "argoproj",
+			repo:        "argo-rollouts",
+			tag:         "v0.9.0",
+			asset:       "kubectl-argo-rollouts-darwin-amd64",
+			downloadURL: "https://github.com/argoproj/argo-rollouts/releases/download/v0.9.0/kubectl-argo-rollouts-darwin-amd64",
+			binaryName:  "kubectl-argo-rollouts",
+			goos:        "darwin",
+			goarch:      "amd64",
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
