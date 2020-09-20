@@ -51,6 +51,11 @@ var specialAssetMap = map[string]map[string]*asset{
 	"argoproj/argo-rollouts": {
 		"default": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/kubectl-argo-rollouts-{{.Goos}}-{{.Goarch}}", binaryName: "kubectl-argo-rollouts"},
 	},
+	"open-policy-agent/conftest": {
+		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/conftest_{{.Version}}_Linux_x86_64.tar.gz", binaryName: "conftest"},
+		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/conftest_{{.Version}}_Darwin_x86_64.tar.gz", binaryName: "conftest"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/conftest_{{.Version}}_Windows_x86_64.zip", binaryName: "conftest.exe"},
+	},
 }
 
 func isSpecialAsset(owner, repo string) bool {
