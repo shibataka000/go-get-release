@@ -56,6 +56,11 @@ var specialAssetMap = map[string]map[string]*asset{
 		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/conftest_{{.Version}}_Darwin_x86_64.tar.gz", binaryName: "conftest"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/conftest_{{.Version}}_Windows_x86_64.zip", binaryName: "conftest.exe"},
 	},
+	"goodwithtech/dockle": {
+		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/dockle_{{.Version}}_Linux-64bit.tar.gz", binaryName: "dockle"},
+		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/dockle_{{.Version}}_macOS-64bit.tar.gz", binaryName: "dockle"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/dockle_{{.Version}}_Windows-64bit.zip", binaryName: "dockle.exe"},
+	},
 }
 
 func isSpecialAsset(owner, repo string) bool {
