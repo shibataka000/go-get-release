@@ -14,10 +14,7 @@ type release struct {
 }
 
 func (r *release) GetAsset(goos, goarch string) (Asset, error) {
-	if isSpecialAsset(r.repo.owner, r.repo.name) {
-		return getSpecialAsset(r.client, r.repo, r, goos, goarch)
-	}
-	return getGeneralAsset(r.client, r.repo, r, goos, goarch)
+	return getAsset(r.client, r.repo, r, goos, goarch)
 }
 
 func (r *release) Tag() string {
