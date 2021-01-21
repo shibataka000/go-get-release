@@ -67,9 +67,9 @@ var specialAssetMap = map[string]map[string]*asset{
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/starship-x86_64-pc-windows-msvc.zip", binaryName: "starship.exe"},
 	},
 	"viaduct-ai/kustomize-sops": {
-		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Linux_arm64.tar.gz", binaryName: "ksops"},
-		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Darwin_arm64.tar.gz", binaryName: "ksops"},
-		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Windows_arm64.tar.gz", binaryName: "ksops.exe"},
+		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Linux_x86_64.tar.gz", binaryName: "ksops"},
+		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Darwin_x86_64.tar.gz", binaryName: "ksops"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Windows_x86_64.tar.gz", binaryName: "ksops.exe"},
 	},
 }
 
