@@ -13,10 +13,6 @@ type release struct {
 	id     int64
 }
 
-func (r *release) GetAsset(goos, goarch string) (Asset, error) {
-	return getAsset(r.client, r.repo, r, goos, goarch)
-}
-
 func (r *release) Tag() string {
 	return r.tag
 }

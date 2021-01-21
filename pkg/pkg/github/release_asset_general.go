@@ -7,8 +7,11 @@ import (
 	"github.com/google/go-github/github"
 )
 
-func getGeneralAsset(c *client, repo *repository, release *release, goos, goarch string) (Asset, error) {
-	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, repo.owner, repo.name, release.id, &github.ListOptions{})
+func (r *release) getGeneralAsset(goos, goarch string) (Asset, error) {
+	c := r.client
+	repo := r.repo
+
+	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, repo.owner, repo.name, r.id, &github.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

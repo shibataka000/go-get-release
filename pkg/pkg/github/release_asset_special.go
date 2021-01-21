@@ -79,7 +79,9 @@ func isSpecialAsset(owner, repo string) bool {
 	return ok
 }
 
-func getSpecialAsset(c *client, repo *repository, release *release, goos, goarch string) (Asset, error) {
+func (r *release) getSpecialAsset(goos, goarch string) (Asset, error) {
+	repo := r.repo
+
 	key := fmt.Sprintf("%s/%s", repo.owner, repo.name)
 	assetMap, ok := specialAssetMap[key]
 	if !ok {
@@ -98,7 +100,7 @@ func getSpecialAsset(c *client, repo *repository, release *release, goos, goarch
 		return nil, fmt.Errorf("Unsupported GOOS and GOARCH in this repository: %s", key)
 	}
 
-	version := strings.TrimLeft(release.tag, "v")
+	version := strings.TrimLeft(r.tag, "v")
 
 	tmpl, err := template.New("downloadURL").Parse(assetTemplate.downloadURL)
 	if err != nil {
@@ -115,7 +117,7 @@ func getSpecialAsset(c *client, repo *repository, release *release, goos, goarch
 	}{
 		Owner:   repo.owner,
 		Repo:    repo.name,
-		Tag:     release.tag,
+		Tag:     r.tag,
 		Version: version,
 		Goos:    goos,
 		Goarch:  goarch,
