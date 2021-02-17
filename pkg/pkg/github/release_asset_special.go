@@ -71,6 +71,10 @@ var specialAssetMap = map[string]map[string]*asset{
 		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Darwin_x86_64.tar.gz", binaryName: "ksops"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ksops_{{.Version}}_Windows_x86_64.tar.gz", binaryName: "ksops.exe"},
 	},
+	"fluxcd/flux2": {
+		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/flux_{{.Version}}_{{.Goos}}_{{.Goarch}}.tar.gz", binaryName: "flux"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/flux_{{.Version}}_{{.Goos}}_{{.Goarch}}.zip", binaryName: "flux.exe"},
+	},
 }
 
 func isSpecialAsset(owner, repo string) bool {
