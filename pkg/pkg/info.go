@@ -41,12 +41,12 @@ func Info(input *InfoInput) (*InfoOutput, error) {
 
 	var repo github.Repository
 	if owner != "" {
-		repo = client.GetRepository(owner, repoStr)
+		repo, err = client.GetRepository(owner, repoStr)
 	} else {
 		repo, err = client.FindRepository(repoStr)
-		if err != nil {
-			return nil, err
-		}
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	var release github.Release

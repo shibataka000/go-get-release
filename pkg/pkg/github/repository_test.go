@@ -29,7 +29,11 @@ func TestGetLatestRelease(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			repo := c.GetRepository(tt.owner, tt.repo)
+			repo, err := c.GetRepository(tt.owner, tt.repo)
+			if err != nil {
+				t.Error(err)
+				return
+			}
 			release, err := repo.GetLatestRelease()
 			if err != nil {
 				t.Error(err)
@@ -72,7 +76,11 @@ func TestGetRelease(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			repo := c.GetRepository(tt.owner, tt.repo)
+			repo, err := c.GetRepository(tt.owner, tt.repo)
+			if err != nil {
+				t.Error(err)
+				return
+			}
 			release, err := repo.GetRelease(tt.tag)
 			if err != nil {
 				t.Error(err)

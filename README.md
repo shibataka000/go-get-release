@@ -34,7 +34,9 @@ go-get-release install go-get-release
 `go-get-release` install release binary to `$GOHOME/bin` by default.
 
 ### Search GitHub repository
-TBD
+```
+go-get-release search <keyword>
+```
 
 ### Show tags of GitHub repository
 TBD

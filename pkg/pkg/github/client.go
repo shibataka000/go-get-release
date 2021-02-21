@@ -10,8 +10,9 @@ import (
 
 // Client to fetch data from GitHub
 type Client interface {
-	GetRepository(owner, repo string) Repository
+	GetRepository(owner, repo string) (Repository, error)
 	FindRepository(keyword string) (Repository, error)
+	SearchRepositories(keyword string) ([]Repository, error)
 }
 
 type client struct {
@@ -39,21 +40,41 @@ func NewClient(token string) (Client, error) {
 
 }
 
-func (c *client) GetRepository(owner, repo string) Repository {
+func (c *client) GetRepository(owner, repo string) (Repository, error) {
+	result, _, err := c.client.Repositories.Get(c.ctx, owner, repo)
+	if err != nil {
+		return nil, err
+	}
 	return &repository{
 		client: c,
-		owner:  owner,
-		name:   repo,
-	}
+		owner:  result.GetOwner().GetLogin(),
+		name:   result.GetName(),
+	}, nil
 }
 
 func (c *client) FindRepository(keyword string) (Repository, error) {
+	repos, err := c.SearchRepositories(keyword)
+	if err != nil {
+		return nil, err
+	}
+	if len(repos) == 0 {
+		return nil, fmt.Errorf("No repository found: %s", keyword)
+	}
+	return repos[0], nil
+}
+
+func (c *client) SearchRepositories(keyword string) ([]Repository, error) {
 	result, _, err := c.client.Search.Repositories(c.ctx, keyword, &g.SearchOptions{})
 	if err != nil {
 		return nil, err
 	}
-	if len(result.Repositories) == 0 {
-		return nil, fmt.Errorf("No repository found: %s", keyword)
+	repos := []Repository{}
+	for _, repo := range result.Repositories {
+		repos = append(repos, &repository{
+			client: c,
+			owner:  repo.GetOwner().GetLogin(),
+			name:   repo.GetName(),
+		})
 	}
-	return c.GetRepository(result.Repositories[0].GetOwner().GetLogin(), result.Repositories[0].GetName()), nil
+	return repos, nil
 }
