@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGetLatestRelease(t *testing.T) {
+func TestLatestRelease(t *testing.T) {
 	tests := []struct {
 		description string
 		owner       string
@@ -29,12 +29,12 @@ func TestGetLatestRelease(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			repo, err := c.GetRepository(tt.owner, tt.repo)
+			repo, err := c.Repository(tt.owner, tt.repo)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			release, err := repo.GetLatestRelease()
+			release, err := repo.LatestRelease()
 			if err != nil {
 				t.Error(err)
 				return
@@ -46,7 +46,7 @@ func TestGetLatestRelease(t *testing.T) {
 		})
 	}
 }
-func TestGetRelease(t *testing.T) {
+func TestRelease(t *testing.T) {
 	tests := []struct {
 		description string
 		owner       string
@@ -76,12 +76,12 @@ func TestGetRelease(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			repo, err := c.GetRepository(tt.owner, tt.repo)
+			repo, err := c.Repository(tt.owner, tt.repo)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			release, err := repo.GetRelease(tt.tag)
+			release, err := repo.Release(tt.tag)
 			if err != nil {
 				t.Error(err)
 				return

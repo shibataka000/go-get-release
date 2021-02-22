@@ -10,7 +10,7 @@ import (
 
 // Client to fetch data from GitHub
 type Client interface {
-	GetRepository(owner, repo string) (Repository, error)
+	Repository(owner, repo string) (Repository, error)
 	FindRepository(keyword string) (Repository, error)
 	SearchRepositories(keyword string) ([]Repository, error)
 }
@@ -40,7 +40,7 @@ func NewClient(token string) (Client, error) {
 
 }
 
-func (c *client) GetRepository(owner, repo string) (Repository, error) {
+func (c *client) Repository(owner, repo string) (Repository, error) {
 	result, _, err := c.client.Repositories.Get(c.ctx, owner, repo)
 	if err != nil {
 		return nil, err

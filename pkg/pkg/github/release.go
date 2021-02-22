@@ -2,7 +2,7 @@ package github
 
 // Release in GitHub repository
 type Release interface {
-	GetAsset(goos, goarch string) (Asset, error)
+	Asset(goos, goarch string) (Asset, error)
 	Tag() string
 }
 

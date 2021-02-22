@@ -41,7 +41,7 @@ func Info(input *InfoInput) (*InfoOutput, error) {
 
 	var repo github.Repository
 	if owner != "" {
-		repo, err = client.GetRepository(owner, repoStr)
+		repo, err = client.Repository(owner, repoStr)
 	} else {
 		repo, err = client.FindRepository(repoStr)
 	}
@@ -51,15 +51,15 @@ func Info(input *InfoInput) (*InfoOutput, error) {
 
 	var release github.Release
 	if tag != "" {
-		release, err = repo.GetRelease(tag)
+		release, err = repo.Release(tag)
 	} else {
-		release, err = repo.GetLatestRelease()
+		release, err = repo.LatestRelease()
 	}
 	if err != nil {
 		return nil, err
 	}
 
-	asset, err := release.GetAsset(input.Goos, input.Goarch)
+	asset, err := release.Asset(input.Goos, input.Goarch)
 	if err != nil {
 		return nil, err
 	}

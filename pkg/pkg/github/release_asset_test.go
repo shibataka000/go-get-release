@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGetAsset(t *testing.T) {
+func TestAsset(t *testing.T) {
 	tests := []struct {
 		description string
 		owner       string
@@ -534,17 +534,17 @@ func TestGetAsset(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
-			repo, err := c.GetRepository(tt.owner, tt.repo)
+			repo, err := c.Repository(tt.owner, tt.repo)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			release, err := repo.GetRelease(tt.tag)
+			release, err := repo.Release(tt.tag)
 			if err != nil {
 				t.Error(err)
 				return
 			}
-			asset, err := release.GetAsset(tt.goos, tt.goarch)
+			asset, err := release.Asset(tt.goos, tt.goarch)
 			if asset.Name() != tt.asset || asset.DownloadURL() != tt.downloadURL || asset.BinaryName() != tt.binaryName {
 				t.Errorf("Expected is {%s %s %s} but actual is {%s %s %s}", tt.asset, tt.downloadURL, tt.binaryName, asset.Name(), asset.DownloadURL(), asset.BinaryName())
 				return
