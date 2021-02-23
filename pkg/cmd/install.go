@@ -18,12 +18,12 @@ import (
 )
 
 // Install golan release binary
-func Install(pkgName string, option *Option) error {
+func Install(pkgName, goos, goarch, installDir string, option *Option) error {
 	pkgInfo, err := pkg.Info(&pkg.InfoInput{
 		Name:        pkgName,
 		GithubToken: option.GithubToken,
-		Goos:        option.Goos,
-		Goarch:      option.Goarch,
+		Goos:        goos,
+		Goarch:      goarch,
 	})
 	if err != nil {
 		return err
@@ -62,7 +62,7 @@ func Install(pkgName string, option *Option) error {
 		oldBinaryPath = downloadPath
 	}
 
-	newBinaryPath := filepath.Join(option.InstallDir, pkgInfo.BinaryName)
+	newBinaryPath := filepath.Join(installDir, pkgInfo.BinaryName)
 	err = os.Rename(oldBinaryPath, newBinaryPath)
 	if err != nil {
 		return err

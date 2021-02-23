@@ -37,12 +37,10 @@ func TestInstall(t *testing.T) {
 
 	option := Option{
 		GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
-		Goos:        os.Getenv("GOOS"),
-		Goarch:      os.Getenv("GOARCH"),
-		InstallDir:  filepath.Join(os.Getenv("GOPATH"), "bin"),
 		ShowPrompt:  false,
 	}
-	pathEnv := fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), option.InstallDir)
+	installDir := filepath.Join(os.Getenv("GOPATH"), "bin")
+	pathEnv := fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), installDir)
 
 	for _, tt := range tests {
 		t.Run(tt.pkgName, func(t *testing.T) {
@@ -54,7 +52,7 @@ func TestInstall(t *testing.T) {
 				return
 			}
 
-			err = Install(tt.pkgName, &option)
+			err = Install(tt.pkgName, os.Getenv("GOOS"), os.Getenv("GOARCH"), installDir, &option)
 			if err != nil {
 				t.Error(err)
 				return

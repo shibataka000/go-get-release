@@ -24,37 +24,36 @@ func main() {
 				Value:   "",
 				EnvVars: []string{"GITHUB_PERSONAL_ACCESS_TOKEN"},
 			},
-			&cli.StringFlag{
-				Name:    "goos",
-				Value:   "linux",
-				EnvVars: []string{"GOOS"},
-			},
-			&cli.StringFlag{
-				Name:    "goarch",
-				Value:   "amd64",
-				EnvVars: []string{"GOARCH"},
-			},
-			&cli.StringFlag{
-				Name:  "install-dir",
-				Value: filepath.Join(os.Getenv("GOPATH"), "bin"),
-			},
 		},
 		Commands: []*cli.Command{
 			{
 				Name:  "install",
 				Usage: "Install golang release binary",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:    "goos",
+						Value:   "linux",
+						EnvVars: []string{"GOOS"},
+					},
+					&cli.StringFlag{
+						Name:    "goarch",
+						Value:   "amd64",
+						EnvVars: []string{"GOARCH"},
+					},
+					&cli.StringFlag{
+						Name:  "install-dir",
+						Value: filepath.Join(os.Getenv("GOPATH"), "bin"),
+					},
+				},
 				Action: func(c *cli.Context) error {
 					option := cmd.Option{
 						GithubToken: c.String("github-personal-access-token"),
-						Goos:        c.String("goos"),
-						Goarch:      c.String("goarch"),
-						InstallDir:  c.String("install-dir"),
 						ShowPrompt:  true,
 					}
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("No repository is specified")
 					}
-					return cmd.Install(c.Args().Get(0), &option)
+					return cmd.Install(c.Args().Get(0), c.String("goos"), c.String("goarch"), c.String("install-dir"), &option)
 				},
 			},
 			{
@@ -63,9 +62,6 @@ func main() {
 				Action: func(c *cli.Context) error {
 					option := cmd.Option{
 						GithubToken: c.String("github-personal-access-token"),
-						Goos:        c.String("goos"),
-						Goarch:      c.String("goarch"),
-						InstallDir:  c.String("install-dir"),
 						ShowPrompt:  true,
 					}
 					if c.Args().Len() == 0 {
