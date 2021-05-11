@@ -557,6 +557,28 @@ func TestAsset(t *testing.T) {
 			goos:        "darwin",
 			goarch:      "amd64",
 		},
+		{
+			description: "aquasecurity/trivy:v0.17.2(linux,amd64)",
+			owner:       "aquasecurity",
+			repo:        "trivy",
+			tag:         "v0.17.2",
+			asset:       "trivy_0.17.2_Linux-64bit.tar.gz",
+			downloadURL: "https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_Linux-64bit.tar.gz",
+			binaryName:  "trivy",
+			goos:        "linux",
+			goarch:      "amd64",
+		},
+		{
+			description: "aquasecurity/trivy:v0.17.2(darwin,amd64)",
+			owner:       "aquasecurity",
+			repo:        "trivy",
+			tag:         "v0.17.2",
+			asset:       "trivy_0.17.2_macOS-64bit.tar.gz",
+			downloadURL: "https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_macOS-64bit.tar.gz",
+			binaryName:  "trivy",
+			goos:        "darwin",
+			goarch:      "amd64",
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
