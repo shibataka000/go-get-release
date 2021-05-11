@@ -1,6 +1,7 @@
 package github
 
 import (
+	"fmt"
 	"os"
 	"testing"
 )
@@ -580,6 +581,98 @@ func TestAsset(t *testing.T) {
 			asset, err := release.Asset(tt.goos, tt.goarch)
 			if asset.Name() != tt.asset || asset.DownloadURL() != tt.downloadURL || asset.BinaryName() != tt.binaryName {
 				t.Errorf("Expected is {%s %s %s} but actual is {%s %s %s}", tt.asset, tt.downloadURL, tt.binaryName, asset.Name(), asset.DownloadURL(), asset.BinaryName())
+				return
+			}
+		})
+	}
+}
+
+func TestIsSpecialAsset(t *testing.T) {
+	tests := []struct {
+		owner          string
+		repo           string
+		isSpecialAsset bool
+	}{
+		{
+			owner:          "hashicorp",
+			repo:           "terraform",
+			isSpecialAsset: true,
+		},
+		{
+			owner:          "shibataka000",
+			repo:           "go-get-release",
+			isSpecialAsset: false,
+		},
+	}
+
+	for _, tt := range tests {
+		description := fmt.Sprintf("%s/%s", tt.owner, tt.repo)
+		t.Run(description, func(t *testing.T) {
+			actual := isSpecialAsset(tt.owner, tt.repo)
+			if tt.isSpecialAsset != actual {
+				t.Errorf("Expected is %t but actual is %t", tt.isSpecialAsset, actual)
+				return
+			}
+		})
+	}
+}
+
+func TestGetGoosAndGoarchByAsset(t *testing.T) {
+	tests := []struct {
+		asset  string
+		goos   string
+		goarch string
+	}{
+		{
+			asset:  "argo-linux-amd64",
+			goos:   "linux",
+			goarch: "amd64",
+		},
+		{
+			asset:  "argo-windows-amd64",
+			goos:   "windows",
+			goarch: "amd64",
+		},
+		{
+			asset:  "argo-darwin-amd64",
+			goos:   "darwin",
+			goarch: "amd64",
+		},
+		{
+			asset:  "docker-compose-Linux-x86_64",
+			goos:   "linux",
+			goarch: "amd64",
+		},
+		{
+			asset:  "docker-compose-Windows-x86_64.exe",
+			goos:   "windows",
+			goarch: "amd64",
+		},
+		{
+			asset:  "docker-compose-Darwin-x86_64",
+			goos:   "darwin",
+			goarch: "amd64",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.asset, func(t *testing.T) {
+			goos, err := getGoosByAsset(tt.asset)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if goos != tt.goos {
+				t.Errorf("Expected is %v but actual is %v", tt.goos, goos)
+				return
+			}
+			goarch, err := getGoarchByAsset(tt.asset)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+			if goarch != tt.goarch {
+				t.Errorf("Expected is %v but actual is %v", tt.goarch, goarch)
 				return
 			}
 		})

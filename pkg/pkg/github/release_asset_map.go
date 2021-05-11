@@ -1,12 +1,5 @@
 package github
 
-import (
-	"bytes"
-	"fmt"
-	"strings"
-	"text/template"
-)
-
 var specialAssetMap = map[string]map[string]*asset{
 	"docker/compose": {
 		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/docker-compose-Linux-x86_64", binaryName: "docker-compose"},
@@ -79,66 +72,4 @@ var specialAssetMap = map[string]map[string]*asset{
 		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/yq_{{.Goos}}_{{.Goarch}}", binaryName: "yq"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/yq_{{.Goos}}_{{.Goarch}}.exe", binaryName: "yq.exe"},
 	},
-}
-
-func isSpecialAsset(owner, repo string) bool {
-	key := fmt.Sprintf("%s/%s", owner, repo)
-	_, ok := specialAssetMap[key]
-	return ok
-}
-
-func (r *release) getSpecialAsset(goos, goarch string) (Asset, error) {
-	repo := r.repo
-
-	key := fmt.Sprintf("%s/%s", repo.owner, repo.name)
-	assetMap, ok := specialAssetMap[key]
-	if !ok {
-		return nil, fmt.Errorf("%s is not found in specialAssetMap", key)
-	}
-
-	var assetTemplate *asset
-	key = fmt.Sprintf("%s/%s", goos, goarch)
-	if value, ok := assetMap[key]; ok {
-		assetTemplate = value
-	}
-	if value, ok := assetMap["default"]; assetTemplate == nil && ok {
-		assetTemplate = value
-	}
-	if assetTemplate == nil {
-		return nil, fmt.Errorf("Unsupported GOOS and GOARCH in this repository: %s", key)
-	}
-
-	version := strings.TrimLeft(r.tag, "v")
-
-	tmpl, err := template.New("downloadURL").Parse(assetTemplate.downloadURL)
-	if err != nil {
-		return nil, err
-	}
-	buf := new(bytes.Buffer)
-	err = tmpl.Execute(buf, struct {
-		Owner   string
-		Repo    string
-		Tag     string
-		Version string
-		Goos    string
-		Goarch  string
-	}{
-		Owner:   repo.owner,
-		Repo:    repo.name,
-		Tag:     r.tag,
-		Version: version,
-		Goos:    goos,
-		Goarch:  goarch,
-	})
-	if err != nil {
-		return nil, err
-	}
-	downloadURL := buf.String()
-
-	binaryName := assetTemplate.binaryName
-
-	return &asset{
-		downloadURL: downloadURL,
-		binaryName:  binaryName,
-	}, nil
 }
