@@ -72,4 +72,8 @@ var specialAssetMap = map[string]map[string]*asset{
 		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/yq_{{.Goos}}_{{.Goarch}}", binaryName: "yq"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/yq_{{.Goos}}_{{.Goarch}}.exe", binaryName: "yq.exe"},
 	},
+	"aquasecurity/trivy": {
+		"linux/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/trivy_{{.Version}}_Linux-64bit.tar.gz", binaryName: "trivy"},
+		"darwin/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/trivy_{{.Version}}_macOS-64bit.tar.gz", binaryName: "trivy"},
+	},
 }
