@@ -76,4 +76,8 @@ var specialAssetMap = map[string]map[string]*asset{
 		"linux/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/trivy_{{.Version}}_Linux-64bit.tar.gz", binaryName: "trivy"},
 		"darwin/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/trivy_{{.Version}}_macOS-64bit.tar.gz", binaryName: "trivy"},
 	},
+	"aws/amazon-ec2-instance-selector": {
+		"default":       &asset{downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector.exe"},
+	},
 }
