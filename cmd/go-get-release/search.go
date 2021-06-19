@@ -25,8 +25,15 @@ func search(name, token string) error {
 	}
 
 	for _, p := range ps {
+		description := ""
+		if len(p.Description) > 100 {
+			description = fmt.Sprintf("%s...", p.Description[:100])
+		} else {
+			description = p.Description
+		}
+
 		s := fmt.Sprintf("%s/%s", p.Owner, p.Repo)
-		fmt.Printf("* %-*s - %s\n", width, s, p.Description)
+		fmt.Printf("* %-*s - %s\n", width, s, description)
 	}
 	return nil
 }
