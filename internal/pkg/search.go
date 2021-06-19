@@ -4,16 +4,16 @@ import (
 	"github.com/shibataka000/go-get-release/internal/github"
 )
 
-// SearcgInput is input to Search function
+// SearchInput is input to Search function
 type SearchInput struct {
 	Name        string
 	GithubToken string
 }
 
-// FindOutput is output by Search function
+// SearchOutput is output by Search function
 type SearchOutput []SearchOutputItem
 
-// FindOutputItem is element of SearchOutput struct
+// SearchOutputItem is element of SearchOutput struct
 type SearchOutputItem struct {
 	Owner       string
 	Repo        string
