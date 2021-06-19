@@ -77,15 +77,20 @@ var specialAssetMap = map[string]map[string]*asset{
 		"darwin/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/trivy_{{.Version}}_macOS-64bit.tar.gz", binaryName: "trivy"},
 	},
 	"aws/amazon-ec2-instance-selector": {
-		"default":       &asset{downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector"},
-		"windows/amd64": &asset{downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector.exe"},
+		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector.exe"},
 	},
 	"argoproj/argo-workflows": {
-		"default":       &asset{downloadURL: "https://github.com/argoproj/argo-workflows/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo"},
-		"windows/amd64": &asset{downloadURL: "https://github.com/argoproj/argo-workflows/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo.exe"},
+		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo.exe"},
 	},
 	"open-policy-agent/opa": {
-		"default":       &asset{downloadURL: "https://github.com/open-policy-agent/opa/releases/download/{{.Tag}}/opa_{{.Goos}}_{{.Goarch}}", binaryName: "opa"},
-		"windows/amd64": &asset{downloadURL: "https://github.com/open-policy-agent/opa/releases/download/{{.Tag}}/opa_{{.Goos}}_{{.Goarch}}.exe", binaryName: "opa.exe"},
+		"default":       &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/opa_{{.Goos}}_{{.Goarch}}", binaryName: "opa"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/opa_{{.Goos}}_{{.Goarch}}.exe", binaryName: "opa.exe"},
+	},
+	"buildpacks/pack": {
+		"linux/amd64":   &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/pack-{{.Tag}}-linux.tgz", binaryName: "pack"},
+		"darwin/amd64":  &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/pack-{{.Tag}}-macos.tgz", binaryName: "pack"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/{{.Owner}}/{{.Repo}}/releases/download/{{.Tag}}/pack-{{.Tag}}-windows.zip", binaryName: "pack.exe"},
 	},
 }

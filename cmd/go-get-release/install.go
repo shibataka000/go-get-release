@@ -105,6 +105,8 @@ func extract(src, dst, binaryName string) error {
 		return extractZip(src, dst)
 	} else if strings.HasSuffix(src, ".tar.gz") {
 		return extractTarGz(src, dst)
+	} else if strings.HasSuffix(src, ".tgz") {
+		return extractTarGz(src, dst)
 	} else if strings.HasSuffix(src, ".gz") {
 		return extractGz(src, dst, binaryName)
 	} else {
