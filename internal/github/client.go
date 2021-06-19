@@ -46,9 +46,10 @@ func (c *client) Repository(owner, repo string) (Repository, error) {
 		return nil, err
 	}
 	return &repository{
-		client: c,
-		owner:  result.GetOwner().GetLogin(),
-		name:   result.GetName(),
+		client:      c,
+		owner:       result.GetOwner().GetLogin(),
+		name:        result.GetName(),
+		description: result.GetDescription(),
 	}, nil
 }
 
@@ -71,9 +72,10 @@ func (c *client) SearchRepositories(keyword string) ([]Repository, error) {
 	repos := []Repository{}
 	for _, repo := range result.Repositories {
 		repos = append(repos, &repository{
-			client: c,
-			owner:  repo.GetOwner().GetLogin(),
-			name:   repo.GetName(),
+			client:      c,
+			owner:       repo.GetOwner().GetLogin(),
+			name:        repo.GetName(),
+			description: repo.GetDescription(),
 		})
 	}
 	return repos, nil

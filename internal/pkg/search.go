@@ -15,8 +15,9 @@ type SearchOutput []SearchOutputItem
 
 // FindOutputItem is element of SearchOutput struct
 type SearchOutputItem struct {
-	Owner string
-	Repo  string
+	Owner       string
+	Repo        string
+	Description string
 }
 
 // Search GitHub repositories
@@ -34,8 +35,9 @@ func Search(input *SearchInput) (SearchOutput, error) {
 	output := SearchOutput{}
 	for _, repo := range repos {
 		output = append(output, SearchOutputItem{
-			Owner: repo.Owner(),
-			Repo:  repo.Name(),
+			Owner:       repo.Owner(),
+			Repo:        repo.Name(),
+			Description: repo.Description(),
 		})
 	}
 	return output, nil

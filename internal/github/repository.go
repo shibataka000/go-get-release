@@ -4,14 +4,16 @@ package github
 type Repository interface {
 	Owner() string
 	Name() string
+	Description() string
 	LatestRelease() (Release, error)
 	Release(tag string) (Release, error)
 }
 
 type repository struct {
-	client *client
-	owner  string
-	name   string
+	client      *client
+	owner       string
+	name        string
+	description string
 }
 
 func (r *repository) Owner() string {
@@ -20,6 +22,10 @@ func (r *repository) Owner() string {
 
 func (r *repository) Name() string {
 	return r.name
+}
+
+func (r *repository) Description() string {
+	return r.description
 }
 
 func (r *repository) LatestRelease() (Release, error) {
