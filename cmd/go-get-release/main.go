@@ -46,7 +46,7 @@ func main() {
 				},
 				Action: func(c *cli.Context) error {
 					if c.Args().Len() == 0 {
-						return fmt.Errorf("No repository is specified")
+						return fmt.Errorf("no repository is specified")
 					}
 					return install(c.Args().Get(0), c.String("github-personal-access-token"), c.String("goos"), c.String("goarch"), c.String("install-dir"), true)
 				},
@@ -56,7 +56,7 @@ func main() {
 				Usage: "Search GitHub repository",
 				Action: func(c *cli.Context) error {
 					if c.Args().Len() == 0 {
-						return fmt.Errorf("No repository is specified")
+						return fmt.Errorf("no repository is specified")
 					}
 					return search(c.Args().Get(0), c.String("github-personal-access-token"))
 				},

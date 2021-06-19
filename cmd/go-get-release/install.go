@@ -106,7 +106,7 @@ func extract(src, dst string) error {
 	} else if strings.HasSuffix(src, ".tar.gz") {
 		return extractTarGz(src, dst)
 	} else {
-		return fmt.Errorf("Unexpected archive type: %s", src)
+		return fmt.Errorf("unexpected archive type: %s", src)
 	}
 }
 
@@ -193,7 +193,7 @@ func extractTarGz(src, dst string) error {
 				return err
 			}
 		default:
-			return fmt.Errorf("Fail to extract .tag.gz file: %s %v", header.Name, header.Typeflag)
+			return fmt.Errorf("fail to extract .tag.gz file: %s %v", header.Name, header.Typeflag)
 		}
 	}
 
@@ -215,7 +215,7 @@ func searchBinaryFilePath(path, binaryName string) (string, error) {
 		return "", err
 	}
 	if binaryPath == "" {
-		return "", fmt.Errorf("No binary file found in archived file: %s", path)
+		return "", fmt.Errorf("no binary file found in archived file: %s", path)
 	}
 	return binaryPath, nil
 }
