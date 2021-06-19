@@ -58,7 +58,7 @@ func (c *client) FindRepository(keyword string) (Repository, error) {
 		return nil, err
 	}
 	if len(repos) == 0 {
-		return nil, fmt.Errorf("No repository found: %s", keyword)
+		return nil, fmt.Errorf("no repository found: %s", keyword)
 	}
 	return repos[0], nil
 }

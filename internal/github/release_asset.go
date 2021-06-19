@@ -34,7 +34,7 @@ func (r *release) getSpecialAsset(goos, goarch string) (Asset, error) {
 		assetTemplate = value
 	}
 	if assetTemplate == nil {
-		return nil, fmt.Errorf("Unsupported GOOS and GOARCH in this repository: %s", key)
+		return nil, fmt.Errorf("unsupported GOOS and GOARCH in this repository: %s", key)
 	}
 
 	version := strings.TrimLeft(r.tag, "v")
@@ -100,13 +100,13 @@ func (r *release) getGeneralAsset(goos, goarch string) (Asset, error) {
 	}
 
 	if len(filteredAssets) == 0 {
-		return nil, fmt.Errorf("No asset found")
+		return nil, fmt.Errorf("no asset found")
 	} else if len(filteredAssets) >= 2 {
 		assetNames := []string{}
 		for _, asset := range filteredAssets {
 			assetNames = append(assetNames, asset.GetName())
 		}
-		return nil, fmt.Errorf("Too many assets found: %v", strings.Join(assetNames, ", "))
+		return nil, fmt.Errorf("too many assets found: %v", strings.Join(assetNames, ", "))
 	}
 
 	downloadURL := filteredAssets[0].GetBrowserDownloadURL()
@@ -142,7 +142,7 @@ func getGoosByAsset(asset string) (string, error) {
 	case strings.Contains(s, "win"):
 		return "windows", nil
 	default:
-		return "", fmt.Errorf("Fail to guess GOOS by asset: %s", asset)
+		return "", fmt.Errorf("fail to guess GOOS by asset: %s", asset)
 	}
 }
 
@@ -154,6 +154,6 @@ func getGoarchByAsset(asset string) (string, error) {
 	case strings.Contains(s, "x86_64"):
 		return "amd64", nil
 	default:
-		return "", fmt.Errorf("Fail to guess GOARCH by asset: %s", asset)
+		return "", fmt.Errorf("fail to guess GOARCH by asset: %s", asset)
 	}
 }
