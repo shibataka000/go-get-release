@@ -31,17 +31,14 @@ func TestSearch(t *testing.T) {
 		t.Run(tt.input.Name, func(t *testing.T) {
 			actual, err := Search(tt.input)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			if len(actual) != tt.length {
-				t.Errorf("Excepted length is %d but actual length is %d", tt.length, len(actual))
-				return
+				t.Fatalf("Excepted length is %d but actual length is %d", tt.length, len(actual))
 			}
 			for i := range tt.output {
 				if !reflect.DeepEqual(actual[i], tt.output[i]) {
-					t.Errorf("Expected %d th element is %v but actual is %v", i, tt.output[i], actual[i])
-					return
+					t.Fatalf("Expected %d th element is %v but actual is %v", i, tt.output[i], actual[i])
 				}
 			}
 		})

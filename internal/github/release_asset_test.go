@@ -617,26 +617,25 @@ func TestAsset(t *testing.T) {
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
 			repo, err := c.Repository(tt.owner, tt.repo)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			release, err := repo.Release(tt.tag)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			asset, err := release.Asset(tt.goos, tt.goarch)
+			if err != nil {
+				t.Fatal(err)
+			}
 			if asset.Name() != tt.asset || asset.DownloadURL() != tt.downloadURL || asset.BinaryName() != tt.binaryName {
-				t.Errorf("Expected is {%s %s %s} but actual is {%s %s %s}", tt.asset, tt.downloadURL, tt.binaryName, asset.Name(), asset.DownloadURL(), asset.BinaryName())
-				return
+				t.Fatalf("Expected is {%s %s %s} but actual is {%s %s %s}", tt.asset, tt.downloadURL, tt.binaryName, asset.Name(), asset.DownloadURL(), asset.BinaryName())
 			}
 		})
 	}
@@ -665,8 +664,7 @@ func TestIsSpecialAsset(t *testing.T) {
 		t.Run(description, func(t *testing.T) {
 			actual := isSpecialAsset(tt.owner, tt.repo)
 			if tt.isSpecialAsset != actual {
-				t.Errorf("Expected is %t but actual is %t", tt.isSpecialAsset, actual)
-				return
+				t.Fatalf("Expected is %t but actual is %t", tt.isSpecialAsset, actual)
 			}
 		})
 	}
@@ -714,21 +712,17 @@ func TestGetGoosAndGoarchByAsset(t *testing.T) {
 		t.Run(tt.asset, func(t *testing.T) {
 			goos, err := getGoosByAsset(tt.asset)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			if goos != tt.goos {
-				t.Errorf("Expected is %v but actual is %v", tt.goos, goos)
-				return
+				t.Fatalf("Expected is %v but actual is %v", tt.goos, goos)
 			}
 			goarch, err := getGoarchByAsset(tt.asset)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			if goarch != tt.goarch {
-				t.Errorf("Expected is %v but actual is %v", tt.goarch, goarch)
-				return
+				t.Fatalf("Expected is %v but actual is %v", tt.goarch, goarch)
 			}
 		})
 	}

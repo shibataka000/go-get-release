@@ -68,11 +68,10 @@ func TestFind(t *testing.T) {
 		t.Run(tt.input.Name, func(t *testing.T) {
 			actual, err := Find(tt.input)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			if !reflect.DeepEqual(actual, tt.output) {
-				t.Errorf("Expected is %v but actual is %v", tt.output, actual)
+				t.Fatalf("Expected is %v but actual is %v", tt.output, actual)
 			}
 		})
 	}
@@ -109,12 +108,11 @@ func TestParse(t *testing.T) {
 		t.Run(tt.in, func(t *testing.T) {
 			owner, repo, version, err := parse(tt.in)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			actual := []string{owner, repo, version}
 			if !reflect.DeepEqual(actual, tt.out) {
-				t.Errorf("Expected is %v but actual is %v", tt.out, actual)
+				t.Fatalf("Expected is %v but actual is %v", tt.out, actual)
 			}
 		})
 	}
@@ -147,7 +145,7 @@ func TestIsArchived(t *testing.T) {
 		t.Run(tt.in, func(t *testing.T) {
 			actual := isArchived(tt.in)
 			if actual != tt.out {
-				t.Errorf("Expected is %v but actual is %v", tt.out, actual)
+				t.Fatalf("Expected is %v but actual is %v", tt.out, actual)
 			}
 		})
 	}

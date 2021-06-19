@@ -23,25 +23,21 @@ func TestLatestRelease(t *testing.T) {
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
 			repo, err := c.Repository(tt.owner, tt.repo)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			release, err := repo.LatestRelease()
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			if release.Tag() != tt.tag {
-				t.Errorf("Expected is %s but actual is %s", tt.tag, release.Tag())
-				return
+				t.Fatalf("Expected is %s but actual is %s", tt.tag, release.Tag())
 			}
 		})
 	}
@@ -70,25 +66,21 @@ func TestRelease(t *testing.T) {
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
-		t.Error(err)
-		return
+		t.Fatal(err)
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.description, func(t *testing.T) {
 			repo, err := c.Repository(tt.owner, tt.repo)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			release, err := repo.Release(tt.tag)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 			if release.Tag() != tt.tag {
-				t.Errorf("Expected is %s but actual is %s", tt.tag, release.Tag())
-				return
+				t.Fatalf("Expected is %s but actual is %s", tt.tag, release.Tag())
 			}
 		})
 	}

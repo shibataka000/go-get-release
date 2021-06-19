@@ -45,22 +45,19 @@ func TestInstall(t *testing.T) {
 			cmd.Env = append(os.Environ(), pathEnv)
 			err := cmd.Run()
 			if err == nil {
-				t.Errorf("Binary is already installed")
-				return
+				t.Fatalf("Binary is already installed")
 			}
 
 			err = install(tt.name, token, os.Getenv("GOOS"), os.Getenv("GOARCH"), dir, false)
 			if err != nil {
-				t.Error(err)
-				return
+				t.Fatal(err)
 			}
 
 			cmd = exec.Command(tt.verifyCommand[0], tt.verifyCommand[1:]...)
 			cmd.Env = append(os.Environ(), pathEnv)
 			err = cmd.Run()
 			if err != nil {
-				t.Errorf("Installation failed: %v", err)
-				return
+				t.Fatalf("Installation failed: %v", err)
 			}
 		})
 	}
