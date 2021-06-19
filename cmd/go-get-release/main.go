@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/shibataka000/go-get-release/pkg/cmd"
 	"github.com/urfave/cli/v2"
 )
 
@@ -46,28 +45,20 @@ func main() {
 					},
 				},
 				Action: func(c *cli.Context) error {
-					option := cmd.Option{
-						GithubToken: c.String("github-personal-access-token"),
-						ShowPrompt:  true,
-					}
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("No repository is specified")
 					}
-					return cmd.Install(c.Args().Get(0), c.String("goos"), c.String("goarch"), c.String("install-dir"), &option)
+					return install(c.Args().Get(0), c.String("github-personal-access-token"), c.String("goos"), c.String("goarch"), c.String("install-dir"), true)
 				},
 			},
 			{
 				Name:  "search",
 				Usage: "Search GitHub repository",
 				Action: func(c *cli.Context) error {
-					option := cmd.Option{
-						GithubToken: c.String("github-personal-access-token"),
-						ShowPrompt:  true,
-					}
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("No repository is specified")
 					}
-					return cmd.Search(c.Args().Get(0), &option)
+					return search(c.Args().Get(0), c.String("github-personal-access-token"))
 				},
 			},
 			{

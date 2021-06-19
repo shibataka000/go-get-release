@@ -6,19 +6,19 @@ import (
 	"testing"
 )
 
-func TestInfo(t *testing.T) {
+func TestFind(t *testing.T) {
 	tests := []struct {
-		input  *InfoInput
-		output *InfoOutput
+		input  *FindInput
+		output *FindOutput
 	}{
 		{
-			input: &InfoInput{
+			input: &FindInput{
 				Name:        "shibataka000/go-get-release-test",
 				GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
 				Goos:        "linux",
 				Goarch:      "amd64",
 			},
-			output: &InfoOutput{
+			output: &FindOutput{
 				Owner:       "shibataka000",
 				Repo:        "go-get-release-test",
 				Tag:         "v0.0.2",
@@ -29,13 +29,13 @@ func TestInfo(t *testing.T) {
 			},
 		},
 		{
-			input: &InfoInput{
+			input: &FindInput{
 				Name:        "shibataka000/go-get-release-test=v0.0.1",
 				GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
 				Goos:        "linux",
 				Goarch:      "amd64",
 			},
-			output: &InfoOutput{
+			output: &FindOutput{
 				Owner:       "shibataka000",
 				Repo:        "go-get-release-test",
 				Tag:         "v0.0.1",
@@ -46,13 +46,13 @@ func TestInfo(t *testing.T) {
 			},
 		},
 		{
-			input: &InfoInput{
+			input: &FindInput{
 				Name:        "terraform=v0.12.20",
 				GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
 				Goos:        "linux",
 				Goarch:      "amd64",
 			},
-			output: &InfoOutput{
+			output: &FindOutput{
 				Owner:       "hashicorp",
 				Repo:        "terraform",
 				Tag:         "v0.12.20",
@@ -66,7 +66,7 @@ func TestInfo(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input.Name, func(t *testing.T) {
-			actual, err := Info(tt.input)
+			actual, err := Find(tt.input)
 			if err != nil {
 				t.Error(err)
 				return

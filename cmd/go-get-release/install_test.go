@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"fmt"
@@ -10,40 +10,37 @@ import (
 
 func TestInstall(t *testing.T) {
 	tests := []struct {
-		pkgName       string
+		name          string
 		verifyCommand []string
 	}{
 		{
-			pkgName:       "shibataka000/go-get-release",
+			name:          "shibataka000/go-get-release",
 			verifyCommand: []string{"go-get-release", "version"},
 		},
 		{
-			pkgName:       "terraform",
+			name:          "terraform",
 			verifyCommand: []string{"terraform", "version"},
 		},
 		{
-			pkgName:       "istio=1.6.0",
+			name:          "istio=1.6.0",
 			verifyCommand: []string{"istioctl", "version", "--remote=false"},
 		},
 		{
-			pkgName:       "protocolbuffers/protobuf",
+			name:          "protocolbuffers/protobuf",
 			verifyCommand: []string{"protoc", "--version"},
 		},
 		{
-			pkgName:       "vmware-tanzu/velero",
+			name:          "vmware-tanzu/velero",
 			verifyCommand: []string{"velero", "--help"},
 		},
 	}
 
-	option := Option{
-		GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
-		ShowPrompt:  false,
-	}
-	installDir := filepath.Join(os.Getenv("GOPATH"), "bin")
-	pathEnv := fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), installDir)
+	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	dir := filepath.Join(os.Getenv("GOPATH"), "bin")
+	pathEnv := fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), dir)
 
 	for _, tt := range tests {
-		t.Run(tt.pkgName, func(t *testing.T) {
+		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(tt.verifyCommand[0], tt.verifyCommand[1:]...)
 			cmd.Env = append(os.Environ(), pathEnv)
 			err := cmd.Run()
@@ -52,7 +49,7 @@ func TestInstall(t *testing.T) {
 				return
 			}
 
-			err = Install(tt.pkgName, os.Getenv("GOOS"), os.Getenv("GOARCH"), installDir, &option)
+			err = install(tt.name, token, os.Getenv("GOOS"), os.Getenv("GOARCH"), dir, false)
 			if err != nil {
 				t.Error(err)
 				return

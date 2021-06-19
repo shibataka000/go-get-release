@@ -1,4 +1,4 @@
-package cmd
+package main
 
 import (
 	"archive/tar"
@@ -14,14 +14,13 @@ import (
 
 	"github.com/Songmu/prompter"
 	"github.com/cheggaaa/pb"
-	"github.com/shibataka000/go-get-release/pkg/pkg"
+	"github.com/shibataka000/go-get-release/internal/pkg"
 )
 
-// Install golan release binary
-func Install(pkgName, goos, goarch, installDir string, option *Option) error {
-	pkgInfo, err := pkg.Info(&pkg.InfoInput{
-		Name:        pkgName,
-		GithubToken: option.GithubToken,
+func install(name, token, goos, goarch, dir string, showPrompt bool) error {
+	p, err := pkg.Find(&pkg.FindInput{
+		Name:        name,
+		GithubToken: token,
 		Goos:        goos,
 		Goarch:      goarch,
 	})
@@ -29,8 +28,8 @@ func Install(pkgName, goos, goarch, installDir string, option *Option) error {
 		return err
 	}
 
-	if option.ShowPrompt {
-		fmt.Printf("repo:\t%s/%s\ntag:\t%s\nasset:\t%s\n\n", pkgInfo.Owner, pkgInfo.Repo, pkgInfo.Tag, pkgInfo.Asset)
+	if showPrompt {
+		fmt.Printf("repo:\t%s/%s\ntag:\t%s\nasset:\t%s\n\n", p.Owner, p.Repo, p.Tag, p.Asset)
 		if !prompter.YN("Are you sure to install release binary from above repository?", true) {
 			return nil
 		}
@@ -42,19 +41,19 @@ func Install(pkgName, goos, goarch, installDir string, option *Option) error {
 		return err
 	}
 
-	downloadPath := filepath.Join(tempDir, pkgInfo.Asset)
-	err = downloadFile(downloadPath, pkgInfo.DownloadURL, option.ShowPrompt)
+	downloadPath := filepath.Join(tempDir, p.Asset)
+	err = downloadFile(downloadPath, p.DownloadURL, showPrompt)
 	if err != nil {
 		return err
 	}
 
 	var oldBinaryPath string
-	if pkgInfo.IsArchived {
+	if p.IsArchived {
 		err = extract(downloadPath, tempDir)
 		if err != nil {
 			return err
 		}
-		oldBinaryPath, err = searchBinaryFilePath(tempDir, pkgInfo.BinaryName)
+		oldBinaryPath, err = searchBinaryFilePath(tempDir, p.BinaryName)
 		if err != nil {
 			return err
 		}
@@ -62,7 +61,7 @@ func Install(pkgName, goos, goarch, installDir string, option *Option) error {
 		oldBinaryPath = downloadPath
 	}
 
-	newBinaryPath := filepath.Join(installDir, pkgInfo.BinaryName)
+	newBinaryPath := filepath.Join(dir, p.BinaryName)
 	err = os.Rename(oldBinaryPath, newBinaryPath)
 	if err != nil {
 		return err

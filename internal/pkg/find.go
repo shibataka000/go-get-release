@@ -5,19 +5,19 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/shibataka000/go-get-release/pkg/pkg/github"
+	"github.com/shibataka000/go-get-release/internal/github"
 )
 
-// InfoInput is input to Info function
-type InfoInput struct {
+// FindInput is input to Find function
+type FindInput struct {
 	Name        string
 	GithubToken string
 	Goos        string
 	Goarch      string
 }
 
-// InfoOutput is output by Info function. This have information about golang release binary
-type InfoOutput struct {
+// FindOutput is output by Find function. This have information about golang release binary
+type FindOutput struct {
 	Owner       string
 	Repo        string
 	Tag         string
@@ -27,8 +27,8 @@ type InfoOutput struct {
 	IsArchived  bool
 }
 
-// Info return information about golang release binary
-func Info(input *InfoInput) (*InfoOutput, error) {
+// Find golang release binary and return its information
+func Find(input *FindInput) (*FindOutput, error) {
 	owner, repoStr, tag, err := parse(input.Name)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func Info(input *InfoInput) (*InfoOutput, error) {
 		return nil, err
 	}
 
-	return &InfoOutput{
+	return &FindOutput{
 		Owner:       repo.Owner(),
 		Repo:        repo.Name(),
 		Tag:         release.Tag(),
@@ -81,7 +81,7 @@ func parse(name string) (string, string, string, error) {
 		match := re.FindStringSubmatch(name)
 		return match[2], match[3], match[5], nil
 	}
-	return "", "", "", fmt.Errorf("Parsing package name failed: %s\npackage name should be \"owner/repo=tag\" format", name)
+	return "", "", "", fmt.Errorf("parsing package name failed: %s\npackage name should be \"owner/repo=tag\" format", name)
 }
 
 func isArchived(asset string) bool {
