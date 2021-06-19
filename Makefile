@@ -22,7 +22,7 @@ checkfmt:
 
 lint:
 	go vet $(LINT_TARGET)
-	golint $(LINT_TARGET)
+	golint -set_exit_status $(LINT_TARGET)
 
 test:
 	go test $(TEST_TARGET)
