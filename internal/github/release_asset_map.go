@@ -80,4 +80,8 @@ var specialAssetMap = map[string]map[string]*asset{
 		"default":       &asset{downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/{{.Tag}}/ec2-instance-selector-{{.Goos}}-{{.Goarch}}", binaryName: "ec2-instance-selector.exe"},
 	},
+	"argoproj/argo-workflows": {
+		"default":       &asset{downloadURL: "https://github.com/argoproj/argo-workflows/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/argoproj/argo-workflows/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo.exe"},
+	},
 }
