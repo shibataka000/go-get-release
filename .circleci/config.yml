@@ -2,7 +2,7 @@ version: 2.1
 executors:
   golang:
     docker:
-      - image: circleci/golang:1.13.3
+      - image: circleci/golang:1.16.5
     working_directory: /go/src/github.com/shibataka000/go-get-release
 jobs:
   build:
