@@ -43,5 +43,5 @@ TBD
 
 ## Install
 ```
-make install
+go install github.com/shibataka000/go-get-release/cmd/go-get-release@master
 ```
