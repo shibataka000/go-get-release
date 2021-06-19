@@ -49,7 +49,7 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 
 	var oldBinaryPath string
 	if p.IsArchived {
-		err = extract(downloadPath, tempDir)
+		err = extract(downloadPath, tempDir, p.BinaryName)
 		if err != nil {
 			return err
 		}
@@ -100,11 +100,13 @@ func downloadFile(filepath, url string, showProgress bool) error {
 	return err
 }
 
-func extract(src, dst string) error {
+func extract(src, dst, binaryName string) error {
 	if strings.HasSuffix(src, ".zip") {
 		return extractZip(src, dst)
 	} else if strings.HasSuffix(src, ".tar.gz") {
 		return extractTarGz(src, dst)
+	} else if strings.HasSuffix(src, ".gz") {
+		return extractGz(src, dst, binaryName)
 	} else {
 		return fmt.Errorf("unexpected archive type: %s", src)
 	}
@@ -197,6 +199,31 @@ func extractTarGz(src, dst string) error {
 		}
 	}
 
+	return nil
+}
+
+func extractGz(src, dst, binaryName string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		panic(err)
+	}
+	defer in.Close()
+
+	out, err := os.Create(filepath.Join(dst, binaryName))
+	if err != nil {
+		panic(err)
+	}
+	defer out.Close()
+
+	gr, err := gzip.NewReader(in)
+	if err != nil {
+		return err
+	}
+	defer gr.Close()
+
+	if _, err := io.Copy(out, gr); err != nil {
+		return err
+	}
 	return nil
 }
 

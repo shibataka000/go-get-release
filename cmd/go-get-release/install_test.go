@@ -33,6 +33,10 @@ func TestInstall(t *testing.T) {
 			name:          "vmware-tanzu/velero",
 			verifyCommand: []string{"velero", "--help"},
 		},
+		{
+			name:          "argoproj/argo-workflows",
+			verifyCommand: []string{"argo", "version"},
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
