@@ -37,6 +37,10 @@ func TestInstall(t *testing.T) {
 			name:          "argoproj/argo-workflows",
 			verifyCommand: []string{"argo", "version"},
 		},
+		{
+			name:          "buildpacks/pack",
+			verifyCommand: []string{"pack", "--version"},
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
