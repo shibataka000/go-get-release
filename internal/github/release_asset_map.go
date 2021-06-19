@@ -84,4 +84,8 @@ var specialAssetMap = map[string]map[string]*asset{
 		"default":       &asset{downloadURL: "https://github.com/argoproj/argo-workflows/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo"},
 		"windows/amd64": &asset{downloadURL: "https://github.com/argoproj/argo-workflows/releases/download/{{.Tag}}/argo-{{.Goos}}-{{.Goarch}}.gz", binaryName: "argo.exe"},
 	},
+	"open-policy-agent/opa": {
+		"default":       &asset{downloadURL: "https://github.com/open-policy-agent/opa/releases/download/{{.Tag}}/opa_{{.Goos}}_{{.Goarch}}", binaryName: "opa"},
+		"windows/amd64": &asset{downloadURL: "https://github.com/open-policy-agent/opa/releases/download/{{.Tag}}/opa_{{.Goos}}_{{.Goarch}}.exe", binaryName: "opa.exe"},
+	},
 }
