@@ -1138,6 +1138,58 @@ func TestFind(t *testing.T) {
 				IsArchived:  true,
 			},
 		},
+		// cli/cli
+		{
+			input: &FindInput{
+				Name:        "cli/cli=v1.12.0",
+				GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
+				Goos:        "linux",
+				Goarch:      "amd64",
+			},
+			output: &FindOutput{
+				Owner:       "cli",
+				Repo:        "cli",
+				Tag:         "v1.12.0",
+				Asset:       "gh_1.12.0_linux_amd64.tar.gz",
+				DownloadURL: "https://github.com/cli/cli/releases/download/v1.12.0/gh_1.12.0_linux_amd64.tar.gz",
+				BinaryName:  "gh",
+				IsArchived:  true,
+			},
+		},
+		{
+			input: &FindInput{
+				Name:        "cli/cli=v1.12.0",
+				GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
+				Goos:        "darwin",
+				Goarch:      "amd64",
+			},
+			output: &FindOutput{
+				Owner:       "cli",
+				Repo:        "cli",
+				Tag:         "v1.12.0",
+				Asset:       "gh_1.12.0_macOS_amd64.tar.gz",
+				DownloadURL: "https://github.com/cli/cli/releases/download/v1.12.0/gh_1.12.0_macOS_amd64.tar.gz",
+				BinaryName:  "gh",
+				IsArchived:  true,
+			},
+		},
+		{
+			input: &FindInput{
+				Name:        "cli/cli=v1.12.0",
+				GithubToken: os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN"),
+				Goos:        "windows",
+				Goarch:      "amd64",
+			},
+			output: &FindOutput{
+				Owner:       "cli",
+				Repo:        "cli",
+				Tag:         "v1.12.0",
+				Asset:       "gh_1.12.0_windows_amd64.zip",
+				DownloadURL: "https://github.com/cli/cli/releases/download/v1.12.0/gh_1.12.0_windows_amd64.zip",
+				BinaryName:  "gh.exe",
+				IsArchived:  true,
+			},
+		},
 	}
 
 	for _, tt := range tests {

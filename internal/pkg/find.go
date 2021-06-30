@@ -203,7 +203,7 @@ func getPredefinedAssetName(owner, repo, tag, goos, goarch string) (string, erro
 }
 
 func isNotReleaseBinary(asset string) bool {
-	return hasExt(asset, []string{".sha256", ".deb", ".rpm"})
+	return hasExt(asset, []string{".sha256", ".deb", ".rpm", ".msi"})
 }
 
 func guessGoos(asset string) (string, error) {
@@ -216,6 +216,8 @@ func guessGoos(asset string) (string, error) {
 	case strings.Contains(s, "darwin"):
 		return "darwin", nil
 	case strings.Contains(s, "osx"):
+		return "darwin", nil
+	case strings.Contains(s, "macos"):
 		return "darwin", nil
 	case strings.Contains(s, "win"):
 		return "windows", nil

@@ -67,6 +67,7 @@ var binaryMap = map[string]string{
 	"argoproj/argo-rollouts":           "kubectl-argo-rollouts",
 	"aws/amazon-ec2-instance-selector": "ec2-instance-selector",
 	"CircleCI-Public/circleci-cli":     "circleci",
+	"cli/cli":                          "gh",
 	"docker/compose":                   "docker-compose",
 	"docker/machine":                   "docker-machine",
 	"fluxcd/flux2":                     "flux",
