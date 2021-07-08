@@ -82,13 +82,7 @@ func Find(input *FindInput) (*FindOutput, error) {
 		}
 		downloadURL = asset.DownloadURL()
 	}
-
 	_, assetName := path.Split(downloadURL)
-
-	binaryName, err := getBinaryName(repo.Owner(), repo.Name(), input.Goos)
-	if err != nil {
-		return nil, err
-	}
 
 	return &FindOutput{
 		Owner:       repo.Owner(),
@@ -96,7 +90,7 @@ func Find(input *FindInput) (*FindOutput, error) {
 		Tag:         release.Tag(),
 		Asset:       assetName,
 		DownloadURL: downloadURL,
-		BinaryName:  binaryName,
+		BinaryName:  getBinaryName(repo.Owner(), repo.Name(), input.Goos),
 		IsArchived:  isArchived(assetName),
 	}, nil
 }
@@ -238,31 +232,17 @@ func guessGoarch(asset string) (string, error) {
 	}
 }
 
-func getBinaryName(owner, repo, goos string) (string, error) {
-	if isBinaryNamePredefined(owner, repo) {
-		return getPredefinedBinaryName(owner, repo, goos)
+func getBinaryName(owner, repo, goos string) string {
+	bin := repo
+	key := fmt.Sprintf("%s/%s", owner, repo)
+	if v, ok := binaryMap[key]; ok {
+		bin = v
 	}
+	ext := ""
 	if goos == "windows" {
-		return fmt.Sprintf("%s.exe", repo), nil
+		ext = ".exe"
 	}
-	return repo, nil
-}
-
-func isBinaryNamePredefined(owner, repo string) bool {
-	key := fmt.Sprintf("%s/%s", owner, repo)
-	_, ok := binaryMap[key]
-	return ok
-}
-
-func getPredefinedBinaryName(owner, repo, goos string) (string, error) {
-	key := fmt.Sprintf("%s/%s", owner, repo)
-	if bin, ok := binaryMap[key]; ok {
-		if goos == "windows" {
-			return fmt.Sprintf("%s.exe", bin), nil
-		}
-		return bin, nil
-	}
-	return "", fmt.Errorf("binary name is not predefined: %s", key)
+	return fmt.Sprintf("%s%s", bin, ext)
 }
 
 func isArchived(asset string) bool {
