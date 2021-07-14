@@ -41,32 +41,32 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 		return err
 	}
 
-	downloadPath := filepath.Join(tempDir, p.Asset)
-	err = downloadFile(downloadPath, p.DownloadURL, showPrompt)
+	downloadFilePath := filepath.Join(tempDir, p.Asset)
+	err = downloadFile(downloadFilePath, p.DownloadURL, showPrompt)
 	if err != nil {
 		return err
 	}
 
-	var oldBinaryPath string
+	var downloadBinaryPath string
 	if p.IsArchived {
-		err = extract(downloadPath, tempDir, p.BinaryName)
+		err = extract(downloadFilePath, tempDir, p.BinaryName)
 		if err != nil {
 			return err
 		}
-		oldBinaryPath, err = searchBinaryFilePath(tempDir, p.BinaryName)
+		downloadBinaryPath, err = searchBinaryFilePath(tempDir, p.BinaryName)
 		if err != nil {
 			return err
 		}
 	} else {
-		oldBinaryPath = downloadPath
+		downloadBinaryPath = downloadFilePath
 	}
 
-	newBinaryPath := filepath.Join(dir, p.BinaryName)
-	err = os.Rename(oldBinaryPath, newBinaryPath)
+	installBinaryPath := filepath.Join(dir, p.BinaryName)
+	err = os.Rename(downloadBinaryPath, installBinaryPath)
 	if err != nil {
 		return err
 	}
-	err = os.Chmod(newBinaryPath, 0775)
+	err = os.Chmod(installBinaryPath, 0775)
 	if err != nil {
 		return err
 	}
@@ -100,22 +100,22 @@ func downloadFile(filepath, url string, showProgress bool) error {
 	return err
 }
 
-func extract(src, dst, binaryName string) error {
-	if strings.HasSuffix(src, ".zip") {
-		return extractZip(src, dst)
-	} else if strings.HasSuffix(src, ".tar.gz") {
-		return extractTarGz(src, dst)
-	} else if strings.HasSuffix(src, ".tgz") {
-		return extractTarGz(src, dst)
-	} else if strings.HasSuffix(src, ".gz") {
-		return extractGz(src, dst, binaryName)
+func extract(srcFile, dstDir, dstFile string) error {
+	if strings.HasSuffix(srcFile, ".zip") {
+		return extractZip(srcFile, dstDir)
+	} else if strings.HasSuffix(srcFile, ".tar.gz") {
+		return extractTarGz(srcFile, dstDir)
+	} else if strings.HasSuffix(srcFile, ".tgz") {
+		return extractTarGz(srcFile, dstDir)
+	} else if strings.HasSuffix(srcFile, ".gz") {
+		return extractGz(srcFile, dstDir, dstFile)
 	} else {
-		return fmt.Errorf("unexpected archive type: %s", src)
+		return fmt.Errorf("unexpected archive type: %s", srcFile)
 	}
 }
 
-func extractZip(src, dst string) error {
-	r, err := zip.OpenReader(src)
+func extractZip(srcFile, dstDir string) error {
+	r, err := zip.OpenReader(srcFile)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func extractZip(src, dst string) error {
 		defer rc.Close()
 
 		if f.FileInfo().IsDir() {
-			path := filepath.Join(dst, f.Name)
+			path := filepath.Join(dstDir, f.Name)
 			os.MkdirAll(path, f.Mode())
 		} else {
 			buf := make([]byte, f.UncompressedSize)
@@ -138,7 +138,7 @@ func extractZip(src, dst string) error {
 				return err
 			}
 
-			path := filepath.Join(dst, f.Name)
+			path := filepath.Join(dstDir, f.Name)
 			err := ioutil.WriteFile(path, buf, f.Mode())
 			if err != nil {
 				return err
@@ -149,8 +149,8 @@ func extractZip(src, dst string) error {
 	return nil
 }
 
-func extractTarGz(src, dst string) error {
-	inFile, err := os.Open(src)
+func extractTarGz(srcFile, dstDir string) error {
+	inFile, err := os.Open(srcFile)
 	if err != nil {
 		return err
 	}
@@ -174,7 +174,7 @@ func extractTarGz(src, dst string) error {
 			return err
 		}
 
-		path := filepath.Join(dst, header.Name)
+		path := filepath.Join(dstDir, header.Name)
 
 		switch header.Typeflag {
 		case tar.TypeDir:
@@ -204,16 +204,16 @@ func extractTarGz(src, dst string) error {
 	return nil
 }
 
-func extractGz(src, dst, binaryName string) error {
-	in, err := os.Open(src)
+func extractGz(srcFile, dstDir, dstFile string) error {
+	in, err := os.Open(srcFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer in.Close()
 
-	out, err := os.Create(filepath.Join(dst, binaryName))
+	out, err := os.Create(filepath.Join(dstDir, dstFile))
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer out.Close()
 
