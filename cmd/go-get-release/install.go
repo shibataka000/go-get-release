@@ -42,18 +42,18 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 	}
 
 	downloadFilePath := filepath.Join(tempDir, p.Asset)
-	err = downloadFile(downloadFilePath, p.DownloadURL, showPrompt)
+	err = downloadFile(p.DownloadURL, downloadFilePath, showPrompt)
 	if err != nil {
 		return err
 	}
 
 	var downloadBinaryPath string
-	if p.IsArchived {
+	if p.IsArchived { // fixme
 		err = extract(downloadFilePath, tempDir, p.BinaryName)
 		if err != nil {
 			return err
 		}
-		downloadBinaryPath, err = searchBinaryFilePath(tempDir, p.BinaryName)
+		downloadBinaryPath, err = findFile(tempDir, p.BinaryName)
 		if err != nil {
 			return err
 		}
@@ -78,14 +78,14 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 	return nil
 }
 
-func downloadFile(filepath, url string, showProgress bool) error {
+func downloadFile(url, filePath string, showProgress bool) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	out, err := os.Create(filepath)
+	out, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -229,22 +229,22 @@ func extractGz(srcFile, dstDir, dstFile string) error {
 	return nil
 }
 
-func searchBinaryFilePath(path, binaryName string) (string, error) {
-	binaryPath := ""
-	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+func findFile(dir, fileName string) (string, error) {
+	filePath := ""
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && info.Name() == binaryName {
-			binaryPath = path
+		if !info.IsDir() && info.Name() == fileName {
+			filePath = path
 		}
 		return nil
 	})
 	if err != nil {
 		return "", err
 	}
-	if binaryPath == "" {
-		return "", fmt.Errorf("no binary file found in archived file: %s", path)
+	if filePath == "" {
+		return "", fmt.Errorf("%s is not found in %s", fileName, dir)
 	}
-	return binaryPath, nil
+	return filePath, nil
 }
