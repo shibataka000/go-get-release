@@ -53,5 +53,5 @@ func (r *release) Asset(name string) (Asset, error) {
 			return a, nil
 		}
 	}
-	return nil, fmt.Errorf("no asset found in release: %s", name)
+	return nil, fmt.Errorf("no asset found: %s", name)
 }
