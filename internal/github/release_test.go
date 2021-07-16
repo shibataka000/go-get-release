@@ -67,3 +67,7 @@ func TestAssets(t *testing.T) {
 		})
 	}
 }
+
+func TestAsset(t *testing.T) {
+	// todo: implements
+}

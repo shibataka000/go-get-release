@@ -1,11 +1,16 @@
 package github
 
-import "github.com/google/go-github/github"
+import (
+	"fmt"
+
+	"github.com/google/go-github/github"
+)
 
 // Release in GitHub repository
 type Release interface {
 	Tag() string
 	Assets() ([]Asset, error)
+	Asset(string) (Asset, error)
 }
 
 type release struct {
@@ -36,4 +41,17 @@ func (r *release) Assets() ([]Asset, error) {
 		})
 	}
 	return assets, nil
+}
+
+func (r *release) Asset(name string) (Asset, error) {
+	assets, err := r.Assets()
+	if err != nil {
+		return nil, err
+	}
+	for _, a := range assets {
+		if a.Name() == name {
+			return a, nil
+		}
+	}
+	return nil, fmt.Errorf("no asset found in release: %s", name)
 }
