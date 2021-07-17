@@ -10,8 +10,8 @@ import (
 
 // Asset in GitHub repository
 type Asset interface {
-	Name() string
 	DownloadURL() string
+	Name() string
 	Goos() (string, error)
 	Goarch() (string, error)
 	BinaryName() (string, error)
@@ -25,20 +25,20 @@ type asset struct {
 	downloadURL string
 }
 
-func (a *asset) Name() string {
-	_, file := path.Split(a.downloadURL)
-	return file
-}
-
 func (a *asset) DownloadURL() string {
 	return a.downloadURL
 }
 
+func (a *asset) Name() string {
+	_, file := path.Split(a.DownloadURL())
+	return file
+}
+
 func (a *asset) BinaryName() (string, error) {
-	name := a.repo.Name()
+	binaryName := a.repo.Name()
 	key := fmt.Sprintf("%s/%s", a.repo.Owner(), a.repo.Name())
 	if v, ok := binaryNameMap[key]; ok {
-		name = v
+		binaryName = v
 	}
 
 	goos, err := a.Goos()
@@ -50,7 +50,7 @@ func (a *asset) BinaryName() (string, error) {
 		ext = ".exe"
 	}
 
-	return fmt.Sprintf("%s%s", name, ext), nil
+	return fmt.Sprintf("%s%s", binaryName, ext), nil
 }
 
 func (a *asset) Goos() (string, error) {
