@@ -10,8 +10,8 @@ import (
 
 // Asset in GitHub repository
 type Asset interface {
-	DownloadURL() string
 	Name() string
+	DownloadURL() string
 	Goos() (string, error)
 	Goarch() (string, error)
 	BinaryName() (string, error)
@@ -25,15 +25,18 @@ type asset struct {
 	downloadURL string
 }
 
-func (a *asset) DownloadURL() string {
-	return a.downloadURL
-}
-
+// Name return asset name
 func (a *asset) Name() string {
 	_, file := path.Split(a.downloadURL)
 	return file
 }
 
+// DownloadURL return asset's download URL
+func (a *asset) DownloadURL() string {
+	return a.downloadURL
+}
+
+// BinaryName return asset's binary name
 func (a *asset) BinaryName() (string, error) {
 	binaryName := a.repo.Name()
 	key := fmt.Sprintf("%s/%s", a.repo.Owner(), a.repo.Name())
@@ -53,6 +56,7 @@ func (a *asset) BinaryName() (string, error) {
 	return fmt.Sprintf("%s%s", binaryName, ext), nil
 }
 
+// Goos return asset's goos which is guessed by asset name
 func (a *asset) Goos() (string, error) {
 	name := strings.ToLower(a.Name())
 
@@ -78,6 +82,7 @@ func (a *asset) Goos() (string, error) {
 	}
 }
 
+// Goarch return asset's goarch which is guessed by asset name
 func (a *asset) Goarch() (string, error) {
 	name := strings.ToLower(a.Name())
 
@@ -97,6 +102,7 @@ func (a *asset) Goarch() (string, error) {
 	}
 }
 
+// IsReleaseBinary return true if thish asset contain release binary
 func (a *asset) IsReleaseBinary() bool {
 	binaryExts := []string{"", ".exe"}
 	archivedExts := []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz"}

@@ -81,7 +81,7 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 func findAsset(name, token, goos, goarch string) (github.Repository, github.Release, github.Asset, error) {
 	splitted := strings.Split(name, "=")
 	if len(splitted) == 0 {
-		return nil, nil, nil, fmt.Errorf("")
+		return nil, nil, nil, fmt.Errorf("") // todo: fixme
 	}
 	keyword := splitted[0]
 	tag := ""

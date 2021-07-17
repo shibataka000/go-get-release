@@ -26,10 +26,12 @@ type release struct {
 	id     int64
 }
 
+// Tag return tag name of GitHub release
 func (r *release) Tag() string {
 	return r.tag
 }
 
+// Assets return assets in GitHub release
 func (r *release) Assets() ([]Asset, error) {
 	if r.repo.Owner() == "hashicorp" && r.repo.Name() == "terraform" {
 		return r.terraformAssets()
@@ -57,6 +59,7 @@ func (r *release) Assets() ([]Asset, error) {
 	return result, nil
 }
 
+// terraformAssets return hashicorp/terraform's assets
 func (r *release) terraformAssets() ([]Asset, error) {
 	version := strings.TrimLeft(r.tag, "v")
 	url := fmt.Sprintf("https://releases.hashicorp.com/terraform/%s", version)
@@ -87,6 +90,7 @@ func (r *release) terraformAssets() ([]Asset, error) {
 	return assets, nil
 }
 
+// newGoqueryDocument return new goquery.Document object by URL
 func newGoqueryDocument(url string) (*goquery.Document, error) {
 	res, err := http.Get(url)
 	if err != nil {
@@ -99,6 +103,7 @@ func newGoqueryDocument(url string) (*goquery.Document, error) {
 	return goquery.NewDocumentFromReader(res.Body)
 }
 
+// helmAssets return helm/helm's assets
 func (r *release) helmAssets() ([]Asset, error) {
 	c := r.client
 	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, r.repo.owner, r.repo.name, r.id, &github.ListOptions{
@@ -125,6 +130,7 @@ func (r *release) helmAssets() ([]Asset, error) {
 	return result, nil
 }
 
+// Asset return asset which have specific name
 func (r *release) Asset(name string) (Asset, error) {
 	assets, err := r.Assets()
 	if err != nil {
@@ -138,8 +144,9 @@ func (r *release) Asset(name string) (Asset, error) {
 	return nil, fmt.Errorf("no asset found: %s", name)
 }
 
+// FindAssetByPlatform return asset which have specific goos and goarch
 func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
-	assetName, err := r.renderAssetName(goos, goarch)
+	assetName, err := r.renderPredefinedAssetName(goos, goarch)
 	if err == nil {
 		return r.Asset(assetName)
 	}
@@ -162,7 +169,8 @@ func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
 	return assets[0], nil
 }
 
-func (r *release) renderAssetName(goos, goarch string) (string, error) {
+// renderPredefinedAssetName return asset name which is predefined in assetNameMap
+func (r *release) renderPredefinedAssetName(goos, goarch string) (string, error) {
 	key := fmt.Sprintf("%s/%s", r.repo.Owner(), r.repo.Name())
 	tmplMap, ok := assetNameMap[key]
 	if !ok {
@@ -206,6 +214,7 @@ func (r *release) renderAssetName(goos, goarch string) (string, error) {
 	return buf.String(), nil
 }
 
+// listAssetsFilteredByPlatform return assets which have specific goos and goarch
 func (r *release) listAssetsFilteredByPlatform(goos, goarch string) ([]Asset, error) {
 	var result []Asset
 	assets, err := r.Assets()
