@@ -11,9 +11,9 @@ import (
 type Asset interface {
 	Name() string
 	DownloadURL() string
-	BinaryName() (string, error)
 	Goos() (string, error)
 	Goarch() (string, error)
+	BinaryName() (string, error)
 	IsReleaseBinary() bool
 }
 

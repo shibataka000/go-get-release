@@ -57,11 +57,11 @@ func TestAssets(t *testing.T) {
 				t.Fatal(err)
 			}
 			if len(assets) != len(tt.assets) {
-				t.Fatalf("Expected is %s but actual is %s", tt.assets, assets)
+				t.Fatalf("Expected is %v but actual is %v", tt.assets, assets)
 			}
 			for i := range assets {
 				if assets[i].Name() != tt.assets[i].Name() || assets[i].DownloadURL() != tt.assets[i].DownloadURL() {
-					t.Fatalf("Expected is %s but actual is %s", tt.assets, assets)
+					t.Fatalf("Expected is %v but actual is %v", tt.assets, assets)
 				}
 			}
 		})
