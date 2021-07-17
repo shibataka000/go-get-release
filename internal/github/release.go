@@ -12,7 +12,6 @@ import (
 // Release in GitHub repository
 type Release interface {
 	Tag() string
-	Assets() ([]Asset, error) // todo: delete me
 	Asset(string) (Asset, error)
 	FindAssetByPlatform(goos string, goarch string) (Asset, error)
 }
@@ -28,7 +27,44 @@ func (r *release) Tag() string {
 	return r.tag
 }
 
-func (r *release) Assets() ([]Asset, error) {
+func (r *release) Asset(name string) (Asset, error) {
+	assets, err := r.assets()
+	if err != nil {
+		return nil, err
+	}
+	for _, a := range assets {
+		if a.Name() == name {
+			return a, nil
+		}
+	}
+	return nil, fmt.Errorf("no asset found: %s", name)
+}
+
+func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
+	assetName, err := r.renderAssetName(goos, goarch)
+	if err == nil {
+		return r.Asset(assetName)
+	}
+
+	assets, err := r.listAssetsFilteredByPlatform(goos, goarch)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(assets) == 0 {
+		return nil, fmt.Errorf("no asset found")
+	} else if len(assets) >= 2 {
+		assetNames := []string{}
+		for _, asset := range assets {
+			assetNames = append(assetNames, asset.Name())
+		}
+		return nil, fmt.Errorf("too many assets found: %v", strings.Join(assetNames, ", "))
+	}
+
+	return assets[0], nil
+}
+
+func (r *release) assets() ([]Asset, error) {
 	c := r.client
 	repo := r.repo
 	githubAssets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, repo.owner, repo.name, r.id, &github.ListOptions{
@@ -47,46 +83,9 @@ func (r *release) Assets() ([]Asset, error) {
 	return assets, nil
 }
 
-func (r *release) Asset(name string) (Asset, error) {
-	assets, err := r.Assets()
-	if err != nil {
-		return nil, err
-	}
-	for _, a := range assets {
-		if a.Name() == name {
-			return a, nil
-		}
-	}
-	return nil, fmt.Errorf("no asset found: %s", name)
-}
-
-func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
-	assetName, err := r.renderAssetName(goos, goarch)
-	if err == nil {
-		return r.Asset(assetName)
-	}
-
-	assets, err := r.listAssetsByPlatform(goos, goarch)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(assets) == 0 {
-		return nil, fmt.Errorf("no asset found")
-	} else if len(assets) >= 2 {
-		assetNames := []string{}
-		for _, asset := range assets {
-			assetNames = append(assetNames, asset.Name())
-		}
-		return nil, fmt.Errorf("too many assets found: %v", strings.Join(assetNames, ", "))
-	}
-
-	return assets[0], nil
-}
-
-func (r *release) listAssetsByPlatform(goos, goarch string) ([]Asset, error) {
+func (r *release) listAssetsFilteredByPlatform(goos, goarch string) ([]Asset, error) {
 	var result []Asset
-	assets, err := r.Assets()
+	assets, err := r.assets()
 	if err != nil {
 		return nil, err
 	}
