@@ -81,7 +81,6 @@ func TestAssets(t *testing.T) {
 			downloadURLs := []string{}
 			for _, a := range assets {
 				downloadURLs = append(downloadURLs, a.DownloadURL())
-				fmt.Println(a.DownloadURL())
 			}
 
 			if !reflect.DeepEqual(tt.downloadURLs, downloadURLs) {
