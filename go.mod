@@ -7,6 +7,8 @@ require (
 	github.com/Songmu/prompter v0.3.0
 	github.com/cheggaaa/pb v2.0.7+incompatible
 	github.com/google/go-github v17.0.0+incompatible
+	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/urfave/cli/v2 v2.1.1
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
