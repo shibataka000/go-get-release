@@ -14,10 +14,6 @@ func TestInstall(t *testing.T) {
 		verifyCommand []string
 	}{
 		{
-			name:          "shibataka000/go-get-release",
-			verifyCommand: []string{"go-get-release", "version"},
-		},
-		{
 			name:          "terraform",
 			verifyCommand: []string{"terraform", "version"},
 		},
