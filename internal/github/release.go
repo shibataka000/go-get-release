@@ -3,9 +3,9 @@ package github
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/google/go-github/github"
