@@ -2,6 +2,7 @@ package github
 
 import (
 	"fmt"
+	"path/filepath"
 	"sort"
 	"strings"
 )
@@ -10,11 +11,14 @@ import (
 type Asset interface {
 	Name() string
 	DownloadURL() string
+	BinaryName() (string, error)
 	Goos() (string, error)
 	Goarch() (string, error)
+	IsReleaseBinary() bool
 }
 
 type asset struct {
+	repo        *repository
 	name        string
 	downloadURL string
 }
@@ -27,11 +31,30 @@ func (a *asset) DownloadURL() string {
 	return a.downloadURL
 }
 
+func (a *asset) BinaryName() (string, error) {
+	name := a.repo.Name()
+	key := fmt.Sprintf("%s/%s", a.repo.Owner(), a.repo.Name())
+	if v, ok := binaryNameMap[key]; ok {
+		name = v
+	}
+
+	goos, err := a.Goos()
+	if err != nil {
+		return "", err
+	}
+	ext := ""
+	if goos == "windows" {
+		ext = ".exe"
+	}
+
+	return fmt.Sprintf("%s%s", name, ext), nil
+}
+
 func (a *asset) Goos() (string, error) {
+	name := strings.ToLower(a.Name())
+
 	gooses := listGoos()
 	sort.Slice(gooses, func(i, j int) bool { return len(gooses[i]) > len(gooses[j]) })
-
-	name := strings.ToLower(a.Name())
 	for _, goos := range gooses {
 		if strings.Contains(name, goos) {
 			return goos, nil
@@ -51,10 +74,10 @@ func (a *asset) Goos() (string, error) {
 }
 
 func (a *asset) Goarch() (string, error) {
+	name := strings.ToLower(a.Name())
+
 	goarches := listGoarch()
 	sort.Slice(goarches, func(i, j int) bool { return len(goarches[i]) > len(goarches[j]) })
-
-	name := strings.ToLower(a.Name())
 	for _, goarch := range goarches {
 		if strings.Contains(name, goarch) {
 			return goarch, nil
@@ -67,4 +90,19 @@ func (a *asset) Goarch() (string, error) {
 	default:
 		return "", fmt.Errorf("fail to guess GOARCH from asset name: %s", name)
 	}
+}
+
+func (a *asset) IsReleaseBinary() bool {
+	binaryExts := []string{"", ".exe"}
+	archivedExts := []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz"}
+	return hasExt(a.Name(), binaryExts) || hasExt(a.Name(), archivedExts)
+}
+
+func hasExt(name string, exts []string) bool {
+	for _, ext := range exts {
+		if filepath.Ext(name) == ext {
+			return true
+		}
+	}
+	return false
 }

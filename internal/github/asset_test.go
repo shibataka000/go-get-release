@@ -15,7 +15,9 @@ func TestGoosAndGoarch(t *testing.T) {
 		goos        string
 		goarch      string
 	}{
-		{}, // todo: implements
+		{
+			// todo: implements
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
@@ -51,4 +53,12 @@ func TestGoosAndGoarch(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestIsReleaseBinary(t *testing.T) {
+	// todo: implements
+}
+
+func TestHasExt(t *testing.T) {
+	// todo: implements
 }
