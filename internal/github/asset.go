@@ -2,6 +2,7 @@ package github
 
 import (
 	"fmt"
+	"path"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -21,12 +22,12 @@ type asset struct {
 	client      *client
 	repo        *repository
 	release     *release
-	name        string
 	downloadURL string
 }
 
 func (a *asset) Name() string {
-	return a.name
+	_, file := path.Split(a.downloadURL)
+	return file
 }
 
 func (a *asset) DownloadURL() string {
@@ -69,6 +70,8 @@ func (a *asset) Goos() (string, error) {
 	case strings.Contains(name, "osx"):
 		return "darwin", nil
 	case strings.Contains(name, "win"):
+		return "windows", nil
+	case strings.HasSuffix(name, ".exe"):
 		return "windows", nil
 	default:
 		return "", fmt.Errorf("fail to guess GOOS from asset name: %s", name)

@@ -3,6 +3,7 @@ package github
 import (
 	"fmt"
 	"os"
+	"reflect"
 	"testing"
 )
 
@@ -716,6 +717,73 @@ func TestFindAssetByPlatform(t *testing.T) {
 			}
 			if binaryName != tt.binaryName {
 				t.Fatalf("Expected is %s but actual is %s", tt.binaryName, binaryName)
+			}
+		})
+	}
+}
+func TestAssets(t *testing.T) {
+	tests := []struct {
+		description  string
+		owner        string
+		repo         string
+		tag          string
+		downloadURLs []string
+	}{
+		{
+			description: "hashicorp/terraform(v0.12.20)",
+			owner:       "hashicorp",
+			repo:        "terraform",
+			tag:         "v0.12.20",
+			downloadURLs: []string{
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_SHA256SUMS",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_SHA256SUMS.348FFC4C.sig",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_SHA256SUMS.72D7468F.sig",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_SHA256SUMS.sig",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_darwin_amd64.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_freebsd_386.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_freebsd_amd64.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_freebsd_arm.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_386.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_amd64.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_linux_arm.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_openbsd_386.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_openbsd_amd64.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_solaris_amd64.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_windows_386.zip",
+				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_windows_amd64.zip",
+			},
+		},
+	}
+
+	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	c, err := NewClient(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			repo, err := c.Repository(tt.owner, tt.repo)
+			if err != nil {
+				t.Fatal(err)
+			}
+			release, err := repo.Release(tt.tag)
+			if err != nil {
+				t.Fatal(err)
+			}
+			assets, err := release.Assets()
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			downloadURLs := []string{}
+			for _, a := range assets {
+				downloadURLs = append(downloadURLs, a.DownloadURL())
+				fmt.Println(a.DownloadURL())
+			}
+
+			if !reflect.DeepEqual(tt.downloadURLs, downloadURLs) {
+				t.Fatalf("Expected is %v but actual is %v", tt.downloadURLs, downloadURLs)
 			}
 		})
 	}

@@ -25,7 +25,7 @@ lint:
 	golint -set_exit_status $(LINT_TARGET)
 
 test:
-	go test $(TEST_TARGET)
+	go test $(TEST_TARGET) -run=TestAssets
 
 build:
 	go build $(BUILD_ARGS) $(BUILD_TARGET)
