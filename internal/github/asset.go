@@ -30,7 +30,7 @@ func (a *asset) DownloadURL() string {
 }
 
 func (a *asset) Name() string {
-	_, file := path.Split(a.DownloadURL())
+	_, file := path.Split(a.downloadURL)
 	return file
 }
 

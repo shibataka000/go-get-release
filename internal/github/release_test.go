@@ -753,6 +753,22 @@ func TestAssets(t *testing.T) {
 				"https://releases.hashicorp.com/terraform/0.12.20/terraform_0.12.20_windows_amd64.zip",
 			},
 		},
+		{
+			description: "hashicorp/terraform(v0.12.20)",
+			owner:       "helm",
+			repo:        "helm",
+			tag:         "v3.1.0",
+			downloadURLs: []string{
+				"https://get.helm.sh/helm-v3.1.0-darwin-amd64.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-linux-386.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-linux-amd64.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-linux-arm.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-linux-arm64.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-linux-ppc64le.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-linux-s390x.tar.gz",
+				"https://get.helm.sh/helm-v3.1.0-windows-amd64.zip",
+			},
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")

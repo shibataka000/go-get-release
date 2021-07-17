@@ -100,7 +100,29 @@ func newGoqueryDocument(url string) (*goquery.Document, error) {
 }
 
 func (r *release) helmAssets() ([]Asset, error) {
-	return nil, nil
+	c := r.client
+	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, r.repo.owner, r.repo.name, r.id, &github.ListOptions{
+		PerPage: 100,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	result := []Asset{}
+	for _, a := range assets {
+		assetName := a.GetName()
+		if strings.Contains(assetName, "sha256") {
+			continue
+		}
+		downloadURL := fmt.Sprintf("https://get.helm.sh/%s", strings.TrimRight(assetName, ".asc")) // todo: fixme
+		result = append(result, &asset{
+			client:      r.client,
+			repo:        r.repo,
+			release:     r,
+			downloadURL: downloadURL,
+		})
+	}
+	return result, nil
 }
 
 func (r *release) Asset(name string) (Asset, error) {
