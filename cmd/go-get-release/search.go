@@ -3,36 +3,35 @@ package main
 import (
 	"fmt"
 
-	"github.com/shibataka000/go-get-release/internal/pkg"
+	"github.com/shibataka000/go-get-release/internal/github"
 )
 
 func search(name, token string) error {
-	ps, err := pkg.Search(&pkg.SearchInput{
-		Name:        name,
-		GithubToken: token,
-	})
+	client, err := github.NewClient(token)
+	if err != nil {
+		return err
+	}
+
+	repos, err := client.SearchRepositories(name)
 	if err != nil {
 		return err
 	}
 
 	width := 0
-	for _, p := range ps {
-		s := fmt.Sprintf("%s/%s", p.Owner, p.Repo)
-		n := len(s)
-		if n > width {
-			width = n
+	for _, repo := range repos {
+		s := fmt.Sprintf("%s/%s", repo.Owner(), repo.Name())
+		if len(s) > width {
+			width = len(s)
 		}
 	}
 
-	for _, p := range ps {
-		description := ""
-		if len(p.Description) > 100 {
-			description = fmt.Sprintf("%s...", p.Description[:100])
-		} else {
-			description = p.Description
+	for _, repo := range repos {
+		description := repo.Description()
+		if len(description) > 100 {
+			description = fmt.Sprintf("%s...", description[:100])
 		}
 
-		s := fmt.Sprintf("%s/%s", p.Owner, p.Repo)
+		s := fmt.Sprintf("%s/%s", repo.Owner(), repo.Name())
 		fmt.Printf("* %-*s - %s\n", width, s, description)
 	}
 	return nil

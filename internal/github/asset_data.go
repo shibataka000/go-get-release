@@ -1,6 +1,6 @@
-package pkg
+package github
 
-var assetMap = map[string]map[string]string{
+var assetNameMap = map[string]map[string]string{
 	"aquasecurity/trivy": {
 		"linux/amd64":  "trivy_{{.Version}}_Linux-64bit.tar.gz",
 		"darwin/amd64": "trivy_{{.Version}}_macOS-64bit.tar.gz",
@@ -61,7 +61,7 @@ var assetMap = map[string]map[string]string{
 	},
 }
 
-var binaryMap = map[string]string{
+var binaryNameMap = map[string]string{
 	"argoproj/argo-workflows":          "argo",
 	"argoproj/argo-cd":                 "argocd",
 	"argoproj/argo-rollouts":           "kubectl-argo-rollouts",

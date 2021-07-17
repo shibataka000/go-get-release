@@ -10,30 +10,31 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/Songmu/prompter"
 	"github.com/cheggaaa/pb"
-	"github.com/shibataka000/go-get-release/internal/pkg"
+	"github.com/shibataka000/go-get-release/internal/github"
 )
 
 func install(name, token, goos, goarch, dir string, showPrompt bool) error {
-	p, err := pkg.Find(&pkg.FindInput{
-		Name:        name,
-		GithubToken: token,
-		Goos:        goos,
-		Goarch:      goarch,
-	})
+	repo, release, asset, err := findAsset(name, token, goos, goarch)
 	if err != nil {
 		return err
 	}
 
 	if showPrompt {
-		fmt.Printf("repo:\t%s/%s\ntag:\t%s\nasset:\t%s\n\n", p.Owner, p.Repo, p.Tag, p.Asset)
+		fmt.Printf("repo:\t%s/%s\ntag:\t%s\nasset:\t%s\n\n", repo.Owner(), repo.Name(), release.Tag(), asset.Name())
 		if !prompter.YN("Are you sure to install release binary from above repository?", true) {
 			return nil
 		}
 		fmt.Println()
+	}
+
+	binaryName, err := asset.BinaryName()
+	if err != nil {
+		return err
 	}
 
 	tempDir, err := ioutil.TempDir("", "go-get-release-")
@@ -41,32 +42,32 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 		return err
 	}
 
-	downloadPath := filepath.Join(tempDir, p.Asset)
-	err = downloadFile(downloadPath, p.DownloadURL, showPrompt)
+	downloadFilePath := filepath.Join(tempDir, asset.Name())
+	err = downloadFile(asset.DownloadURL(), downloadFilePath, showPrompt)
 	if err != nil {
 		return err
 	}
 
-	var oldBinaryPath string
-	if p.IsArchived {
-		err = extract(downloadPath, tempDir, p.BinaryName)
+	var downloadBinaryPath string
+	if isArchived(asset.Name()) {
+		err = extract(downloadFilePath, tempDir, binaryName)
 		if err != nil {
 			return err
 		}
-		oldBinaryPath, err = searchBinaryFilePath(tempDir, p.BinaryName)
+		downloadBinaryPath, err = findFile(tempDir, binaryName)
 		if err != nil {
 			return err
 		}
 	} else {
-		oldBinaryPath = downloadPath
+		downloadBinaryPath = downloadFilePath
 	}
 
-	newBinaryPath := filepath.Join(dir, p.BinaryName)
-	err = os.Rename(oldBinaryPath, newBinaryPath)
+	installBinaryPath := filepath.Join(dir, binaryName)
+	err = os.Rename(downloadBinaryPath, installBinaryPath)
 	if err != nil {
 		return err
 	}
-	err = os.Chmod(newBinaryPath, 0775)
+	err = os.Chmod(installBinaryPath, 0775)
 	if err != nil {
 		return err
 	}
@@ -78,14 +79,62 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 	return nil
 }
 
-func downloadFile(filepath, url string, showProgress bool) error {
+func findAsset(name, token, goos, goarch string) (github.Repository, github.Release, github.Asset, error) {
+	owner, repoName, tag, err := parse(name)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	client, err := github.NewClient(token)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	var repo github.Repository
+	if owner != "" {
+		repo, err = client.Repository(owner, repoName)
+	} else {
+		repo, err = client.FindRepository(repoName)
+	}
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	var release github.Release
+	if tag != "" {
+		release, err = repo.Release(tag)
+	} else {
+		release, err = repo.LatestRelease()
+	}
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	asset, err := release.FindAssetByPlatform(goos, goarch)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	return repo, release, asset, nil
+}
+
+func parse(name string) (string, string, string, error) {
+	re := regexp.MustCompile(`(([^/=]+)/)?([^/=]+)(=([^=]+))?`)
+	if re.MatchString(name) {
+		match := re.FindStringSubmatch(name)
+		return match[2], match[3], match[5], nil
+	}
+	return "", "", "", fmt.Errorf("parsing package name failed: %s\npackage name should be \"owner/repo=tag\" format", name)
+}
+
+func downloadFile(url, filePath string, showProgress bool) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	out, err := os.Create(filepath)
+	out, err := os.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -100,22 +149,22 @@ func downloadFile(filepath, url string, showProgress bool) error {
 	return err
 }
 
-func extract(src, dst, binaryName string) error {
-	if strings.HasSuffix(src, ".zip") {
-		return extractZip(src, dst)
-	} else if strings.HasSuffix(src, ".tar.gz") {
-		return extractTarGz(src, dst)
-	} else if strings.HasSuffix(src, ".tgz") {
-		return extractTarGz(src, dst)
-	} else if strings.HasSuffix(src, ".gz") {
-		return extractGz(src, dst, binaryName)
+func extract(srcFile, dstDir, dstFile string) error {
+	if strings.HasSuffix(srcFile, ".zip") {
+		return extractZip(srcFile, dstDir)
+	} else if strings.HasSuffix(srcFile, ".tar.gz") {
+		return extractTarGz(srcFile, dstDir)
+	} else if strings.HasSuffix(srcFile, ".tgz") {
+		return extractTarGz(srcFile, dstDir)
+	} else if strings.HasSuffix(srcFile, ".gz") {
+		return extractGz(srcFile, dstDir, dstFile)
 	} else {
-		return fmt.Errorf("unexpected archive type: %s", src)
+		return fmt.Errorf("unexpected archive type: %s", srcFile)
 	}
 }
 
-func extractZip(src, dst string) error {
-	r, err := zip.OpenReader(src)
+func extractZip(srcFile, dstDir string) error {
+	r, err := zip.OpenReader(srcFile)
 	if err != nil {
 		return err
 	}
@@ -129,7 +178,7 @@ func extractZip(src, dst string) error {
 		defer rc.Close()
 
 		if f.FileInfo().IsDir() {
-			path := filepath.Join(dst, f.Name)
+			path := filepath.Join(dstDir, f.Name)
 			os.MkdirAll(path, f.Mode())
 		} else {
 			buf := make([]byte, f.UncompressedSize)
@@ -138,7 +187,7 @@ func extractZip(src, dst string) error {
 				return err
 			}
 
-			path := filepath.Join(dst, f.Name)
+			path := filepath.Join(dstDir, f.Name)
 			err := ioutil.WriteFile(path, buf, f.Mode())
 			if err != nil {
 				return err
@@ -149,8 +198,8 @@ func extractZip(src, dst string) error {
 	return nil
 }
 
-func extractTarGz(src, dst string) error {
-	inFile, err := os.Open(src)
+func extractTarGz(srcFile, dstDir string) error {
+	inFile, err := os.Open(srcFile)
 	if err != nil {
 		return err
 	}
@@ -174,7 +223,7 @@ func extractTarGz(src, dst string) error {
 			return err
 		}
 
-		path := filepath.Join(dst, header.Name)
+		path := filepath.Join(dstDir, header.Name)
 
 		switch header.Typeflag {
 		case tar.TypeDir:
@@ -204,16 +253,16 @@ func extractTarGz(src, dst string) error {
 	return nil
 }
 
-func extractGz(src, dst, binaryName string) error {
-	in, err := os.Open(src)
+func extractGz(srcFile, dstDir, dstFile string) error {
+	in, err := os.Open(srcFile)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer in.Close()
 
-	out, err := os.Create(filepath.Join(dst, binaryName))
+	out, err := os.Create(filepath.Join(dstDir, dstFile))
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer out.Close()
 
@@ -229,22 +278,35 @@ func extractGz(src, dst, binaryName string) error {
 	return nil
 }
 
-func searchBinaryFilePath(path, binaryName string) (string, error) {
-	binaryPath := ""
-	err := filepath.Walk(path, func(path string, info os.FileInfo, err error) error {
+func findFile(dir, fileName string) (string, error) {
+	filePath := ""
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-		if !info.IsDir() && info.Name() == binaryName {
-			binaryPath = path
+		if !info.IsDir() && info.Name() == fileName {
+			filePath = path
 		}
 		return nil
 	})
 	if err != nil {
 		return "", err
 	}
-	if binaryPath == "" {
-		return "", fmt.Errorf("no binary file found in archived file: %s", path)
+	if filePath == "" {
+		return "", fmt.Errorf("%s is not found in %s", fileName, dir)
 	}
-	return binaryPath, nil
+	return filePath, nil
+}
+
+func isArchived(fileName string) bool {
+	return hasExt(fileName, []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz"})
+}
+
+func hasExt(name string, exts []string) bool {
+	for _, ext := range exts {
+		if filepath.Ext(name) == ext {
+			return true
+		}
+	}
+	return false
 }
