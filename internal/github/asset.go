@@ -18,7 +18,9 @@ type Asset interface {
 }
 
 type asset struct {
+	client      *client
 	repo        *repository
+	release     *release
 	name        string
 	downloadURL string
 }

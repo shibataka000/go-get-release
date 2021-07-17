@@ -66,8 +66,7 @@ func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
 
 func (r *release) assets() ([]Asset, error) {
 	c := r.client
-	repo := r.repo
-	githubAssets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, repo.owner, repo.name, r.id, &github.ListOptions{
+	githubAssets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, r.repo.owner, r.repo.name, r.id, &github.ListOptions{
 		PerPage: 100,
 	})
 	if err != nil {
@@ -76,6 +75,9 @@ func (r *release) assets() ([]Asset, error) {
 	assets := []Asset{}
 	for _, a := range githubAssets {
 		assets = append(assets, &asset{
+			client:      r.client,
+			repo:        r.repo,
+			release:     r,
 			name:        a.GetName(),
 			downloadURL: a.GetBrowserDownloadURL(),
 		})
