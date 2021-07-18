@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 var bashCompletion = `
-__go_get_release_bash_autocomplete() {
+_go_get_release_bash_autocomplete() {
   if [[ "${COMP_WORDS[0]}" != "source" ]]; then
     local cur opts base
     COMPREPLY=()
@@ -18,7 +18,7 @@ __go_get_release_bash_autocomplete() {
   fi
 }
 
-complete -o bashdefault -o default -o nospace -F __go_get_release_bash_autocomplete go-get-release
+complete -o bashdefault -o default -F _go_get_release_bash_autocomplete go-get-release
 `
 
 func completion(shell string) error {
