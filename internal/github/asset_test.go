@@ -152,6 +152,15 @@ func TestGoosAndGoarch(t *testing.T) {
 			goos:        "windows",
 			goarch:      "amd64",
 		},
+		{
+			description: "protocolbuffers/protobuf",
+			owner:       "protocolbuffers",
+			repo:        "protobuf",
+			tag:         "v3.17.3",
+			assetName:   "protoc-3.17.3-linux-ppcle_64.zip",
+			goos:        "linux",
+			goarch:      "ppc64le",
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
@@ -189,51 +198,54 @@ func TestGoosAndGoarch(t *testing.T) {
 	}
 }
 
-func TestIsReleaseBinary(t *testing.T) {
+func TestContainReleaseBinary(t *testing.T) {
 	tests := []struct {
-		description     string
-		owner           string
-		repo            string
-		tag             string
-		assetName       string
-		isReleaseBinary bool
+		description          string
+		owner                string
+		repo                 string
+		tag                  string
+		assetName            string
+		containReleaseBinary bool
 	}{
 		{
-			description:     "shibataka000/go-get-release-test",
-			owner:           "shibataka000",
-			repo:            "go-get-release-test",
-			tag:             "v0.0.2",
-			assetName:       "go-get-release_v0.0.2_linux_amd64",
-			isReleaseBinary: true,
+			description:          "shibataka000/go-get-release-test",
+			owner:                "shibataka000",
+			repo:                 "go-get-release-test",
+			tag:                  "v0.0.2",
+			assetName:            "go-get-release_v0.0.2_linux_amd64",
+			containReleaseBinary: true,
 		},
 		{
-			description:     "shibataka000/go-get-release-test",
-			owner:           "shibataka000",
-			repo:            "go-get-release-test",
-			tag:             "v0.0.2",
-			assetName:       "go-get-release_v0.0.2_windows_amd64.exe",
-			isReleaseBinary: true,
+			description:          "shibataka000/go-get-release-test",
+			owner:                "shibataka000",
+			repo:                 "go-get-release-test",
+			tag:                  "v0.0.2",
+			assetName:            "go-get-release_v0.0.2_windows_amd64.exe",
+			containReleaseBinary: true,
 		},
 		{
-			owner:           "hashicorp",
-			repo:            "terraform",
-			tag:             "v0.12.20",
-			assetName:       "terraform_0.12.20_linux_amd64.zip",
-			isReleaseBinary: true,
+			description:          "hashicorp/terraform",
+			owner:                "hashicorp",
+			repo:                 "terraform",
+			tag:                  "v0.12.20",
+			assetName:            "terraform_0.12.20_linux_amd64.zip",
+			containReleaseBinary: true,
 		},
 		{
-			owner:           "docker",
-			repo:            "compose",
-			tag:             "1.25.4",
-			assetName:       "docker-compose-Linux-x86_64.sha256",
-			isReleaseBinary: false,
+			description:          "docker/compose",
+			owner:                "docker",
+			repo:                 "compose",
+			tag:                  "1.25.4",
+			assetName:            "docker-compose-Linux-x86_64.sha256",
+			containReleaseBinary: false,
 		},
 		{
-			owner:           "mozilla",
-			repo:            "sops",
-			tag:             "v3.7.1",
-			assetName:       "sops-v3.7.1.linux",
-			isReleaseBinary: true,
+			description:          "mozilla/sops",
+			owner:                "mozilla",
+			repo:                 "sops",
+			tag:                  "v3.7.1",
+			assetName:            "sops-v3.7.1.linux",
+			containReleaseBinary: true,
 		},
 	}
 
@@ -257,8 +269,161 @@ func TestIsReleaseBinary(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if asset.IsReleaseBinary() != tt.isReleaseBinary {
-				t.Fatalf("Expected is %v but actual is %v", tt.isReleaseBinary, asset.IsReleaseBinary())
+			if asset.ContainReleaseBinary() != tt.containReleaseBinary {
+				t.Fatalf("Expected is %v but actual is %v", tt.containReleaseBinary, asset.ContainReleaseBinary())
+			}
+		})
+	}
+}
+
+func TestIsArchived(t *testing.T) {
+	tests := []struct {
+		description string
+		owner       string
+		repo        string
+		tag         string
+		assetName   string
+		isArchived  bool
+	}{
+		{
+			description: "hashicorp/terraform",
+			owner:       "hashicorp",
+			repo:        "terraform",
+			tag:         "v0.12.20",
+			assetName:   "terraform_0.12.20_linux_amd64.zip",
+			isArchived:  true,
+		},
+		{
+			description: "helm/helm",
+			owner:       "helm",
+			repo:        "helm",
+			tag:         "v3.1.0",
+			assetName:   "helm-v3.1.0-linux-amd64.tar.gz",
+			isArchived:  true,
+		},
+	}
+
+	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	c, err := NewClient(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			repo, err := c.Repository(tt.owner, tt.repo)
+			if err != nil {
+				t.Fatal(err)
+			}
+			release, err := repo.Release(tt.tag)
+			if err != nil {
+				t.Fatal(err)
+			}
+			asset, err := release.Asset(tt.assetName)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if asset.IsArchived() != tt.isArchived {
+				t.Fatalf("Expected is %v but actual is %v", tt.isArchived, asset.IsArchived())
+			}
+		})
+	}
+}
+
+func TestIsExecBinary(t *testing.T) {
+	tests := []struct {
+		description  string
+		owner        string
+		repo         string
+		tag          string
+		assetName    string
+		isExecBinary bool
+	}{
+		{
+			description:  "shibataka000/go-get-release-test",
+			owner:        "shibataka000",
+			repo:         "go-get-release-test",
+			tag:          "v0.0.2",
+			assetName:    "go-get-release_v0.0.2_linux_amd64",
+			isExecBinary: true,
+		},
+		{
+			description:  "shibataka000/go-get-release-test",
+			owner:        "shibataka000",
+			repo:         "go-get-release-test",
+			tag:          "v0.0.2",
+			assetName:    "go-get-release_v0.0.2_windows_amd64.exe",
+			isExecBinary: true,
+		},
+		{
+			description:  "mozilla/sops",
+			owner:        "mozilla",
+			repo:         "sops",
+			tag:          "v3.7.1",
+			assetName:    "sops-v3.7.1.linux",
+			isExecBinary: true,
+		},
+	}
+
+	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	c, err := NewClient(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			repo, err := c.Repository(tt.owner, tt.repo)
+			if err != nil {
+				t.Fatal(err)
+			}
+			release, err := repo.Release(tt.tag)
+			if err != nil {
+				t.Fatal(err)
+			}
+			asset, err := release.Asset(tt.assetName)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if asset.IsExecBinary() != tt.isExecBinary {
+				t.Fatalf("Expected is %v but actual is %v", tt.isExecBinary, asset.IsExecBinary())
+			}
+		})
+	}
+}
+
+func TestHasExt(t *testing.T) {
+	tests := []struct {
+		description string
+		name        string
+		exts        []string
+		hasExt      bool
+	}{
+		{
+			description: "a.exe",
+			name:        "a.exe",
+			exts:        []string{".exe"},
+			hasExt:      true,
+		},
+		{
+			description: "a.exe's_ext_is_not_zip",
+			name:        "a.exe",
+			exts:        []string{".zip"},
+			hasExt:      false,
+		},
+		{
+			description: "a",
+			name:        "a",
+			exts:        []string{""},
+			hasExt:      true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			actual := hasExt(tt.name, tt.exts)
+			if actual != tt.hasExt {
+				t.Fatalf("Expected is %v but actual is %v", tt.hasExt, actual)
 			}
 		})
 	}

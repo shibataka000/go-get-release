@@ -180,17 +180,25 @@ func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
 		return nil, err
 	}
 
-	if len(assets) == 0 {
+	switch len(assets) {
+	case 0:
 		return nil, fmt.Errorf("no asset found")
-	} else if len(assets) >= 2 {
+	case 1:
+		return assets[0], nil
+	case 2:
+		if assets[0].IsExecBinary() && assets[1].IsArchived() {
+			return assets[0], nil
+		} else if assets[0].IsArchived() && assets[1].IsExecBinary() {
+			return assets[1], nil
+		}
+		fallthrough
+	default:
 		assetNames := []string{}
 		for _, a := range assets {
 			assetNames = append(assetNames, a.Name())
 		}
 		return nil, fmt.Errorf("too many assets found: %v", strings.Join(assetNames, ", "))
 	}
-
-	return assets[0], nil
 }
 
 // renderPredefinedAssetName return asset name which is predefined in assetNameMap
@@ -244,7 +252,7 @@ func (r *release) listAssetsFilteredByPlatform(goos, goarch string) ([]Asset, er
 		return nil, err
 	}
 	for _, a := range assets {
-		if !a.IsReleaseBinary() {
+		if !a.ContainReleaseBinary() {
 			continue
 		}
 		assetGoos, err := a.Goos()

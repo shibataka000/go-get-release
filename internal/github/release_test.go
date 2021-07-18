@@ -817,7 +817,7 @@ func TestFindAssetByPlatform(t *testing.T) {
 				t.Fatalf("Expected is %s but actual is %s", tt.binaryName, binaryName)
 			}
 
-			if !asset.IsReleaseBinary() {
+			if !asset.ContainReleaseBinary() {
 				t.Fatalf("Asset does not contain release binary")
 			}
 		})
