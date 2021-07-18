@@ -15,8 +15,9 @@ func main() {
 	log.SetFlags(0)
 
 	app := &cli.App{
-		Name:  "go-get-release",
-		Usage: "install golang release binary",
+		Name:                 "go-get-release",
+		Usage:                "install golang release binary",
+		EnableBashCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "github-personal-access-token",
@@ -66,6 +67,16 @@ func main() {
 				Usage: "Show tags of GitHub repository",
 				Action: func(c *cli.Context) error {
 					return nil
+				},
+			},
+			{
+				Name:  "completion",
+				Usage: "Outputs shell completion for the given shell (bash only)",
+				Action: func(c *cli.Context) error {
+					if c.Args().Len() == 0 {
+						return fmt.Errorf("no shell is specified")
+					}
+					return completion(c.Args().Get(0))
 				},
 			},
 			{
