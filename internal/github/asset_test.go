@@ -228,6 +228,13 @@ func TestIsReleaseBinary(t *testing.T) {
 			assetName:       "docker-compose-Linux-x86_64.sha256",
 			isReleaseBinary: false,
 		},
+		{
+			owner:           "mozilla",
+			repo:            "sops",
+			tag:             "v3.7.1",
+			assetName:       "sops-v3.7.1.linux",
+			isReleaseBinary: true,
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
@@ -252,43 +259,6 @@ func TestIsReleaseBinary(t *testing.T) {
 			}
 			if asset.IsReleaseBinary() != tt.isReleaseBinary {
 				t.Fatalf("Expected is %v but actual is %v", tt.isReleaseBinary, asset.IsReleaseBinary())
-			}
-		})
-	}
-}
-
-func TestHasExt(t *testing.T) {
-	tests := []struct {
-		description string
-		name        string
-		exts        []string
-		hasExt      bool
-	}{
-		{
-			description: "a.exe",
-			name:        "a.exe",
-			exts:        []string{".exe"},
-			hasExt:      true,
-		},
-		{
-			description: "a.exe_does_not_zip",
-			name:        "a.exe",
-			exts:        []string{".zip"},
-			hasExt:      false,
-		},
-		{
-			description: "a",
-			name:        "a",
-			exts:        []string{""},
-			hasExt:      true,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.description, func(t *testing.T) {
-			actual := hasExt(tt.name, tt.exts)
-			if actual != tt.hasExt {
-				t.Fatalf("Expected is %v but actual is %v", tt.hasExt, actual)
 			}
 		})
 	}
