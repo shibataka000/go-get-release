@@ -104,7 +104,7 @@ func (a *asset) Goarch() (string, error) {
 
 // IsReleaseBinary return true if thish asset contain release binary
 func (a *asset) IsReleaseBinary() bool {
-	return !hasExt(a.Name(), []string{".sha256", ".deb", ".rpm", ".msi"})
+	return !hasExt(a.Name(), []string{".sha256", ".deb", ".rpm", ".msi", ".sig"})
 }
 
 func hasExt(name string, exts []string) bool {
