@@ -155,6 +155,34 @@ func TestFindAssetByPlatform(t *testing.T) {
 		downloadURL string
 		binaryName  string
 	}{
+		// aquasecurity/tfsec
+		{
+			owner:       "aquasecurity",
+			repo:        "tfsec",
+			tag:         "v0.48.7",
+			goos:        "linux",
+			goarch:      "amd64",
+			downloadURL: "https://github.com/aquasecurity/tfsec/releases/download/v0.48.7/tfsec-linux-amd64",
+			binaryName:  "tfsec",
+		},
+		{
+			owner:       "aquasecurity",
+			repo:        "tfsec",
+			tag:         "v0.48.7",
+			goos:        "darwin",
+			goarch:      "amd64",
+			downloadURL: "https://github.com/aquasecurity/tfsec/releases/download/v0.48.7/tfsec-darwin-amd64",
+			binaryName:  "tfsec",
+		},
+		{
+			owner:       "aquasecurity",
+			repo:        "tfsec",
+			tag:         "v0.48.7",
+			goos:        "windows",
+			goarch:      "amd64",
+			downloadURL: "https://github.com/aquasecurity/tfsec/releases/download/v0.48.7/tfsec-windows-amd64.exe",
+			binaryName:  "tfsec.exe",
+		},
 		// aquasecurity/trivy
 		{
 			owner:       "aquasecurity",
