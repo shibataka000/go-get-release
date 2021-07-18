@@ -3,10 +3,9 @@ package github
 import (
 	"fmt"
 	"path"
+	"path/filepath"
 	"sort"
 	"strings"
-
-	"github.com/shibataka000/go-get-release/internal/file"
 )
 
 // Asset in GitHub repository
@@ -16,7 +15,9 @@ type Asset interface {
 	Goos() (string, error)
 	Goarch() (string, error)
 	BinaryName() (string, error)
-	IsReleaseBinary() bool
+	ContainReleaseBinary() bool
+	IsArchived() bool
+	IsExecBinary() bool
 }
 
 type asset struct {
@@ -57,61 +58,78 @@ func (a *asset) BinaryName() (string, error) {
 	return fmt.Sprintf("%s%s", binaryName, ext), nil
 }
 
-// Goos return asset's goos which is guessed by asset name
+// Goos return asset's goos which is guessed from asset name
 func (a *asset) Goos() (string, error) {
-	name := strings.ToLower(a.Name())
-
-	gooses := listGoos()
-	sort.Slice(gooses, func(i, j int) bool { return len(gooses[i]) > len(gooses[j]) })
-	for _, goos := range gooses {
-		if strings.Contains(name, goos) {
-			return goos, nil
-		}
+	goos, err := findPlatform(a.Name(), goosMap)
+	if err != nil {
+		return "", fmt.Errorf("fail to guess GOOS from asset name: %s", a.Name())
 	}
-
-	switch {
-	case strings.Contains(name, "macos"):
-		return "darwin", nil
-	case strings.Contains(name, "osx"):
-		return "darwin", nil
-	case strings.Contains(name, "win"):
-		return "windows", nil
-	case strings.HasSuffix(name, ".exe"):
-		return "windows", nil
-	default:
-		return "", fmt.Errorf("fail to guess GOOS from asset name: %s", name)
-	}
+	return goos, nil
 }
 
-// Goarch return asset's goarch which is guessed by asset name
+// Goarch return asset's goarch which is guessed from asset name
 func (a *asset) Goarch() (string, error) {
-	name := strings.ToLower(a.Name())
-
-	goarches := listGoarch()
-	sort.Slice(goarches, func(i, j int) bool { return len(goarches[i]) > len(goarches[j]) })
-	for _, goarch := range goarches {
-		if strings.Contains(name, goarch) {
-			return goarch, nil
-		}
-	}
-
-	switch {
-	case strings.Contains(name, "x86_64"):
+	goarch, err := findPlatform(a.Name(), goarchMap)
+	if err != nil {
 		return "amd64", nil
-	default:
-		return "", fmt.Errorf("fail to guess GOARCH from asset name: %s", name)
 	}
+	return goarch, nil
 }
 
 // IsReleaseBinary return true if thish asset contain release binary
-func (a *asset) IsReleaseBinary() bool {
+func (a *asset) ContainReleaseBinary() bool {
+	return a.IsArchived() || a.IsExecBinary()
+}
+
+// IsArchived check asset name and return true if it is archive file
+func (a *asset) IsArchived() bool {
+	return hasExt(a.Name(), []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz"})
+}
+
+// IsExecBinary check asset name and return true if it is executable binary
+func (a *asset) IsExecBinary() bool {
 	name := strings.ReplaceAll(a.Name(), a.release.Version(), "")
+	exts := []string{"", ".exe"}
 	if a.repo.Owner() == "mozilla" && a.repo.Name() == "sops" {
-		gooses := listGoos()
-		for i := range gooses {
-			gooses[i] = fmt.Sprintf(".%s", gooses[i])
+		for goos := range goosMap {
+			exts = append(exts, fmt.Sprintf(".%s", goos))
 		}
-		return file.IsArchived(name) || file.IsExecBinary(name) || file.HasExt(name, gooses)
 	}
-	return file.IsArchived(name) || file.IsExecBinary(name)
+	return hasExt(name, exts)
+}
+
+// hasExt return true if 'name' have specific extension which is in 'exts'
+func hasExt(name string, exts []string) bool {
+	for _, ext := range exts {
+		if filepath.Ext(name) == ext {
+			return true
+		}
+	}
+	return false
+}
+
+// findPlatform find golang platform (GOOS/GOARCH) from platform map based on name.
+func findPlatform(name string, platform map[string][]string) (string, error) {
+	reversed := map[string]string{}
+	for key, values := range platform {
+		for _, value := range values {
+			reversed[value] = key
+		}
+	}
+	keys := []string{}
+	for key := range reversed {
+		keys = append(keys, key)
+	}
+	sort.Slice(keys, func(i, j int) bool { return len(keys[i]) > len(keys[j]) })
+
+	lowerName := strings.ToLower(name)
+	for _, key := range keys {
+		if strings.Contains(lowerName, key) {
+			if v, ok := reversed[key]; ok {
+				return v, nil
+			}
+			return "", fmt.Errorf("index error: %s is not in %v", key, reversed)
+		}
+	}
+	return "", fmt.Errorf("fail to guess go platform from name: %s", name)
 }

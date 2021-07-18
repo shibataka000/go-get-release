@@ -15,7 +15,6 @@ import (
 
 	"github.com/Songmu/prompter"
 	"github.com/cheggaaa/pb"
-	"github.com/shibataka000/go-get-release/internal/file"
 	"github.com/shibataka000/go-get-release/internal/github"
 )
 
@@ -50,7 +49,7 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 	}
 
 	var downloadBinaryPath string
-	if file.IsArchived(asset.Name()) {
+	if asset.IsArchived() {
 		err = extract(downloadFilePath, tempDir, binaryName)
 		if err != nil {
 			return err
