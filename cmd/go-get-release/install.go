@@ -15,6 +15,7 @@ import (
 
 	"github.com/Songmu/prompter"
 	"github.com/cheggaaa/pb"
+	"github.com/shibataka000/go-get-release/internal/file"
 	"github.com/shibataka000/go-get-release/internal/github"
 )
 
@@ -49,7 +50,7 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 	}
 
 	var downloadBinaryPath string
-	if isArchived(asset.Name()) {
+	if file.IsArchived(asset.Name()) {
 		err = extract(downloadFilePath, tempDir, binaryName)
 		if err != nil {
 			return err
@@ -296,17 +297,4 @@ func findFile(dir, fileName string) (string, error) {
 		return "", fmt.Errorf("%s is not found in %s", fileName, dir)
 	}
 	return filePath, nil
-}
-
-func isArchived(fileName string) bool {
-	return hasExt(fileName, []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz"})
-}
-
-func hasExt(name string, exts []string) bool {
-	for _, ext := range exts {
-		if filepath.Ext(name) == ext {
-			return true
-		}
-	}
-	return false
 }

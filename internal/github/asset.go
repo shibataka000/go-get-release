@@ -3,9 +3,10 @@ package github
 import (
 	"fmt"
 	"path"
-	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/shibataka000/go-get-release/internal/file"
 )
 
 // Asset in GitHub repository
@@ -27,8 +28,8 @@ type asset struct {
 
 // Name return asset name
 func (a *asset) Name() string {
-	_, file := path.Split(a.downloadURL)
-	return file
+	_, f := path.Split(a.downloadURL)
+	return f
 }
 
 // DownloadURL return asset's download URL
@@ -104,14 +105,13 @@ func (a *asset) Goarch() (string, error) {
 
 // IsReleaseBinary return true if thish asset contain release binary
 func (a *asset) IsReleaseBinary() bool {
-	return !hasExt(a.Name(), []string{".sha256", ".deb", ".rpm", ".msi", ".sig"})
-}
-
-func hasExt(name string, exts []string) bool {
-	for _, ext := range exts {
-		if filepath.Ext(name) == ext {
-			return true
+	name := strings.ReplaceAll(a.Name(), a.release.Version(), "")
+	if a.repo.Owner() == "mozilla" && a.repo.Name() == "sops" {
+		gooses := listGoos()
+		for i := range gooses {
+			gooses[i] = fmt.Sprintf(".%s", gooses[i])
 		}
+		return file.IsArchived(name) || file.IsExecBinary(name) || file.HasExt(name, gooses)
 	}
-	return false
+	return file.IsArchived(name) || file.IsExecBinary(name)
 }

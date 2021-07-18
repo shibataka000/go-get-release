@@ -16,6 +16,7 @@ import (
 // Release in GitHub repository
 type Release interface {
 	Tag() string
+	Version() string
 	Assets() ([]Asset, error)
 	Asset(name string) (Asset, error)
 	FindAssetByPlatform(goos string, goarch string) (Asset, error)
@@ -31,6 +32,11 @@ type release struct {
 // Tag return tag name of GitHub release
 func (r *release) Tag() string {
 	return r.tag
+}
+
+// Version return version string, which does not have 'v' prefix
+func (r *release) Version() string {
+	return strings.TrimLeft(r.Tag(), "v")
 }
 
 // Assets return assets in GitHub release
@@ -67,8 +73,7 @@ func (r *release) terraformAssets() ([]Asset, error) {
 	if err != nil {
 		return nil, err
 	}
-	version := strings.TrimLeft(r.tag, "v")
-	baseURL.Path = path.Join(baseURL.Path, "terraform", version)
+	baseURL.Path = path.Join(baseURL.Path, "terraform", r.Version())
 
 	doc, err := newGoqueryDocument(baseURL.String())
 	if err != nil {
@@ -208,8 +213,6 @@ func (r *release) renderPredefinedAssetName(goos, goarch string) (string, error)
 		return "", fmt.Errorf("unsupported GOOS and GOARCH: %s", key)
 	}
 
-	version := strings.TrimLeft(r.tag, "v")
-
 	buf := new(bytes.Buffer)
 	tmpl, err := template.New("assetName").Parse(tmplStr)
 	if err != nil {
@@ -222,7 +225,7 @@ func (r *release) renderPredefinedAssetName(goos, goarch string) (string, error)
 		Goarch  string
 	}{
 		Tag:     r.tag,
-		Version: version,
+		Version: r.Version(),
 		Goos:    goos,
 		Goarch:  goarch,
 	})
