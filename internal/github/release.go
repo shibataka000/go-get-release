@@ -39,14 +39,18 @@ func (r *release) Version() string {
 	return strings.TrimLeft(r.Tag(), "v")
 }
 
-// Assets return assets in GitHub release
+// Assets return assets in release
 func (r *release) Assets() ([]Asset, error) {
 	if r.repo.Owner() == "hashicorp" && r.repo.Name() == "terraform" {
 		return r.terraformAssets()
 	} else if r.repo.Owner() == "helm" && r.repo.Name() == "helm" {
 		return r.helmAssets()
 	}
+	return r.assets()
+}
 
+// assets return assets in GitHub release
+func (r *release) assets() ([]Asset, error) {
 	c := r.client
 	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, r.repo.owner, r.repo.name, r.id, &github.ListOptions{
 		PerPage: 100,
@@ -88,21 +92,21 @@ func (r *release) terraformAssets() ([]Asset, error) {
 		}
 	})
 
-	assets := []Asset{}
+	results := []Asset{}
 	for _, assetName := range assetNames {
 		downloadURL, err := url.Parse(baseURL.String())
 		if err != nil {
 			return nil, err
 		}
 		downloadURL.Path = path.Join(downloadURL.Path, assetName)
-		assets = append(assets, &asset{
+		results = append(results, &asset{
 			client:      r.client,
 			repo:        r.repo,
 			release:     r,
 			downloadURL: downloadURL.String(),
 		})
 	}
-	return assets, nil
+	return results, nil
 }
 
 // newGoqueryDocument return new goquery.Document object by URL
@@ -120,22 +124,19 @@ func newGoqueryDocument(url string) (*goquery.Document, error) {
 
 // helmAssets return helm/helm's assets
 func (r *release) helmAssets() ([]Asset, error) {
-	c := r.client
-	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, r.repo.owner, r.repo.name, r.id, &github.ListOptions{
-		PerPage: 100,
-	})
+	baseURL, err := url.Parse("https://get.helm.sh")
 	if err != nil {
 		return nil, err
 	}
 
-	baseURL, err := url.Parse("https://get.helm.sh")
+	assets, err := r.assets()
 	if err != nil {
 		return nil, err
 	}
 
 	result := []Asset{}
 	for _, a := range assets {
-		assetName := strings.TrimRight(a.GetName(), ".asc")
+		assetName := strings.TrimRight(a.Name(), ".asc")
 		if strings.Contains(assetName, "sha256") {
 			continue
 		}
