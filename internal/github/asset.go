@@ -76,7 +76,7 @@ func (a *asset) Goarch() (string, error) {
 	return goarch, nil
 }
 
-// IsReleaseBinary return true if thish asset contain release binary
+// ContainReleaseBinary return true if this asset contain release binary
 func (a *asset) ContainReleaseBinary() bool {
 	return a.IsArchived() || a.IsExecBinary()
 }
