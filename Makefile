@@ -36,6 +36,9 @@ install:
 release:
 	gox $(BUILD_ARGS) -osarch $(GOX_OSARCH) -output $(GOX_OUTPUT) $(BUILD_TARGET)
 
-ci: checkfmt lint test build
+mod:
+	go mod tidy
 
-.PHONY: default setup fmt checkfmt lint test build install release ci
+ci: mod checkfmt lint test build
+
+.PHONY: default setup fmt checkfmt lint test build install release mod ci
