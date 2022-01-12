@@ -31,8 +31,8 @@ type release struct {
 	id     int64
 }
 
-// TeleportReleasesOutput is response from https://dashboard.gravitational.com/webapi/releases-oss
-type TeleportReleasesOutput struct {
+// TeleportReleasesResponse is response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportReleasesResponse struct {
 	Next  int               `json:"next"`
 	Last  int               `json:"last"`
 	Items []TeleportRelease `json:"items"`
@@ -204,17 +204,17 @@ func (r *release) teleportAssets() ([]Asset, error) {
 			return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
 		}
 
-		var out TeleportReleasesOutput
+		var response TeleportReleasesResponse
 		body, err := ioutil.ReadAll(res.Body)
 		if err != nil {
 			return nil, err
 		}
-		err = json.Unmarshal(body, &out)
+		err = json.Unmarshal(body, &response)
 		if err != nil {
 			return nil, err
 		}
 
-		for _, tr := range out.Items {
+		for _, tr := range response.Items {
 			if tr.Version == r.Tag() {
 				teleportRelease = tr
 				found = true
@@ -222,11 +222,11 @@ func (r *release) teleportAssets() ([]Asset, error) {
 			}
 		}
 
-		if found || out.Last == page {
+		if found || response.Last == page {
 			break
 		}
 
-		page = out.Next
+		page = response.Next
 	}
 
 	if !found {
