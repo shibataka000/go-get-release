@@ -31,6 +31,7 @@ type release struct {
 	id     int64
 }
 
+// TeleportReleasesOutput is response from https://dashboard.gravitational.com/webapi/releases-oss
 type TeleportReleasesOutput struct {
 	Next       int               `json:"next"`
 	Prev       int               `json:"prev"`
@@ -40,6 +41,7 @@ type TeleportReleasesOutput struct {
 	Prerelease bool              `json:"prerelease"`
 }
 
+// TeleportRelease is part of response from https://dashboard.gravitational.com/webapi/releases-oss
 type TeleportRelease struct {
 	ID          string          `json:"id"`
 	Version     string          `json:"version"`
@@ -48,6 +50,7 @@ type TeleportRelease struct {
 	Downloads   []TeleportAsset `json:"downloads"`
 }
 
+// TeleportAsset is part of response from https://dashboard.gravitational.com/webapi/releases-oss
 type TeleportAsset struct {
 	Name        string `json:"name"`
 	URL         string `json:"url"`
