@@ -753,6 +753,34 @@ func TestFindAssetByPlatform(t *testing.T) {
 			downloadURL: "https://github.com/starship/starship/releases/download/v0.47.0/starship-x86_64-pc-windows-msvc.zip",
 			binaryName:  "starship.exe",
 		},
+		// gravitational/teleport
+		{
+			owner:       "gravitational",
+			repo:        "teleport",
+			tag:         "v8.1.0",
+			goos:        "linux",
+			goarch:      "amd64",
+			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-linux-amd64-bin.tar.gz",
+			binaryName:  "tsh",
+		},
+		{
+			owner:       "gravitational",
+			repo:        "teleport",
+			tag:         "v8.1.0",
+			goos:        "darwin",
+			goarch:      "amd64",
+			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-darwin-amd64-bin.tar.gz",
+			binaryName:  "tsh",
+		},
+		{
+			owner:       "gravitational",
+			repo:        "teleport",
+			tag:         "v8.1.0",
+			goos:        "windows",
+			goarch:      "amd64",
+			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-windows-amd64-bin.zip",
+			binaryName:  "tsh.exe",
+		},
 		// viaduct-ai/kustomize-sops
 		{
 			owner:       "viaduct-ai",

@@ -41,12 +41,16 @@ func (r *release) Version() string {
 
 // Assets return assets in release
 func (r *release) Assets() ([]Asset, error) {
-	if r.repo.Owner() == "hashicorp" && r.repo.Name() == "terraform" {
+	switch {
+	case r.repo.Owner() == "hashicorp" && r.repo.Name() == "terraform":
 		return r.terraformAssets()
-	} else if r.repo.Owner() == "helm" && r.repo.Name() == "helm" {
+	case r.repo.Owner() == "helm" && r.repo.Name() == "helm":
 		return r.helmAssets()
+	case r.repo.Owner() == "gravitational" && r.repo.Name() == "teleport":
+		return r.teleportAssets()
+	default:
+		return r.assets()
 	}
-	return r.assets()
 }
 
 // assets return assets in GitHub release
@@ -150,6 +154,77 @@ func (r *release) helmAssets() ([]Asset, error) {
 			repo:        r.repo,
 			release:     r,
 			downloadURL: downloadURL.String(),
+		})
+	}
+	return result, nil
+}
+
+// helmAssets return gravitational/teleport's assets
+func (r *release) teleportAssets() ([]Asset, error) {
+	assetNames := []string{
+		// Linux 32-bit
+		"teleport-v{{.Version}}-linux-386-bin.tar.gz",
+		// Linux 64-bit
+		"teleport-v{{.Version}}-linux-amd64-bin.tar.gz",
+		// Linux ARMv7 (32-bit)
+		"teleport-v{{.Version}}-linux-arm-bin.tar.gz",
+		// Linux ARM64/ARMv8 (64-bit)
+		"teleport-v{{.Version}}-linux-arm64-bin.tar.gz",
+		// Linux 64-bit (RHEL/CentOS 6.x compatible)
+		"teleport-v{{.Version}}-linux-amd64-centos6-bin.tar.gz",
+		// Linux 64-bit (RHEL/CentOS 7.x compatible)
+		"teleport-v{{.Version}}-linux-amd64-centos7-bin.tar.gz",
+
+		// Linux 32-bit DEB
+		"teleport_{{.Version}}_i386.deb",
+		// Linux 64-bit DEB
+		"teleport_{{.Version}}_amd64.deb",
+		// Linux ARMv7 DEB (32-bit)
+		"teleport_{{.Version}}_arm.deb",
+		// Linux ARM64/ARMv8 DEB (64-bit)
+		"teleport_{{.Version}}_arm64.deb",
+
+		// Linux 32-bit RPM
+		"teleport-{{.Version}}-1.i386.rpm",
+		// Linux 64-bit RPM
+		"teleport-{{.Version}}-1.x86_64.rpm",
+		// Linux ARMv7 RPM (32-bit)
+		"teleport-{{.Version}}-1.arm.rpm",
+		// Linux ARM64/ARMv8 RPM (64-bit)
+		"teleport-{{.Version}}-1.arm64.rpm",
+
+		// MacOS
+		"teleport-v{{.Version}}-darwin-amd64-bin.tar.gz",
+		// MacOS .pkg installer
+		"teleport-{{.Version}}.pkg",
+		// MacOS .pkg installer (tsh client only, signed)
+		"tsh-{{.Version}}.pkg",
+
+		// Windows (64-bit, tsh client only)
+		"teleport-v{{.Version}}-windows-amd64-bin.zip",
+	}
+
+	result := []Asset{}
+	for _, tmplStr := range assetNames {
+		buf := new(bytes.Buffer)
+		tmpl, err := template.New("assetName").Parse(tmplStr)
+		if err != nil {
+			return nil, err
+		}
+		err = tmpl.Execute(buf, struct {
+			Version string
+		}{
+			Version: r.Version(),
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, &asset{
+			client:      r.client,
+			repo:        r.repo,
+			release:     r,
+			downloadURL: fmt.Sprintf("https://get.gravitational.com/%s", buf.String()),
 		})
 	}
 	return result, nil

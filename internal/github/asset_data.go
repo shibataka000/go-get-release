@@ -53,6 +53,10 @@ var assetNameMap = map[string]map[string]string{
 	"starship/starship": {
 		"linux/amd64": "starship-x86_64-unknown-linux-gnu.tar.gz",
 	},
+	"gravitational/teleport": {
+		"default":       "teleport-{{.Tag}}-{{.Goos}}-{{.Goarch}}-bin.tar.gz",
+		"windows/amd64": "teleport-{{.Tag}}-{{.Goos}}-{{.Goarch}}-bin.zip",
+	},
 	"viaduct-ai/kustomize-sops": {
 		"linux/amd64":   "ksops_{{.Version}}_Linux_x86_64.tar.gz",
 		"darwin/amd64":  "ksops_{{.Version}}_Darwin_x86_64.tar.gz",
@@ -72,5 +76,6 @@ var binaryNameMap = map[string]string{
 	"fluxcd/flux2":                     "flux",
 	"istio/istio":                      "istioctl",
 	"protocolbuffers/protobuf":         "protoc",
+	"gravitational/teleport":           "tsh",
 	"viaduct-ai/kustomize-sops":        "ksops",
 }
