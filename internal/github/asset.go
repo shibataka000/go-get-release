@@ -83,7 +83,7 @@ func (a *asset) ContainReleaseBinary() bool {
 
 // IsArchived check asset name and return true if it is archive file
 func (a *asset) IsArchived() bool {
-	return hasExt(a.Name(), []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz"})
+	return hasExt(a.Name(), []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz", ".xz"})
 }
 
 // IsExecBinary check asset name and return true if it is executable binary

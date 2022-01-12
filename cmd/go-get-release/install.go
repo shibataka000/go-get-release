@@ -16,6 +16,7 @@ import (
 	"github.com/Songmu/prompter"
 	"github.com/cheggaaa/pb"
 	"github.com/shibataka000/go-get-release/internal/github"
+	"github.com/ulikunitz/xz"
 )
 
 func install(name, token, goos, goarch, dir string, showPrompt bool) error {
@@ -150,15 +151,18 @@ func downloadFile(url, filePath string, showProgress bool) error {
 }
 
 func extract(srcFile, dstDir, dstFile string) error {
-	if strings.HasSuffix(srcFile, ".zip") {
+	switch {
+	case strings.HasSuffix(srcFile, ".zip"):
 		return extractZip(srcFile, dstDir)
-	} else if strings.HasSuffix(srcFile, ".tar.gz") {
+	case strings.HasSuffix(srcFile, ".tar.gz"):
 		return extractTarGz(srcFile, dstDir)
-	} else if strings.HasSuffix(srcFile, ".tgz") {
+	case strings.HasSuffix(srcFile, ".tgz"):
 		return extractTarGz(srcFile, dstDir)
-	} else if strings.HasSuffix(srcFile, ".gz") {
-		return extractGz(srcFile, dstDir, dstFile)
-	} else {
+	case strings.HasSuffix(srcFile, ".tar.xz"):
+		return extractTarXz(srcFile, dstDir)
+	case strings.HasSuffix(srcFile, ".gz"):
+		return extractGz(srcFile, filepath.Join(dstDir, dstFile))
+	default:
 		return fmt.Errorf("unexpected archive type: %s", srcFile)
 	}
 }
@@ -198,19 +202,8 @@ func extractZip(srcFile, dstDir string) error {
 	return nil
 }
 
-func extractTarGz(srcFile, dstDir string) error {
-	inFile, err := os.Open(srcFile)
-	if err != nil {
-		return err
-	}
-	defer inFile.Close()
-
-	uncompressedStream, err := gzip.NewReader(inFile)
-	if err != nil {
-		return err
-	}
-
-	tarReader := tar.NewReader(uncompressedStream)
+func extractTar(in io.Reader, dstDir string) error {
+	tarReader := tar.NewReader(in)
 
 	for {
 		header, err := tarReader.Next()
@@ -246,21 +239,51 @@ func extractTarGz(srcFile, dstDir string) error {
 				return err
 			}
 		default:
-			return fmt.Errorf("fail to extract .tag.gz file: %s %v", header.Name, header.Typeflag)
+			return fmt.Errorf("fail to extract tarball: %s %v", header.Name, header.Typeflag)
 		}
 	}
 
 	return nil
 }
 
-func extractGz(srcFile, dstDir, dstFile string) error {
+func extractTarGz(srcFile, dstDir string) error {
 	in, err := os.Open(srcFile)
 	if err != nil {
 		return err
 	}
 	defer in.Close()
 
-	out, err := os.Create(filepath.Join(dstDir, dstFile))
+	uncompressedStream, err := gzip.NewReader(in)
+	if err != nil {
+		return err
+	}
+
+	return extractTar(uncompressedStream, dstDir)
+}
+
+func extractTarXz(srcFile, dstDir string) error {
+	in, err := os.Open(srcFile)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	uncompressedStream, err := xz.NewReader(in)
+	if err != nil {
+		return err
+	}
+
+	return extractTar(uncompressedStream, dstDir)
+}
+
+func extractGz(srcFile, dstFile string) error {
+	in, err := os.Open(srcFile)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dstFile)
 	if err != nil {
 		return err
 	}
