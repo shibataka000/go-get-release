@@ -134,7 +134,7 @@ func TestAsset(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -829,7 +829,7 @@ func TestFindAssetByPlatform(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			asset, err := release.FindAssetByPlatform(tt.goos, tt.goarch)
+			asset, err := release.AssetByPlatform(tt.goos, tt.goarch)
 			if err != nil {
 				t.Fatal(err)
 			}

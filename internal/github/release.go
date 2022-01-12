@@ -20,8 +20,8 @@ type Release interface {
 	Tag() string
 	Version() string
 	Assets() ([]Asset, error)
-	Asset(name string) (Asset, error)
-	FindAssetByPlatform(goos string, goarch string) (Asset, error)
+	AssetByName(name string) (Asset, error)
+	AssetByPlatform(goos string, goarch string) (Asset, error)
 }
 
 type release struct {
@@ -33,29 +33,20 @@ type release struct {
 
 // TeleportReleasesOutput is response from https://dashboard.gravitational.com/webapi/releases-oss
 type TeleportReleasesOutput struct {
-	Next       int               `json:"next"`
-	Prev       int               `json:"prev"`
-	First      int               `json:"first"`
-	Last       int               `json:"last"`
-	Items      []TeleportRelease `json:"items"`
-	Prerelease bool              `json:"prerelease"`
+	Next  int               `json:"next"`
+	Last  int               `json:"last"`
+	Items []TeleportRelease `json:"items"`
 }
 
 // TeleportRelease is part of response from https://dashboard.gravitational.com/webapi/releases-oss
 type TeleportRelease struct {
-	ID          string          `json:"id"`
-	Version     string          `json:"version"`
-	Description string          `json:"description"`
-	PublishedAt string          `json:"publishedAt"`
-	Downloads   []TeleportAsset `json:"downloads"`
+	Version   string          `json:"version"`
+	Downloads []TeleportAsset `json:"downloads"`
 }
 
 // TeleportAsset is part of response from https://dashboard.gravitational.com/webapi/releases-oss
 type TeleportAsset struct {
-	Name        string `json:"name"`
-	URL         string `json:"url"`
-	DisplaySize string `json:"displaySize"`
-	Sha256      string `json:"sha256"`
+	URL string `json:"url"`
 }
 
 // Tag return tag name of GitHub release
@@ -78,12 +69,12 @@ func (r *release) Assets() ([]Asset, error) {
 	case r.repo.Owner() == "gravitational" && r.repo.Name() == "teleport":
 		return r.teleportAssets()
 	default:
-		return r.assets()
+		return r.githubAssets()
 	}
 }
 
-// assets return assets in GitHub release
-func (r *release) assets() ([]Asset, error) {
+// githubAssets return assets in GitHub release
+func (r *release) githubAssets() ([]Asset, error) {
 	c := r.client
 	assets, _, err := c.client.Repositories.ListReleaseAssets(c.ctx, r.repo.owner, r.repo.name, r.id, &github.ListOptions{
 		PerPage: 100,
@@ -112,7 +103,17 @@ func (r *release) terraformAssets() ([]Asset, error) {
 	}
 	baseURL.Path = path.Join(baseURL.Path, "terraform", r.Version())
 
-	doc, err := newGoqueryDocument(baseURL.String())
+	res, err := http.Get(baseURL.String())
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	if res.StatusCode != 200 {
+		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -142,19 +143,6 @@ func (r *release) terraformAssets() ([]Asset, error) {
 	return results, nil
 }
 
-// newGoqueryDocument return new goquery.Document object by URL
-func newGoqueryDocument(url string) (*goquery.Document, error) {
-	res, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer res.Body.Close()
-	if res.StatusCode != 200 {
-		return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
-	}
-	return goquery.NewDocumentFromReader(res.Body)
-}
-
 // helmAssets return helm/helm's assets
 func (r *release) helmAssets() ([]Asset, error) {
 	baseURL, err := url.Parse("https://get.helm.sh")
@@ -162,7 +150,7 @@ func (r *release) helmAssets() ([]Asset, error) {
 		return nil, err
 	}
 
-	assets, err := r.assets()
+	assets, err := r.githubAssets()
 	if err != nil {
 		return nil, err
 	}
@@ -242,7 +230,7 @@ func (r *release) teleportAssets() ([]Asset, error) {
 	}
 
 	if !found {
-		return nil, fmt.Errorf("not found")
+		return nil, fmt.Errorf("no teleport release found")
 	}
 
 	result := []Asset{}
@@ -257,8 +245,8 @@ func (r *release) teleportAssets() ([]Asset, error) {
 	return result, nil
 }
 
-// Asset return asset which have specific name
-func (r *release) Asset(name string) (Asset, error) {
+// AssetByName return asset which have specific name
+func (r *release) AssetByName(name string) (Asset, error) {
 	assets, err := r.Assets()
 	if err != nil {
 		return nil, err
@@ -271,14 +259,21 @@ func (r *release) Asset(name string) (Asset, error) {
 	return nil, fmt.Errorf("no asset found: %s", name)
 }
 
-// FindAssetByPlatform return asset which have specific goos and goarch
-func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
-	assetName, err := r.renderPredefinedAssetName(goos, goarch)
-	if err == nil {
-		return r.Asset(assetName)
+// AssetByPlatform return asset which have specific goos and goarch
+func (r *release) AssetByPlatform(goos, goarch string) (Asset, error) {
+	if r.hasPredefinedAssetName(goos, goarch) {
+		assetName, err := r.predefinedAssetName(goos, goarch)
+		if err != nil {
+			return nil, err
+		}
+		return r.AssetByName(assetName)
 	}
 
-	assets, err := r.listAssetsFilteredByPlatform(goos, goarch)
+	assets, err := r.Assets()
+	if err != nil {
+		return nil, err
+	}
+	assets, err = filterAssetsByPlatform(assets, goos, goarch)
 	if err != nil {
 		return nil, err
 	}
@@ -304,8 +299,14 @@ func (r *release) FindAssetByPlatform(goos, goarch string) (Asset, error) {
 	}
 }
 
-// renderPredefinedAssetName return asset name which is predefined in assetNameMap
-func (r *release) renderPredefinedAssetName(goos, goarch string) (string, error) {
+// hasPredefinedAssetName return true if asset name is predefined in assetNameMap
+func (r *release) hasPredefinedAssetName(goos, goarch string) bool {
+	_, err := r.predefinedAssetName(goos, goarch)
+	return err == nil
+}
+
+// predefinedAssetName return predefined asset name in assetNameMap
+func (r *release) predefinedAssetName(goos, goarch string) (string, error) {
 	key := fmt.Sprintf("%s/%s", r.repo.Owner(), r.repo.Name())
 	tmplMap, ok := assetNameMap[key]
 	if !ok {
@@ -347,13 +348,9 @@ func (r *release) renderPredefinedAssetName(goos, goarch string) (string, error)
 	return buf.String(), nil
 }
 
-// listAssetsFilteredByPlatform return assets which have specific goos and goarch
-func (r *release) listAssetsFilteredByPlatform(goos, goarch string) ([]Asset, error) {
+// filterAssetsByPlatform return assets which have specific goos and goarch
+func filterAssetsByPlatform(assets []Asset, goos, goarch string) ([]Asset, error) {
 	var result []Asset
-	assets, err := r.Assets()
-	if err != nil {
-		return nil, err
-	}
 	for _, a := range assets {
 		if !a.ContainReleaseBinary() {
 			continue

@@ -38,7 +38,7 @@ func TestAssetName(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -100,7 +100,7 @@ func TestBinaryName(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -179,7 +179,7 @@ func TestGoosAndGoarch(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -265,7 +265,7 @@ func TestContainReleaseBinary(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -319,7 +319,7 @@ func TestIsArchived(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -381,7 +381,7 @@ func TestIsExecBinary(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			asset, err := release.Asset(tt.assetName)
+			asset, err := release.AssetByName(tt.assetName)
 			if err != nil {
 				t.Fatal(err)
 			}
