@@ -111,7 +111,7 @@ func findAsset(name, token, goos, goarch string) (github.Repository, github.Rele
 		return nil, nil, nil, err
 	}
 
-	asset, err := release.FindAssetByPlatform(goos, goarch)
+	asset, err := release.AssetByPlatform(goos, goarch)
 	if err != nil {
 		return nil, nil, nil, err
 	}
