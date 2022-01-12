@@ -2,7 +2,9 @@ package github
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
@@ -29,6 +31,33 @@ type release struct {
 	id     int64
 }
 
+// TeleportReleasesOutput is response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportReleasesOutput struct {
+	Next       int               `json:"next"`
+	Prev       int               `json:"prev"`
+	First      int               `json:"first"`
+	Last       int               `json:"last"`
+	Items      []TeleportRelease `json:"items"`
+	Prerelease bool              `json:"prerelease"`
+}
+
+// TeleportRelease is part of response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportRelease struct {
+	ID          string          `json:"id"`
+	Version     string          `json:"version"`
+	Description string          `json:"description"`
+	PublishedAt string          `json:"publishedAt"`
+	Downloads   []TeleportAsset `json:"downloads"`
+}
+
+// TeleportAsset is part of response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportAsset struct {
+	Name        string `json:"name"`
+	URL         string `json:"url"`
+	DisplaySize string `json:"displaySize"`
+	Sha256      string `json:"sha256"`
+}
+
 // Tag return tag name of GitHub release
 func (r *release) Tag() string {
 	return r.tag
@@ -41,12 +70,16 @@ func (r *release) Version() string {
 
 // Assets return assets in release
 func (r *release) Assets() ([]Asset, error) {
-	if r.repo.Owner() == "hashicorp" && r.repo.Name() == "terraform" {
+	switch {
+	case r.repo.Owner() == "hashicorp" && r.repo.Name() == "terraform":
 		return r.terraformAssets()
-	} else if r.repo.Owner() == "helm" && r.repo.Name() == "helm" {
+	case r.repo.Owner() == "helm" && r.repo.Name() == "helm":
 		return r.helmAssets()
+	case r.repo.Owner() == "gravitational" && r.repo.Name() == "teleport":
+		return r.teleportAssets()
+	default:
+		return r.assets()
 	}
-	return r.assets()
 }
 
 // assets return assets in GitHub release
@@ -150,6 +183,75 @@ func (r *release) helmAssets() ([]Asset, error) {
 			repo:        r.repo,
 			release:     r,
 			downloadURL: downloadURL.String(),
+		})
+	}
+	return result, nil
+}
+
+// teleportAssets return gravitational/teleport's assets
+func (r *release) teleportAssets() ([]Asset, error) {
+	var teleportRelease TeleportRelease
+	found := false
+
+	page := 0
+	for {
+		req, err := http.NewRequest("GET", "https://dashboard.gravitational.com/webapi/releases-oss", nil)
+		if err != nil {
+			return nil, err
+		}
+
+		params := req.URL.Query()
+		params.Add("product", "teleport")
+		params.Add("page", fmt.Sprintf("%d", page))
+		req.URL.RawQuery = params.Encode()
+
+		client := &http.Client{}
+		res, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Body.Close()
+
+		if res.StatusCode != 200 {
+			return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+		}
+
+		var out TeleportReleasesOutput
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(body, &out)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, tr := range out.Items {
+			if tr.Version == r.Tag() {
+				teleportRelease = tr
+				found = true
+				break
+			}
+		}
+
+		if found || out.Last == page {
+			break
+		}
+
+		page = out.Next
+	}
+
+	if !found {
+		return nil, fmt.Errorf("not found")
+	}
+
+	result := []Asset{}
+	for _, a := range teleportRelease.Downloads {
+		result = append(result, &asset{
+			client:      r.client,
+			repo:        r.repo,
+			release:     r,
+			downloadURL: a.URL,
 		})
 	}
 	return result, nil
