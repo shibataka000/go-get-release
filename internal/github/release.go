@@ -2,7 +2,9 @@ package github
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"path"
@@ -27,6 +29,30 @@ type release struct {
 	repo   *repository
 	tag    string
 	id     int64
+}
+
+type TeleportReleasesOutput struct {
+	Next       int               `json:"next"`
+	Prev       int               `json:"prev"`
+	First      int               `json:"first"`
+	Last       int               `json:"last"`
+	Items      []TeleportRelease `json:"items"`
+	Prerelease bool              `json:"prerelease"`
+}
+
+type TeleportRelease struct {
+	ID          string          `json:"id"`
+	Version     string          `json:"version"`
+	Description string          `json:"description"`
+	PublishedAt string          `json:"publishedAt"`
+	Downloads   []TeleportAsset `json:"downloads"`
+}
+
+type TeleportAsset struct {
+	Name        string `json:"name"`
+	URL         string `json:"url"`
+	DisplaySize string `json:"displaySize"`
+	Sha256      string `json:"sha256"`
 }
 
 // Tag return tag name of GitHub release
@@ -159,72 +185,70 @@ func (r *release) helmAssets() ([]Asset, error) {
 	return result, nil
 }
 
-// helmAssets return gravitational/teleport's assets
+// teleportAssets return gravitational/teleport's assets
 func (r *release) teleportAssets() ([]Asset, error) {
-	assetNames := []string{
-		// Linux 32-bit
-		"teleport-v{{.Version}}-linux-386-bin.tar.gz",
-		// Linux 64-bit
-		"teleport-v{{.Version}}-linux-amd64-bin.tar.gz",
-		// Linux ARMv7 (32-bit)
-		"teleport-v{{.Version}}-linux-arm-bin.tar.gz",
-		// Linux ARM64/ARMv8 (64-bit)
-		"teleport-v{{.Version}}-linux-arm64-bin.tar.gz",
-		// Linux 64-bit (RHEL/CentOS 6.x compatible)
-		"teleport-v{{.Version}}-linux-amd64-centos6-bin.tar.gz",
-		// Linux 64-bit (RHEL/CentOS 7.x compatible)
-		"teleport-v{{.Version}}-linux-amd64-centos7-bin.tar.gz",
+	var teleportRelease TeleportRelease
+	found := false
 
-		// Linux 32-bit DEB
-		"teleport_{{.Version}}_i386.deb",
-		// Linux 64-bit DEB
-		"teleport_{{.Version}}_amd64.deb",
-		// Linux ARMv7 DEB (32-bit)
-		"teleport_{{.Version}}_arm.deb",
-		// Linux ARM64/ARMv8 DEB (64-bit)
-		"teleport_{{.Version}}_arm64.deb",
+	page := 0
+	for {
+		req, err := http.NewRequest("GET", "https://dashboard.gravitational.com/webapi/releases-oss", nil)
+		if err != nil {
+			return nil, err
+		}
 
-		// Linux 32-bit RPM
-		"teleport-{{.Version}}-1.i386.rpm",
-		// Linux 64-bit RPM
-		"teleport-{{.Version}}-1.x86_64.rpm",
-		// Linux ARMv7 RPM (32-bit)
-		"teleport-{{.Version}}-1.arm.rpm",
-		// Linux ARM64/ARMv8 RPM (64-bit)
-		"teleport-{{.Version}}-1.arm64.rpm",
+		params := req.URL.Query()
+		params.Add("product", "teleport")
+		params.Add("page", fmt.Sprintf("%d", page))
+		req.URL.RawQuery = params.Encode()
 
-		// MacOS
-		"teleport-v{{.Version}}-darwin-amd64-bin.tar.gz",
-		// MacOS .pkg installer
-		"teleport-{{.Version}}.pkg",
-		// MacOS .pkg installer (tsh client only, signed)
-		"tsh-{{.Version}}.pkg",
+		client := &http.Client{}
+		res, err := client.Do(req)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Body.Close()
 
-		// Windows (64-bit, tsh client only)
-		"teleport-v{{.Version}}-windows-amd64-bin.zip",
+		if res.StatusCode != 200 {
+			return nil, fmt.Errorf("status code error: %d %s", res.StatusCode, res.Status)
+		}
+
+		var out TeleportReleasesOutput
+		body, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			return nil, err
+		}
+		err = json.Unmarshal(body, &out)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, tr := range out.Items {
+			if tr.Version == r.Tag() {
+				teleportRelease = tr
+				found = true
+				break
+			}
+		}
+
+		if found || out.Last == page {
+			break
+		}
+
+		page = out.Next
+	}
+
+	if !found {
+		return nil, fmt.Errorf("not found")
 	}
 
 	result := []Asset{}
-	for _, tmplStr := range assetNames {
-		buf := new(bytes.Buffer)
-		tmpl, err := template.New("assetName").Parse(tmplStr)
-		if err != nil {
-			return nil, err
-		}
-		err = tmpl.Execute(buf, struct {
-			Version string
-		}{
-			Version: r.Version(),
-		})
-		if err != nil {
-			return nil, err
-		}
-
+	for _, a := range teleportRelease.Downloads {
 		result = append(result, &asset{
 			client:      r.client,
 			repo:        r.repo,
 			release:     r,
-			downloadURL: fmt.Sprintf("https://get.gravitational.com/%s", buf.String()),
+			downloadURL: a.URL,
 		})
 	}
 	return result, nil
