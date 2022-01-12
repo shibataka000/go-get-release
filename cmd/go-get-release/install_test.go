@@ -42,6 +42,10 @@ func TestInstall(t *testing.T) {
 			name:          "buildpacks/pack",
 			verifyCommand: []string{"pack", "--version"},
 		},
+		{
+			name:          "koalaman/shellcheck",
+			verifyCommand: []string{"shellcheck", "--version"},
+		},
 	}
 
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")

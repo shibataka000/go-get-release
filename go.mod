@@ -9,6 +9,7 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
+	github.com/ulikunitz/xz v0.5.10
 	github.com/urfave/cli/v2 v2.1.1
 	golang.org/x/net v0.0.0-20210716203947-853a461950ff // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
