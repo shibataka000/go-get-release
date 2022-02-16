@@ -38,6 +38,10 @@ var goarchMap = map[string][]string{
 }
 
 var assetNameMap = map[string]map[string]string{
+	"aquasecurity/tfsec": {
+		"default":       "tfsec-{{.Goos}}-{{.Goarch}}",
+		"windows/amd64": "tfsec-{{.Goos}}-{{.Goarch}}.exe",
+	},
 	"argoproj/argo-cd": {
 		"default":       "argocd-{{.Goos}}-{{.Goarch}}",
 		"windows/amd64": "argocd-{{.Goos}}-{{.Goarch}}.exe",
