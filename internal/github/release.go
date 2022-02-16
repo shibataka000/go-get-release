@@ -31,24 +31,6 @@ type release struct {
 	id     int64
 }
 
-// TeleportReleasesResponse is response from https://dashboard.gravitational.com/webapi/releases-oss
-type TeleportReleasesResponse struct {
-	Next  int               `json:"next"`
-	Last  int               `json:"last"`
-	Items []TeleportRelease `json:"items"`
-}
-
-// TeleportRelease is part of response from https://dashboard.gravitational.com/webapi/releases-oss
-type TeleportRelease struct {
-	Version   string          `json:"version"`
-	Downloads []TeleportAsset `json:"downloads"`
-}
-
-// TeleportAsset is part of response from https://dashboard.gravitational.com/webapi/releases-oss
-type TeleportAsset struct {
-	URL string `json:"url"`
-}
-
 // Tag return tag name of GitHub release
 func (r *release) Tag() string {
 	return r.tag
@@ -174,6 +156,24 @@ func (r *release) helmAssets() ([]Asset, error) {
 		})
 	}
 	return result, nil
+}
+
+// TeleportReleasesResponse is response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportReleasesResponse struct {
+	Next  int               `json:"next"`
+	Last  int               `json:"last"`
+	Items []TeleportRelease `json:"items"`
+}
+
+// TeleportRelease is part of response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportRelease struct {
+	Version   string          `json:"version"`
+	Downloads []TeleportAsset `json:"downloads"`
+}
+
+// TeleportAsset is part of response from https://dashboard.gravitational.com/webapi/releases-oss
+type TeleportAsset struct {
+	URL string `json:"url"`
 }
 
 // teleportAssets return gravitational/teleport's assets
