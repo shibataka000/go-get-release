@@ -33,11 +33,6 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 		fmt.Println()
 	}
 
-	binaryName, err := asset.BinaryName()
-	if err != nil {
-		return err
-	}
-
 	tempDir, err := ioutil.TempDir("", "go-get-release-")
 	if err != nil {
 		return err
@@ -45,6 +40,11 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 
 	downloadFilePath := filepath.Join(tempDir, asset.Name())
 	err = downloadFile(asset.DownloadURL(), downloadFilePath, showPrompt)
+	if err != nil {
+		return err
+	}
+
+	binaryName, err := asset.BinaryName()
 	if err != nil {
 		return err
 	}
@@ -150,7 +150,7 @@ func downloadFile(url, filePath string, showProgress bool) error {
 	return err
 }
 
-func extract(srcFile, dstDir, dstFile string) error {
+func extract(srcFile, dstDir, dstFileName string) error {
 	switch {
 	case strings.HasSuffix(srcFile, ".zip"):
 		return extractZip(srcFile, dstDir)
@@ -161,7 +161,7 @@ func extract(srcFile, dstDir, dstFile string) error {
 	case strings.HasSuffix(srcFile, ".tar.xz"):
 		return extractTarXz(srcFile, dstDir)
 	case strings.HasSuffix(srcFile, ".gz"):
-		return extractGz(srcFile, filepath.Join(dstDir, dstFile))
+		return extractGz(srcFile, filepath.Join(dstDir, dstFileName))
 	default:
 		return fmt.Errorf("unexpected archive type: %s", srcFile)
 	}
@@ -301,9 +301,9 @@ func extractGz(srcFile, dstFile string) error {
 	return nil
 }
 
-func findFile(dir, fileName string) (string, error) {
+func findFile(dirPath, fileName string) (string, error) {
 	filePath := ""
-	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -316,7 +316,7 @@ func findFile(dir, fileName string) (string, error) {
 		return "", err
 	}
 	if filePath == "" {
-		return "", fmt.Errorf("%s is not found in %s", fileName, dir)
+		return "", fmt.Errorf("%s is not found in %s", fileName, dirPath)
 	}
 	return filePath, nil
 }
