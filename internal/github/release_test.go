@@ -258,7 +258,7 @@ func TestFindAssetByPlatform(t *testing.T) {
 			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.0.4/argocd-windows-amd64.exe",
 			binaryName:  "argocd.exe",
 		},
-		// rgoproj/argo-rollouts
+		// argoproj/argo-rollouts
 		{
 			owner:       "argoproj",
 			repo:        "argo-rollouts",
@@ -500,6 +500,34 @@ func TestFindAssetByPlatform(t *testing.T) {
 			goarch:      "amd64",
 			downloadURL: "https://github.com/goodwithtech/dockle/releases/download/v0.3.1/dockle_0.3.1_Windows-64bit.zip",
 			binaryName:  "dockle.exe",
+		},
+		// gravitational/teleport
+		{
+			owner:       "gravitational",
+			repo:        "teleport",
+			tag:         "v8.1.0",
+			goos:        "linux",
+			goarch:      "amd64",
+			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-linux-amd64-bin.tar.gz",
+			binaryName:  "tsh",
+		},
+		{
+			owner:       "gravitational",
+			repo:        "teleport",
+			tag:         "v8.1.0",
+			goos:        "darwin",
+			goarch:      "amd64",
+			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-darwin-amd64-bin.tar.gz",
+			binaryName:  "tsh",
+		},
+		{
+			owner:       "gravitational",
+			repo:        "teleport",
+			tag:         "v8.1.0",
+			goos:        "windows",
+			goarch:      "amd64",
+			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-windows-amd64-bin.zip",
+			binaryName:  "tsh.exe",
 		},
 		// hashicorp/terraform
 		{
@@ -752,34 +780,6 @@ func TestFindAssetByPlatform(t *testing.T) {
 			goarch:      "amd64",
 			downloadURL: "https://github.com/starship/starship/releases/download/v0.47.0/starship-x86_64-pc-windows-msvc.zip",
 			binaryName:  "starship.exe",
-		},
-		// gravitational/teleport
-		{
-			owner:       "gravitational",
-			repo:        "teleport",
-			tag:         "v8.1.0",
-			goos:        "linux",
-			goarch:      "amd64",
-			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-linux-amd64-bin.tar.gz",
-			binaryName:  "tsh",
-		},
-		{
-			owner:       "gravitational",
-			repo:        "teleport",
-			tag:         "v8.1.0",
-			goos:        "darwin",
-			goarch:      "amd64",
-			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-darwin-amd64-bin.tar.gz",
-			binaryName:  "tsh",
-		},
-		{
-			owner:       "gravitational",
-			repo:        "teleport",
-			tag:         "v8.1.0",
-			goos:        "windows",
-			goarch:      "amd64",
-			downloadURL: "https://get.gravitational.com/teleport-v8.1.0-windows-amd64-bin.zip",
-			binaryName:  "tsh.exe",
 		},
 		// viaduct-ai/kustomize-sops
 		{
