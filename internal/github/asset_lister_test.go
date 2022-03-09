@@ -3,6 +3,7 @@ package github
 import (
 	"os"
 	"reflect"
+	"sort"
 	"testing"
 )
 
@@ -118,6 +119,9 @@ func TestAssets(t *testing.T) {
 			for _, a := range assets {
 				downloadURLs = append(downloadURLs, a.DownloadURL())
 			}
+
+			sort.Slice(tt.downloadURLs, func(i, j int) bool { return tt.downloadURLs[i] > tt.downloadURLs[j] })
+			sort.Slice(downloadURLs, func(i, j int) bool { return downloadURLs[i] > downloadURLs[j] })
 
 			if !reflect.DeepEqual(tt.downloadURLs, downloadURLs) {
 				t.Fatalf("Expected is %v but actual is %v", tt.downloadURLs, downloadURLs)
