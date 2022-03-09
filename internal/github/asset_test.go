@@ -330,6 +330,60 @@ func TestIsArchived(t *testing.T) {
 	}
 }
 
+func TestIsCompressed(t *testing.T) {
+	tests := []struct {
+		description  string
+		owner        string
+		repo         string
+		tag          string
+		assetName    string
+		isCompressed bool
+	}{
+		{
+			description:  "hashicorp/terraform",
+			owner:        "hashicorp",
+			repo:         "terraform",
+			tag:          "v0.12.20",
+			assetName:    "terraform_0.12.20_linux_amd64.zip",
+			isCompressed: true,
+		},
+		{
+			description:  "helm/helm",
+			owner:        "helm",
+			repo:         "helm",
+			tag:          "v3.1.0",
+			assetName:    "helm-v3.1.0-linux-amd64.tar.gz",
+			isCompressed: true,
+		},
+	}
+
+	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	c, err := NewClient(token)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.description, func(t *testing.T) {
+			repo, err := c.Repository(tt.owner, tt.repo)
+			if err != nil {
+				t.Fatal(err)
+			}
+			release, err := repo.Release(tt.tag)
+			if err != nil {
+				t.Fatal(err)
+			}
+			asset, err := release.AssetByName(tt.assetName)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if asset.IsCompressed() != tt.isCompressed {
+				t.Fatalf("Expected is %v but actual is %v", tt.isCompressed, asset.IsCompressed())
+			}
+		})
+	}
+}
+
 func TestIsExecBinary(t *testing.T) {
 	tests := []struct {
 		description  string

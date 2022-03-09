@@ -284,9 +284,9 @@ func (r *release) AssetByPlatform(goos, goarch string) (Asset, error) {
 	case 1:
 		return assets[0], nil
 	case 2:
-		if assets[0].IsExecBinary() && assets[1].IsArchived() {
+		if assets[0].IsExecBinary() && (assets[1].IsArchived() || assets[1].IsCompressed()) {
 			return assets[0], nil
-		} else if assets[0].IsArchived() && assets[1].IsExecBinary() {
+		} else if assets[1].IsExecBinary() && (assets[0].IsArchived() || assets[0].IsCompressed()) {
 			return assets[1], nil
 		}
 		fallthrough

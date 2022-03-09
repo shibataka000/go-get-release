@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"github.com/shibataka000/go-get-release/internal/archive"
 )
 
 // Asset in GitHub repository
@@ -17,6 +19,7 @@ type Asset interface {
 	BinaryName() (string, error)
 	ContainReleaseBinary() bool
 	IsArchived() bool
+	IsCompressed() bool
 	IsExecBinary() bool
 }
 
@@ -78,12 +81,17 @@ func (a *asset) Goarch() (string, error) {
 
 // ContainReleaseBinary return true if this asset contain release binary
 func (a *asset) ContainReleaseBinary() bool {
-	return a.IsArchived() || a.IsExecBinary()
+	return a.IsArchived() || a.IsCompressed() || a.IsExecBinary()
 }
 
-// IsArchived check asset name and return true if it is archive file
+// IsArchived check asset name and return true if it is archived file
 func (a *asset) IsArchived() bool {
-	return hasExt(a.Name(), []string{".tar", ".gz", ".tgz", ".bz2", ".tbz", ".Z", ".zip", ".bz2", ".lzh", ".7z", ".gz", ".rar", ".cab", ".afz", ".xz"})
+	return archive.IsArchived(a.Name())
+}
+
+// IsCompress check asset name and return true if it is compressed file
+func (a *asset) IsCompressed() bool {
+	return archive.IsCompressed(a.Name())
 }
 
 // IsExecBinary check asset name and return true if it is executable binary
