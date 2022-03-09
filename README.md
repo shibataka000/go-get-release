@@ -39,7 +39,9 @@ go-get-release search <keyword>
 ```
 
 ### Show tags of GitHub repository
-TBD
+```
+go-get-release tags <owner>/<repo>
+```
 
 ## Install
 ```

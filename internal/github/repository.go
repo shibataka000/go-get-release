@@ -1,5 +1,7 @@
 package github
 
+import "github.com/google/go-github/github"
+
 // Repository in GitHub
 type Repository interface {
 	Owner() string
@@ -7,6 +9,7 @@ type Repository interface {
 	Description() string
 	LatestRelease() (Release, error)
 	Release(tag string) (Release, error)
+	ListRelease(n int) ([]Release, error)
 }
 
 type repository struct {
@@ -54,4 +57,30 @@ func (r *repository) Release(tag string) (Release, error) {
 		id:     rel.GetID(),
 		tag:    tag,
 	}, nil
+}
+
+func (r *repository) ListRelease(n int) ([]Release, error) {
+	c := r.client
+	result, _, err := c.client.Repositories.ListReleases(c.ctx, r.owner, r.name, &github.ListOptions{
+		PerPage: 100,
+	})
+	if err != nil {
+		return nil, err
+	}
+	releases := []Release{}
+	for _, rel := range result {
+		if rel.GetPrerelease() {
+			continue
+		}
+		releases = append(releases, &release{
+			client: r.client,
+			repo:   r,
+			id:     rel.GetID(),
+			tag:    rel.GetTagName(),
+		})
+		if len(releases) >= n {
+			break
+		}
+	}
+	return releases, nil
 }

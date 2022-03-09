@@ -65,8 +65,17 @@ func main() {
 			{
 				Name:  "tags",
 				Usage: "Show tags of GitHub repository",
+				Flags: []cli.Flag{
+					&cli.IntFlag{
+						Name:  "max",
+						Value: 20,
+					},
+				},
 				Action: func(c *cli.Context) error {
-					return nil
+					if c.Args().Len() == 0 {
+						return fmt.Errorf("no repository is specified")
+					}
+					return tags(c.Args().Get(0), c.String("github-personal-access-token"), c.Int("max"))
 				},
 			},
 			{
