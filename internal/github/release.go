@@ -36,6 +36,7 @@ func (r *release) Version() string {
 	return strings.TrimLeft(r.Tag(), "v")
 }
 
+// PublishedAt return published date of GitHub release
 func (r *release) PublishedAt() time.Time {
 	return r.publishedAt
 }
