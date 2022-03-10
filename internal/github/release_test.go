@@ -23,7 +23,7 @@ func TestAsset(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -716,7 +716,7 @@ func TestFindAssetByPlatform(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)

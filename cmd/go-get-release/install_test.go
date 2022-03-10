@@ -48,7 +48,7 @@ func TestInstall(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	dir := filepath.Join(os.Getenv("GOPATH"), "bin")
 	pathEnv := fmt.Sprintf("PATH=%s:%s", os.Getenv("PATH"), dir)
 

@@ -22,7 +22,7 @@ func TestVersion(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -60,7 +60,7 @@ func TestLatestRelease(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -104,7 +104,7 @@ func TestRelease(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)

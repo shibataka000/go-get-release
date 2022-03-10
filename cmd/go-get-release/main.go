@@ -20,9 +20,9 @@ func main() {
 		EnableBashCompletion: true,
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:    "github-personal-access-token",
+				Name:    "github-token",
 				Value:   "",
-				EnvVars: []string{"GITHUB_PERSONAL_ACCESS_TOKEN"},
+				EnvVars: []string{"GITHUB_TOKEN"},
 			},
 		},
 		Commands: []*cli.Command{
@@ -49,7 +49,7 @@ func main() {
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("no repository is specified")
 					}
-					return install(c.Args().Get(0), c.String("github-personal-access-token"), c.String("goos"), c.String("goarch"), c.String("install-dir"), true)
+					return install(c.Args().Get(0), c.String("github-token"), c.String("goos"), c.String("goarch"), c.String("install-dir"), true)
 				},
 			},
 			{
@@ -59,7 +59,7 @@ func main() {
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("no repository is specified")
 					}
-					return search(c.Args().Get(0), c.String("github-personal-access-token"))
+					return search(c.Args().Get(0), c.String("github-token"))
 				},
 			},
 			{
@@ -75,7 +75,7 @@ func main() {
 					if c.Args().Len() == 0 {
 						return fmt.Errorf("no repository is specified")
 					}
-					return tags(c.Args().Get(0), c.String("github-personal-access-token"), c.Int("max"))
+					return tags(c.Args().Get(0), c.String("github-token"), c.Int("max"))
 				},
 			},
 			{

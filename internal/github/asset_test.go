@@ -22,7 +22,7 @@ func TestAssetName(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -84,7 +84,7 @@ func TestBinaryName(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -163,7 +163,7 @@ func TestGoosAndGoarch(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -249,7 +249,7 @@ func TestContainReleaseBinary(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -303,7 +303,7 @@ func TestIsArchived(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -357,7 +357,7 @@ func TestIsCompressed(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
@@ -419,7 +419,7 @@ func TestIsExecBinary(t *testing.T) {
 		},
 	}
 
-	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+	token := os.Getenv("GITHUB_TOKEN")
 	c, err := NewClient(token)
 	if err != nil {
 		t.Fatal(err)
