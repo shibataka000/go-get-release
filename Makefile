@@ -10,9 +10,9 @@ BUILD_ARGS = -ldflags "-X main.version=$(VERSION)"
 default: build
 
 setup:
-	go get golang.org/x/lint/golint
-	go get golang.org/x/tools/cmd/goimports
-	go get github.com/mitchellh/gox
+	go install golang.org/x/lint/golint@latest
+	go install golang.org/x/tools/cmd/goimports@latest
+	go install github.com/mitchellh/gox@latest
 
 fmt:
 	goimports -w $(FMT_TARGET)
