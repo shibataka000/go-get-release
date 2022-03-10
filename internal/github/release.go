@@ -5,22 +5,25 @@ import (
 	"fmt"
 	"strings"
 	"text/template"
+	"time"
 )
 
 // Release in GitHub repository
 type Release interface {
 	Tag() string
 	Version() string
+	PublishedAt() time.Time
 	Assets() ([]Asset, error)
 	AssetByName(name string) (Asset, error)
 	AssetByPlatform(goos string, goarch string) (Asset, error)
 }
 
 type release struct {
-	client *client
-	repo   *repository
-	tag    string
-	id     int64
+	client      *client
+	repo        *repository
+	tag         string
+	id          int64
+	publishedAt time.Time
 }
 
 // Tag return tag name of GitHub release
@@ -31,6 +34,10 @@ func (r *release) Tag() string {
 // Version return version string, which does not have 'v' prefix
 func (r *release) Version() string {
 	return strings.TrimLeft(r.Tag(), "v")
+}
+
+func (r *release) PublishedAt() time.Time {
+	return r.publishedAt
 }
 
 // Assets return assets in release

@@ -37,11 +37,13 @@ func (r *repository) LatestRelease() (Release, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &release{
-		client: r.client,
-		repo:   r,
-		id:     rel.GetID(),
-		tag:    rel.GetTagName(),
+		client:      r.client,
+		repo:        r,
+		id:          rel.GetID(),
+		tag:         rel.GetTagName(),
+		publishedAt: rel.PublishedAt.Time,
 	}, nil
 }
 
@@ -52,10 +54,11 @@ func (r *repository) Release(tag string) (Release, error) {
 		return nil, err
 	}
 	return &release{
-		client: r.client,
-		repo:   r,
-		id:     rel.GetID(),
-		tag:    tag,
+		client:      r.client,
+		repo:        r,
+		id:          rel.GetID(),
+		tag:         tag,
+		publishedAt: rel.PublishedAt.Time,
 	}, nil
 }
 
@@ -73,10 +76,11 @@ func (r *repository) ListRelease(n int) ([]Release, error) {
 			continue
 		}
 		releases = append(releases, &release{
-			client: r.client,
-			repo:   r,
-			id:     rel.GetID(),
-			tag:    rel.GetTagName(),
+			client:      r.client,
+			repo:        r,
+			id:          rel.GetID(),
+			tag:         rel.GetTagName(),
+			publishedAt: rel.PublishedAt.Time,
 		})
 		if len(releases) >= n {
 			break

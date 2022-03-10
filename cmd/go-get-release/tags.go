@@ -27,15 +27,22 @@ func tags(name, token string, n int) error {
 		return err
 	}
 
-	fmt.Printf("Show release tags in '%s/%s' repository.\n", repo.Owner(), repo.Name())
+	fmt.Printf("%s/%s's release tags:\n", repo.Owner(), repo.Name())
 
 	releases, err := repo.ListRelease(n)
 	if err != nil {
 		return err
 	}
 
+	width := 0
 	for _, release := range releases {
-		fmt.Printf("* %s\n", release.Tag())
+		if len(release.Tag()) > width {
+			width = len(release.Tag())
+		}
+	}
+
+	for _, release := range releases {
+		fmt.Printf("* %-*s (%s)\n", width, release.Tag(), release.PublishedAt().Format("2006.01.02"))
 	}
 
 	return nil
