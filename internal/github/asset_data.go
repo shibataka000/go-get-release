@@ -77,6 +77,7 @@ var binaryNameMap = map[string]string{
 	"cli/cli":                          "gh",
 	"docker/compose":                   "docker-compose",
 	"docker/machine":                   "docker-machine",
+	"docker/scan-cli-plugin":           "docker-scan",
 	"fluxcd/flux2":                     "flux",
 	"istio/istio":                      "istioctl",
 	"protocolbuffers/protobuf":         "protoc",

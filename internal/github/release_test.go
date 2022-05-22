@@ -350,6 +350,34 @@ func TestFindAssetByPlatform(t *testing.T) {
 			downloadURL: "https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Windows-x86_64.exe",
 			binaryName:  "docker-machine.exe",
 		},
+		// docker/scan-cli-plugin
+		{
+			owner:       "docker",
+			repo:        "scan-cli-plugin",
+			tag:         "v0.17.0",
+			goos:        "linux",
+			goarch:      "amd64",
+			downloadURL: "https://github.com/docker/scan-cli-plugin/releases/download/v0.17.0/docker-scan_linux_amd64",
+			binaryName:  "docker-scan",
+		},
+		{
+			owner:       "docker",
+			repo:        "scan-cli-plugin",
+			tag:         "v0.17.0",
+			goos:        "darwin",
+			goarch:      "amd64",
+			downloadURL: "https://github.com/docker/scan-cli-plugin/releases/download/v0.17.0/docker-scan_darwin_amd64",
+			binaryName:  "docker-scan",
+		},
+		{
+			owner:       "docker",
+			repo:        "scan-cli-plugin",
+			tag:         "v0.17.0",
+			goos:        "windows",
+			goarch:      "amd64",
+			downloadURL: "https://github.com/docker/scan-cli-plugin/releases/download/v0.17.0/docker-scan_windows_amd64.exe",
+			binaryName:  "docker-scan.exe",
+		},
 		// fluxcd/flux2
 		{
 			owner:       "fluxcd",
