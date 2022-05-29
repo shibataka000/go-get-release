@@ -7,6 +7,7 @@ _go_get_release_bash_autocomplete() {
   if [[ "${COMP_WORDS[0]}" != "source" ]]; then
     local cur opts base
     COMPREPLY=()
+    COMP_WORDS[0]="go-get-release"
     cur="${COMP_WORDS[COMP_CWORD]}"
     if [[ "$cur" == "-"* ]]; then
       opts=$( ${COMP_WORDS[@]:0:$COMP_CWORD} ${cur} --generate-bash-completion )
