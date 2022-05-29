@@ -61,6 +61,14 @@ func extractZip(srcFile, dstDir string) error {
 			}
 
 			path := filepath.Join(dstDir, f.Name)
+
+			dir := filepath.Dir(path)
+			if _, err := os.Stat(dir); os.IsNotExist(err) {
+				if err := os.MkdirAll(dir, 0755); err != nil {
+					return err
+				}
+			}
+
 			err := ioutil.WriteFile(path, buf, f.Mode())
 			if err != nil {
 				return err
