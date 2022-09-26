@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -30,7 +29,7 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 		fmt.Println()
 	}
 
-	tempDir, err := ioutil.TempDir("", "go-get-release-")
+	tempDir, err := os.MkdirTemp("", "go-get-release-")
 	if err != nil {
 		return err
 	}
