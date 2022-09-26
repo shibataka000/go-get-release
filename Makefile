@@ -2,10 +2,8 @@ BUILD_TARGET = github.com/shibataka000/go-get-release/cmd/go-get-release
 FMT_TARGET = $(shell find . -type f -name "*.go")
 LINT_TARGET = $(shell go list ./...)
 TEST_TARGET = ./...
-VERSION = $(shell git describe --tags)
 GOX_OSARCH = "darwin/amd64 linux/amd64 windows/amd64"
-GOX_OUTPUT = "./release/{{.Dir}}_$(VERSION)_{{.OS}}_{{.Arch}}"
-BUILD_ARGS = -ldflags "-X main.version=$(VERSION)"
+GOX_OUTPUT = "./release/{{.Dir}}_{{.OS}}_{{.Arch}}"
 
 default: build
 
