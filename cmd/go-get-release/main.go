@@ -40,7 +40,15 @@ func main() {
 			if c.Args().Len() == 0 {
 				return fmt.Errorf("no repository is specified")
 			}
-			return install(c.Args().Get(0), c.String("github-token"), c.String("goos"), c.String("goarch"), c.String("install-dir"), true)
+
+			name := c.Args().Get(0)
+			token := c.String("github-token")
+			goos := c.String("goos")
+			goarch := c.String("goarch")
+			installDir := c.String("install-dir")
+			showPrompt := true
+
+			return install(name, token, goos, goarch, installDir, showPrompt)
 		},
 	}
 
