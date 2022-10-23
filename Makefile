@@ -39,4 +39,7 @@ mod:
 
 ci: mod checkfmt lint test build
 
-.PHONY: default setup fmt checkfmt lint test build install release mod ci
+clean:
+	go clean -testcache
+
+.PHONY: default setup fmt checkfmt lint test build install release mod ci clean

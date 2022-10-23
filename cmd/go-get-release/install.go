@@ -1,72 +1,67 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/Songmu/prompter"
-	"github.com/cheggaaa/pb"
-	"github.com/shibataka000/go-get-release/internal/archive"
-	"github.com/shibataka000/go-get-release/internal/github"
+	"github.com/cheggaaa/pb/v3"
+	"github.com/shibataka000/go-get-release/pkg/archive"
+	"github.com/shibataka000/go-get-release/pkg/github"
 )
 
-func install(name, token, goos, goarch, dir string, showPrompt bool) error {
-	repo, release, asset, err := findAsset(name, token, goos, goarch)
+func install(name, token, goos, goarch, installDir string, showPrompt bool) error {
+	ctx := context.Background()
+
+	// Find asset
+	client, err := github.NewClient(ctx, token)
 	if err != nil {
 		return err
 	}
+	splitted := strings.Split(name+"=latest", "=")
+	asset, err := client.FindAsset(ctx, splitted[0], splitted[1], goos, goarch)
+	if err != nil {
+		return err
+	}
+	assetName := filepath.Base(asset.DownloadURL)
 
+	// Confirmation
 	if showPrompt {
-		fmt.Printf("repo:\t%s/%s\ntag:\t%s\nasset:\t%s\n\n", repo.Owner(), repo.Name(), release.Tag(), asset.Name())
+		fmt.Printf("repo:\t%s/%s\ntag:\t%s\nasset:\t%s\n\n", asset.Owner, asset.Repo, asset.Tag, assetName)
 		if !prompter.YN("Are you sure to install release binary from above repository?", true) {
 			return nil
 		}
 		fmt.Println()
 	}
 
+	// Download file
 	tempDir, err := os.MkdirTemp("", "go-get-release-")
 	if err != nil {
 		return err
 	}
-
-	downloadFilePath := filepath.Join(tempDir, asset.Name())
-	err = downloadFile(asset.DownloadURL(), downloadFilePath, showPrompt)
+	downloadFilePath := filepath.Join(tempDir, assetName)
+	err = downloadFile(asset.DownloadURL, downloadFilePath, showPrompt)
 	if err != nil {
 		return err
 	}
+	downloadBinaryPath := downloadFilePath
 
-	binaryName, err := asset.BinaryName()
-	if err != nil {
-		return err
-	}
-
-	var downloadBinaryPath string
-	if asset.IsArchived() || asset.IsCompressed() {
-		err = archive.Extract(downloadFilePath, tempDir)
+	// Extract
+	if archive.IsArchived(assetName) || archive.IsCompressed(assetName) {
+		downloadBinaryPath = filepath.Join(tempDir, asset.BinaryName)
+		err := archive.Extract(downloadFilePath, downloadBinaryPath, asset.BinaryName)
 		if err != nil {
 			return err
 		}
-		var targetFileName string
-		if asset.IsArchived() {
-			targetFileName = binaryName
-		} else {
-			filename := filepath.Base(downloadFilePath)
-			targetFileName = strings.TrimSuffix(filename, filepath.Ext(filename))
-		}
-		downloadBinaryPath, err = findFile(tempDir, targetFileName)
-		if err != nil {
-			return err
-		}
-	} else {
-		downloadBinaryPath = downloadFilePath
 	}
 
-	installBinaryPath := filepath.Join(dir, binaryName)
+	// Move release binary to install directory
+	installBinaryPath := filepath.Join(installDir, asset.BinaryName)
 	err = os.Rename(downloadBinaryPath, installBinaryPath)
 	if err != nil {
 		return err
@@ -76,59 +71,13 @@ func install(name, token, goos, goarch, dir string, showPrompt bool) error {
 		return err
 	}
 
+	// Clean up
 	err = os.RemoveAll(tempDir)
 	if err != nil {
 		return err
 	}
+
 	return nil
-}
-
-func findAsset(name, token, goos, goarch string) (github.Repository, github.Release, github.Asset, error) {
-	owner, repoName, tag, err := parse(name)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	client, err := github.NewClient(token)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	var repo github.Repository
-	if owner != "" {
-		repo, err = client.Repository(owner, repoName)
-	} else {
-		repo, err = client.FindRepository(repoName)
-	}
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	var release github.Release
-	if tag != "" {
-		release, err = repo.Release(tag)
-	} else {
-		release, err = repo.LatestRelease()
-	}
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	asset, err := release.AssetByPlatform(goos, goarch)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
-	return repo, release, asset, nil
-}
-
-func parse(name string) (string, string, string, error) {
-	re := regexp.MustCompile(`(([^/=]+)/)?([^/=]+)(=([^=]+))?`)
-	if re.MatchString(name) {
-		match := re.FindStringSubmatch(name)
-		return match[2], match[3], match[5], nil
-	}
-	return "", "", "", fmt.Errorf("parsing package name failed: %s\npackage name should be \"owner/repo=tag\" format", name)
 }
 
 func downloadFile(url, filePath string, showProgress bool) error {
@@ -151,24 +100,4 @@ func downloadFile(url, filePath string, showProgress bool) error {
 	}
 	_, err = io.Copy(out, r)
 	return err
-}
-
-func findFile(dirPath, fileName string) (string, error) {
-	filePath := ""
-	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if !info.IsDir() && info.Name() == fileName {
-			filePath = path
-		}
-		return nil
-	})
-	if err != nil {
-		return "", err
-	}
-	if filePath == "" {
-		return "", fmt.Errorf("%s is not found in %s", fileName, dirPath)
-	}
-	return filePath, nil
 }
