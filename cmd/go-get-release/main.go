@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -38,7 +37,7 @@ func main() {
 		},
 		Action: func(c *cli.Context) error {
 			if c.Args().Len() == 0 {
-				return fmt.Errorf("no repository is specified")
+				return cli.ShowAppHelp(c)
 			}
 
 			name := c.Args().Get(0)
