@@ -38,49 +38,76 @@ func NewClient(ctx context.Context, token string) (Client, error) {
 	}, nil
 }
 
+// FindAsset return asset in github release.
 func (c *client) FindAsset(ctx context.Context, keyword, tag, goos, goarch string) (Asset, error) {
 	var empty Asset
-	var err error
 
 	// Find repository.
-	var repository *github.Repository
-	if strings.Contains(keyword, "/") {
-		splitted := strings.Split(keyword, "/")
-		repository, _, err = c.client.Repositories.Get(ctx, splitted[0], splitted[1])
-		if err != nil {
-			return empty, err
-		}
-	} else {
-		result, _, err := c.client.Search.Repositories(ctx, keyword, &github.SearchOptions{})
-		if err != nil {
-			return empty, err
-		}
-		if len(result.Repositories) == 0 {
-			return empty, fmt.Errorf("no repository found")
-		}
-		repository = result.Repositories[0]
+	repository, err := c.findRepository(ctx, keyword)
+	if err != nil {
+		return empty, err
 	}
-	owner := repository.GetOwner().GetLogin()
-	repo := repository.GetName()
 
 	// Find release.
-	var release *github.RepositoryRelease
-	if tag == "" || tag == "latest" {
-		release, _, err = c.client.Repositories.GetLatestRelease(ctx, owner, repo)
-	} else {
-		release, _, err = c.client.Repositories.GetReleaseByTag(ctx, owner, repo, tag)
-	}
+	release, err := c.findRelease(ctx, repository, tag)
 	if err != nil {
 		return empty, err
 	}
 
 	// Return asset if registered.
+	regAsset, found, err := c.findRegisteredAsset(repository, release, goos, goarch)
+	if err != nil {
+		return empty, err
+	}
+	if found {
+		return regAsset, nil
+	}
+
+	// Find assets.
+	return c.findAsset(ctx, repository, release, goos, goarch)
+}
+
+func (c *client) findRepository(ctx context.Context, keyword string) (*github.Repository, error) {
+	if strings.Contains(keyword, "/") {
+		splitted := strings.Split(keyword, "/")
+		repository, _, err := c.client.Repositories.Get(ctx, splitted[0], splitted[1])
+		return repository, err
+	}
+
+	result, _, err := c.client.Search.Repositories(ctx, keyword, &github.SearchOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if len(result.Repositories) == 0 {
+		return nil, fmt.Errorf("no repository found")
+	}
+	return result.Repositories[0], nil
+}
+
+func (c *client) findRelease(ctx context.Context, repository *github.Repository, tag string) (*github.RepositoryRelease, error) {
+	owner := repository.GetOwner().GetLogin()
+	repo := repository.GetName()
+
+	if tag == "" || tag == "latest" {
+		release, _, err := c.client.Repositories.GetLatestRelease(ctx, owner, repo)
+		return release, err
+	}
+
+	release, _, err := c.client.Repositories.GetReleaseByTag(ctx, owner, repo, tag)
+	return release, err
+}
+
+func (c *client) findRegisteredAsset(repository *github.Repository, release *github.RepositoryRelease, goos, goarch string) (Asset, bool, error) {
+	owner := repository.GetOwner().GetLogin()
+	repo := repository.GetName()
+	var empty Asset
+
 	for _, asset := range registeredAsset {
 		if asset.Owner == owner && asset.Repo == repo && asset.Goos == goos && asset.Goarch == goarch {
 			buf := new(bytes.Buffer)
 			tmpl, err := template.New("downloadURL").Parse(asset.DownloadURLTemplate)
 			if err != nil {
-				return empty, err
+				return empty, true, err
 			}
 			err = tmpl.Execute(buf, struct {
 				Tag     string
@@ -90,7 +117,7 @@ func (c *client) FindAsset(ctx context.Context, keyword, tag, goos, goarch strin
 				Version: strings.TrimLeft(release.GetTagName(), "v"),
 			})
 			if err != nil {
-				return empty, err
+				return empty, true, err
 			}
 			return Asset{
 				Owner:       owner,
@@ -100,11 +127,18 @@ func (c *client) FindAsset(ctx context.Context, keyword, tag, goos, goarch strin
 				BinaryName:  asset.BinaryName,
 				Goos:        goos,
 				Goarch:      goarch,
-			}, nil
+			}, true, nil
 		}
 	}
 
-	// Find assets.
+	return empty, false, nil
+}
+
+func (c *client) findAsset(ctx context.Context, repository *github.Repository, release *github.RepositoryRelease, goos, goarch string) (Asset, error) {
+	owner := repository.GetOwner().GetLogin()
+	repo := repository.GetName()
+	var empty Asset
+
 	assets, _, err := c.client.Repositories.ListReleaseAssets(ctx, owner, repo, release.GetID(), &github.ListOptions{PerPage: 100})
 	if err != nil {
 		return empty, err
@@ -134,7 +168,6 @@ func (c *client) FindAsset(ctx context.Context, keyword, tag, goos, goarch strin
 	}
 	asset := filtered[0]
 
-	// Binary name.
 	binaryName := repo
 	if goos == "windows" {
 		binaryName += ".exe"
