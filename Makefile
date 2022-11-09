@@ -1,4 +1,4 @@
-BUILD_TARGET = github.com/shibataka000/go-get-release/cmd/go-get-release
+BUILD_TARGET = github.com/shibataka000/go-get-release
 FMT_TARGET = $(shell find . -type f -name "*.go")
 LINT_TARGET = $(shell go list ./...)
 TEST_TARGET = ./...
