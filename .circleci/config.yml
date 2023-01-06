@@ -15,7 +15,7 @@ jobs:
           command: make setup
       - run:
           name: Run tests
-          command: make ci
+          command: make test
 workflows:
   build:
     jobs:
