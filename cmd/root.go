@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 
+	"github.com/shibataka000/go-get-release/internal/application"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +23,16 @@ func NewCommand() *cobra.Command {
 		Short: "Install release binary from GitHub.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return install(args[0], token, goos, goarch, installDir, true)
+			ctx := context.Background()
+			appService, err := application.NewService(ctx, token)
+			if err != nil {
+				return err
+			}
+			command, err := application.NewCommandFromQuery(args[0], goos, goarch, installDir, true)
+			if err != nil {
+				return err
+			}
+			return appService.Install(ctx, command)
 		},
 	}
 

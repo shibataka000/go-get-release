@@ -13,7 +13,7 @@ fmt:
 lint:
 	golangci-lint run
 
-test: lint
+test:
 	go test ./...
 
 build:
