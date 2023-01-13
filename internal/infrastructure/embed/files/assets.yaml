@@ -41,9 +41,6 @@
   repo: amazon-ec2-instance-selector
   execBinary:
     name: ec2-instance-selector
-# buildpacks/pack
-- owner: buildpacks
-  repo: pack
 # CircleCI-Public/circleci-cli
 - owner: CircleCI-Public
   repo: circleci-cli
@@ -130,9 +127,6 @@
     downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-win-amd64.zip
   execBinary:
     name: istioctl
-# mikefarah/yq
-- owner: mikefarah
-  repo: yq
 # mozilla/sops
 - owner: mozilla
   repo: sops
