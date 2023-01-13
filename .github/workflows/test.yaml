@@ -1,0 +1,16 @@
+name: Test
+on:
+  push:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container:
+      image: golang:1.19
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run tests
+        run: make test
+        env:
+          GOOS: linux
+          GOARCH: amd64
+          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
