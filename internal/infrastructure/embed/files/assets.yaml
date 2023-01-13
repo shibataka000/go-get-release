@@ -1,0 +1,179 @@
+# aquasecurity/tfsec
+- owner: aquasecurity
+  repo: tfsec
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-linux-amd64
+  - os: darwin
+    arch: amd64
+    downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-darwin-amd64
+  - os: windows
+    arch: amd64
+    downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-windows-amd64.exe
+# argoproj/argo-cd
+- owner: argoproj
+  repo: argo-cd
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/argoproj/argo-cd/releases/download/{{.Tag}}/argocd-linux-amd64
+  - os: darwin
+    arch: amd64
+    downloadURL: https://github.com/argoproj/argo-cd/releases/download/{{.Tag}}/argocd-darwin-amd64
+  - os: windows
+    arch: amd64
+    downloadURL: https://github.com/argoproj/argo-cd/releases/download/{{.Tag}}/argocd-windows-amd64.exe
+  execBinary:
+    name: argocd
+# argoproj/argo-rollouts
+- owner: argoproj
+  repo: argo-rollouts
+  execBinary:
+    name: kubectl-argo-rollouts
+# argoproj/argo-workflows
+- owner: argoproj
+  repo: argo-workflows
+  execBinary:
+    name: argo
+# aws/amazon-ec2-instance-selector
+- owner: aws
+  repo: amazon-ec2-instance-selector
+  execBinary:
+    name: ec2-instance-selector
+# buildpacks/pack
+- owner: buildpacks
+  repo: pack
+# CircleCI-Public/circleci-cli
+- owner: CircleCI-Public
+  repo: circleci-cli
+  execBinary:
+    name: circleci
+# cli/cli
+- owner: cli
+  repo: cli
+  execBinary:
+    name: gh
+# docker/compose
+- owner: docker
+  repo: compose
+  execBinary:
+    name: docker-compose
+# docker/machine
+- owner: docker
+  repo: machine
+  execBinary:
+    name: docker-machine
+# docker/scan-cli-plugin
+- owner: docker
+  repo: scan-cli-plugin
+  execBinary:
+    name: docker-scan
+# fluxcd/flux2
+- owner: fluxcd
+  repo: flux2
+  execBinary:
+    name: flux
+# gravitational/teleport
+- owner: gravitational
+  repo: teleport
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-linux-amd64-bin.tar.gz
+  - os: darwin
+    arch: amd64
+    downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-darwin-amd64-bin.tar.gz
+  - os: windows
+    arch: amd64
+    downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-windows-amd64-bin.zip
+  execBinary:
+    name: tsh
+# hashicorp/terraform
+- owner: hashicorp
+  repo: terraform
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip
+  - os: darwin
+    arch: amd64
+    downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip
+  - os: windows
+    arch: amd64
+    downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip
+# helm/helm
+- owner: helm
+  repo: helm
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://get.helm.sh/helm-{{.Tag}}-linux-amd64.tar.gz
+  - os: darwin
+    arch: amd64
+    downloadURL: https://get.helm.sh/helm-{{.Tag}}-darwin-amd64.tar.gz
+  - os: windows
+    arch: amd64
+    downloadURL: https://get.helm.sh/helm-{{.Tag}}-windows-amd64.zip
+# istio/istio
+- owner: istio
+  repo: istio
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-linux-amd64.tar.gz
+  - os: darwin
+    arch: amd64
+    downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-osx-amd64.tar.gz
+  - os: windows
+    arch: amd64
+    downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-win-amd64.zip
+  execBinary:
+    name: istioctl
+# mikefarah/yq
+- owner: mikefarah
+  repo: yq
+# mozilla/sops
+- owner: mozilla
+  repo: sops
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/mozilla/sops/releases/download/{{.Tag}}/sops-{{.Tag}}.linux
+  - os: darwin
+    arch: amd64
+    downloadURL: https://github.com/mozilla/sops/releases/download/{{.Tag}}/sops-{{.Tag}}.darwin
+# open-policy-agent/opa
+- owner: open-policy-agent
+  repo: opa
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/open-policy-agent/opa/releases/download/{{.Tag}}/opa_linux_amd64
+# protocolbuffers/protobuf
+- owner: protocolbuffers
+  repo: protobuf
+  execBinary:
+    name: protoc
+# starship/starship
+- owner: starship
+  repo: starship
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/starship/starship/releases/download/{{.Tag}}/starship-x86_64-unknown-linux-gnu.tar.gz
+# viaduct-ai/kustomize-sops
+- owner: viaduct-ai
+  repo: kustomize-sops
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Linux_x86_64.tar.gz
+  - os: darwin
+    arch: amd64
+    downloadURL: https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Darwin_x86_64.tar.gz
+  - os: windows
+    arch: amd64
+    downloadURL: https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Windows_x86_64.tar.gz
+  execBinary:
+    name: ksops
