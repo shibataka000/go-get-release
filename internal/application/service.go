@@ -51,7 +51,7 @@ func (s *Service) Install(ctx context.Context, command Command) error {
 	}
 	if command.isInteractive() {
 		fmt.Printf("%s\n\n", meta.Format())
-		if !prompter.YN("Are you sure to install release binary from above repository?", true) {
+		if !prompter.YN("Are you sure to install above release binary?", true) {
 			return nil
 		}
 		fmt.Println()
