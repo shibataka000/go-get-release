@@ -39,6 +39,10 @@ func (c Content) FindExecBinary(filename string) (ExecBinary, error) {
 		_, err = io.Copy(buf, in)
 	case ".exe":
 		_, err = io.Copy(buf, in)
+	case ".darwin":
+		_, err = io.Copy(buf, in)
+	case ".linux":
+		_, err = io.Copy(buf, in)
 	case ".gz":
 		err = extractGzip(buf, in)
 	case ".tgz":

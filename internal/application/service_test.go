@@ -43,6 +43,10 @@ func TestInstall(t *testing.T) {
 			query:         "koalaman/shellcheck",
 			verifyCommand: []string{"shellcheck", "--version"},
 		},
+		{
+			query:         "mozilla/sops",
+			verifyCommand: []string{"sops", "--version"},
+		},
 	}
 
 	ctx := context.Background()
