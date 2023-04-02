@@ -2,11 +2,11 @@
 
 [![Test](https://github.com/shibataka000/go-get-release/actions/workflows/test.yaml/badge.svg)](https://github.com/shibataka000/go-get-release/actions/workflows/test.yaml)
 
-I want to only install golang release binary, don't want to build golang source code.
+I want to only install executable binary, don't want to build executable binary from source code.
 
 ## Usage
 
-### Install golang release binary
+### Install executable binary from GitHub release asset
 ```
 go-get-release <owner>/<repo>=<tag>
 ```
@@ -29,9 +29,9 @@ If you omit owner name, `go-get-release` search repository in GitHub.
 go-get-release go-get-release
 ```
 
-`go-get-release` find asset which should be installed by `$GOOS` and `$GOARCH` automatically.
+`go-get-release` find GitHub release asset which should be installed by `$GOOS` and `$GOARCH` automatically.
 
-`go-get-release` install release binary to `$GOHOME/bin` by default.
+`go-get-release` install executable binary to `$GOHOME/bin` by default.
 
 ## Install
 ```
