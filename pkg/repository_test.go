@@ -163,7 +163,7 @@ func TestRepositoryListGitHubAssets(t *testing.T) {
 	}
 }
 
-func TestDownload(t *testing.T) {
+func TestRepositoryDownload(t *testing.T) {
 	tests := []struct {
 		name string
 		url  URL
@@ -188,7 +188,7 @@ func TestDownload(t *testing.T) {
 	}
 }
 
-func TestDownloadAsset(t *testing.T) {
+func TestRepositoryDownloadAsset(t *testing.T) {
 	tests := []struct {
 		name string
 		url  URL
