@@ -2,10 +2,12 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/shibataka000/go-get-release/internal/application"
+	"github.com/Songmu/prompter"
+	"github.com/shibataka000/go-get-release/pkg"
 	"github.com/spf13/cobra"
 )
 
@@ -20,26 +22,36 @@ func NewCommand() *cobra.Command {
 
 	command := &cobra.Command{
 		Use:   "go-get-release [<owner>/]<repo>[=<tag>]",
-		Short: "Install release binary from GitHub.",
+		Short: "Install executable binary from GitHub release asset.",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
-			appService, err := application.NewService(ctx, token)
+			client, err := pkg.NewClient(ctx, token)
 			if err != nil {
 				return err
 			}
-			command, err := application.NewCommandFromQuery(args[0], goos, goarch, installDir, true)
+			query, err := pkg.ParseQuery(args[0])
 			if err != nil {
 				return err
 			}
-			return appService.Install(ctx, command)
+			platform := pkg.NewPlatform(goos, goarch)
+			pkg, err := client.Search(ctx, query, platform)
+			if err != nil {
+				return err
+			}
+			fmt.Printf("%s\n\n", pkg.StringToPrompt())
+			if !prompter.YN("Are you sure to install executable binary from above GitHub release asset?", true) {
+				return nil
+			}
+			fmt.Println()
+			return client.Install(pkg, installDir)
 		},
 	}
 
 	command.Flags().StringVar(&token, "token", os.Getenv("GITHUB_TOKEN"), "github token [$GITHUB_TOKEN]")
 	command.Flags().StringVar(&goos, "goos", os.Getenv("GOOS"), "goos [$GOOS]")
 	command.Flags().StringVar(&goarch, "goarch", os.Getenv("GOARCH"), "goarch [$GOARCH]")
-	command.Flags().StringVar(&installDir, "install-dir", filepath.Join(os.Getenv("GOPATH"), "bin"), "directory where release binary will be installed to")
+	command.Flags().StringVar(&installDir, "install-dir", filepath.Join(os.Getenv("GOPATH"), "bin"), "directory where executable binary will be installed to")
 
 	return command
 }
