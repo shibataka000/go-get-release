@@ -111,14 +111,14 @@ func (r *Repository) LoadBuiltInIndex() (Index, error) {
 }
 
 // Download file.
-func (r *Repository) Download(url URL) (File, error) {
+func (r *Repository) Download(url URL, progressBar io.Writer) (File, error) {
 	resp, err := http.Get(url.String())
 	if err != nil {
 		return File{}, err
 	}
 	defer resp.Body.Close()
 
-	bar := pb.Full.Start64(resp.ContentLength)
+	bar := pb.Full.Start64(resp.ContentLength).SetWriter(progressBar)
 	src := bar.NewProxyReader(resp.Body)
 
 	dst := new(bytes.Buffer)
@@ -131,22 +131,8 @@ func (r *Repository) Download(url URL) (File, error) {
 	return NewFile(url.FileName(), dst.Bytes()), nil
 }
 
-// DownloadAsset download GitHub release asset.
-func (r *Repository) DownloadAsset(url URL) (AssetFile, error) {
-	file, err := r.Download(url)
-	if err != nil {
-		return AssetFile{}, err
-	}
-	return AssetFile(file), err
-}
-
 // WriteFile write file to specified directory.
 func (r *Repository) WriteFile(file File, dir string, perm fs.FileMode) error {
 	path := filepath.Join(dir, file.Name.String())
 	return os.WriteFile(path, file.Body, perm)
-}
-
-// WriteExecBinary write executable binary.
-func (r *Repository) WriteExecBinary(file ExecBinaryFile, dir string) error {
-	return r.WriteFile(File(file), dir, 0755)
 }

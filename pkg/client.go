@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"io"
 )
 
 // Client for package.
@@ -66,14 +67,14 @@ func (c *Client) Search(ctx context.Context, query Query, platform Platform) (Pa
 }
 
 // Install package.
-func (c *Client) Install(pkg Package, dir string) error {
-	asset, err := c.repository.DownloadAsset(pkg.Asset.DownloadURL)
+func (c *Client) Install(pkg Package, dir string, progressBar io.Writer) error {
+	asset, err := c.repository.Download(pkg.Asset.DownloadURL, progressBar)
 	if err != nil {
 		return err
 	}
-	execBinary, err := asset.ExecBinary(pkg.ExecBinary.Name)
+	execBinary, err := AssetFile(asset).ExecBinary(pkg.ExecBinary.Name)
 	if err != nil {
 		return err
 	}
-	return c.repository.WriteExecBinary(execBinary, dir)
+	return c.repository.WriteFile(File(execBinary), dir, 0755)
 }

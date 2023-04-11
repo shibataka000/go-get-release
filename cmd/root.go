@@ -44,7 +44,7 @@ func NewCommand() *cobra.Command {
 				return nil
 			}
 			fmt.Println()
-			return client.Install(pkg, installDir)
+			return client.Install(pkg, installDir, os.Stderr)
 		},
 	}
 

@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"io"
 	"os"
 	"testing"
 
@@ -181,32 +182,7 @@ func TestRepositoryDownload(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
 			repository := NewRepositoryForTest(ctx, t)
-			file, err := repository.Download(tt.url)
-			assert.NoError(err)
-			assert.Equal(tt.file, file)
-		})
-	}
-}
-
-func TestRepositoryDownloadAsset(t *testing.T) {
-	tests := []struct {
-		name string
-		url  URL
-		file AssetFile
-	}{
-		{
-			name: "https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/testdata.txt",
-			url:  "https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/testdata.txt",
-			file: NewAssetFile("testdata.txt", []byte("helloworld\n")),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert := require.New(t)
-			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
-			file, err := repository.DownloadAsset(tt.url)
+			file, err := repository.Download(tt.url, io.Discard)
 			assert.NoError(err)
 			assert.Equal(tt.file, file)
 		})

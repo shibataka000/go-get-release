@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/exec"
 	"testing"
@@ -76,7 +77,7 @@ func TestInstall(t *testing.T) {
 			pkg, err := client.Search(ctx, query, platform)
 			assert.NoError(err)
 
-			err = client.Install(pkg, dir)
+			err = client.Install(pkg, dir, io.Discard)
 			assert.NoError(err)
 
 			cmd = exec.Command(tt.verifyCommand[0], tt.verifyCommand[1:]...)
