@@ -14,16 +14,6 @@
 # argoproj/argo-cd
 - owner: argoproj
   repo: argo-cd
-  assets:
-  - os: linux
-    arch: amd64
-    downloadURL: https://github.com/argoproj/argo-cd/releases/download/{{.Tag}}/argocd-linux-amd64
-  - os: darwin
-    arch: amd64
-    downloadURL: https://github.com/argoproj/argo-cd/releases/download/{{.Tag}}/argocd-darwin-amd64
-  - os: windows
-    arch: amd64
-    downloadURL: https://github.com/argoproj/argo-cd/releases/download/{{.Tag}}/argocd-windows-amd64.exe
   execBinary:
     name: argocd
 # argoproj/argo-rollouts
@@ -115,49 +105,15 @@
 # istio/istio
 - owner: istio
   repo: istio
-  assets:
-  - os: linux
-    arch: amd64
-    downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-linux-amd64.tar.gz
-  - os: darwin
-    arch: amd64
-    downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-osx-amd64.tar.gz
-  - os: windows
-    arch: amd64
-    downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-win-amd64.zip
   execBinary:
     name: istioctl
-# open-policy-agent/opa
-- owner: open-policy-agent
-  repo: opa
-  assets:
-  - os: linux
-    arch: amd64
-    downloadURL: https://github.com/open-policy-agent/opa/releases/download/{{.Tag}}/opa_linux_amd64
 # protocolbuffers/protobuf
 - owner: protocolbuffers
   repo: protobuf
   execBinary:
     name: protoc
-# starship/starship
-- owner: starship
-  repo: starship
-  assets:
-  - os: linux
-    arch: amd64
-    downloadURL: https://github.com/starship/starship/releases/download/{{.Tag}}/starship-x86_64-unknown-linux-gnu.tar.gz
 # viaduct-ai/kustomize-sops
 - owner: viaduct-ai
   repo: kustomize-sops
-  assets:
-  - os: linux
-    arch: amd64
-    downloadURL: https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Linux_x86_64.tar.gz
-  - os: darwin
-    arch: amd64
-    downloadURL: https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Darwin_x86_64.tar.gz
-  - os: windows
-    arch: amd64
-    downloadURL: https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Windows_x86_64.tar.gz
   execBinary:
     name: ksops

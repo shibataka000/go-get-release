@@ -128,21 +128,21 @@ func TestSearch(t *testing.T) {
 		},
 		// argoproj/argo-cd
 		{
-			query:       "argoproj/argo-cd=v2.0.4",
+			query:       "argoproj/argo-cd=v2.6.7",
 			platform:    NewPlatform("linux", "amd64"),
-			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.0.4/argocd-linux-amd64",
+			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-linux-amd64",
 			execBinary:  "argocd",
 		},
 		{
-			query:       "argoproj/argo-cd=v2.0.4",
+			query:       "argoproj/argo-cd=v2.6.7",
 			platform:    NewPlatform("darwin", "amd64"),
-			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.0.4/argocd-darwin-amd64",
+			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-darwin-amd64",
 			execBinary:  "argocd",
 		},
 		{
-			query:       "argoproj/argo-cd=v2.0.4",
+			query:       "argoproj/argo-cd=v2.6.7",
 			platform:    NewPlatform("windows", "amd64"),
-			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.0.4/argocd-windows-amd64.exe",
+			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-windows-amd64.exe",
 			execBinary:  "argocd.exe",
 		},
 		// argoproj/argo-rollouts
@@ -409,19 +409,19 @@ func TestSearch(t *testing.T) {
 		{
 			query:       "istio/istio=1.6.0",
 			platform:    NewPlatform("linux", "amd64"),
-			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istioctl-1.6.0-linux-amd64.tar.gz",
+			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istio-1.6.0-linux-amd64.tar.gz",
 			execBinary:  "istioctl",
 		},
 		{
 			query:       "istio/istio=1.6.0",
 			platform:    NewPlatform("darwin", "amd64"),
-			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istioctl-1.6.0-osx-amd64.tar.gz",
+			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istio-1.6.0-osx.tar.gz",
 			execBinary:  "istioctl",
 		},
 		{
 			query:       "istio/istio=1.6.0",
 			platform:    NewPlatform("windows", "amd64"),
-			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istioctl-1.6.0-win-amd64.zip",
+			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istio-1.6.0-win.zip",
 			execBinary:  "istioctl.exe",
 		},
 		// mikefarah/yq
