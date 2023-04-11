@@ -1,5 +1,7 @@
 package pkg
 
+import "fmt"
+
 // AssetMeta is metadata about GitHub release asset.
 type AssetMeta struct {
 	DownloadURL URL
@@ -49,6 +51,10 @@ func (f AssetFile) ExecBinary(execBinary FileName) (ExecBinaryFile, error) {
 		if err != nil {
 			return ExecBinaryFile{}, err
 		}
+	}
+
+	if !file.Name.IsExecBinary() {
+		return ExecBinaryFile{}, fmt.Errorf("%s is not executable binary", file.Name)
 	}
 
 	return NewExecBinaryFile(execBinary, file.Body), nil

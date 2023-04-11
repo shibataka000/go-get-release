@@ -127,16 +127,6 @@
     downloadURL: https://github.com/istio/istio/releases/download/{{.Tag}}/istioctl-{{.Tag}}-win-amd64.zip
   execBinary:
     name: istioctl
-# mozilla/sops
-- owner: mozilla
-  repo: sops
-  assets:
-  - os: linux
-    arch: amd64
-    downloadURL: https://github.com/mozilla/sops/releases/download/{{.Tag}}/sops-{{.Tag}}.linux
-  - os: darwin
-    arch: amd64
-    downloadURL: https://github.com/mozilla/sops/releases/download/{{.Tag}}/sops-{{.Tag}}.darwin
 # open-policy-agent/opa
 - owner: open-policy-agent
   repo: opa

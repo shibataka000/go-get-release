@@ -202,7 +202,7 @@ func (f FileName) Normalize() FileName {
 
 // IsExecBinary return true if file is executable binary.
 func (f FileName) IsExecBinary() bool {
-	exts := []string{"", ".exe"}
+	exts := []string{"", ".exe", ".linux", ".darwin"}
 	return slices.Contains(exts, f.Normalize().Ext())
 }
 
