@@ -112,6 +112,15 @@
   repo: protobuf
   execBinary:
     name: protoc
+# snyk/cli
+- owner: snyk
+  repo: cli
+  assets:
+  - os: darwin
+    arch: amd64
+    downloadURL: https://github.com/snyk/cli/releases/download/{{.Tag}}/snyk-macos
+  execBinary:
+    name: snyk
 # viaduct-ai/kustomize-sops
 - owner: viaduct-ai
   repo: kustomize-sops

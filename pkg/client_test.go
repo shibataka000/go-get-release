@@ -538,6 +538,25 @@ func TestSearch(t *testing.T) {
 			downloadURL: "https://github.com/starship/starship/releases/download/v0.47.0/starship-x86_64-pc-windows-msvc.zip",
 			execBinary:  "starship.exe",
 		},
+		// snyk/cli
+		{
+			query:       "snyk/cli=v1.1140.0",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/snyk/cli/releases/download/v1.1140.0/snyk-linux",
+			execBinary:  "snyk",
+		},
+		{
+			query:       "snyk/cli=v1.1140.0",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://github.com/snyk/cli/releases/download/v1.1140.0/snyk-macos",
+			execBinary:  "snyk",
+		},
+		{
+			query:       "snyk/cli=v1.1140.0",
+			platform:    NewPlatform("windows", "amd64"),
+			downloadURL: "https://github.com/snyk/cli/releases/download/v1.1140.0/snyk-win.exe",
+			execBinary:  "snyk.exe",
+		},
 		// viaduct-ai/kustomize-sops
 		{
 			query:       "viaduct-ai/kustomize-sops=v2.3.3",
