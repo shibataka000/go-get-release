@@ -196,6 +196,25 @@ func TestSearch(t *testing.T) {
 			downloadURL: "https://github.com/aws/amazon-ec2-instance-selector/releases/download/v2.0.2/ec2-instance-selector-windows-amd64",
 			execBinary:  "ec2-instance-selector.exe",
 		},
+		// bitnami-labs/sealed-secrets
+		{
+			query:       "bitnami-labs/sealed-secrets=v0.20.2",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.20.2/kubeseal-0.20.2-linux-amd64.tar.gz",
+			execBinary:  "kubeseal",
+		},
+		{
+			query:       "bitnami-labs/sealed-secrets=v0.20.2",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.20.2/kubeseal-0.20.2-darwin-amd64.tar.gz",
+			execBinary:  "kubeseal",
+		},
+		{
+			query:       "bitnami-labs/sealed-secrets=v0.20.2",
+			platform:    NewPlatform("windows", "amd64"),
+			downloadURL: "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.20.2/kubeseal-0.20.2-windows-amd64.tar.gz",
+			execBinary:  "kubeseal.exe",
+		},
 		// buildpacks/pack
 		{
 			query:       "buildpacks/pack=v0.19.0",
