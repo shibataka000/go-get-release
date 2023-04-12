@@ -112,6 +112,11 @@
   repo: protobuf
   execBinary:
     name: protoc
+# snyk/cli
+- owner: snyk
+  repo: cli
+  execBinary:
+    name: snyk
 # viaduct-ai/kustomize-sops
 - owner: viaduct-ai
   repo: kustomize-sops
