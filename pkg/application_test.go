@@ -10,9 +10,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func NewClientForTest(ctx context.Context, t *testing.T) (*Client, error) {
+func NewApplicationServiceForTest(ctx context.Context, t *testing.T) (*ApplicationService, error) {
 	t.Helper()
-	return NewClient(ctx, os.Getenv("GITHUB_TOKEN"))
+	return NewApplicationService(ctx, os.Getenv("GITHUB_TOKEN"))
 }
 
 func TestInstall(t *testing.T) {
@@ -69,15 +69,15 @@ func TestInstall(t *testing.T) {
 			defer os.RemoveAll(dir)
 
 			ctx := context.Background()
-			client, err := NewClientForTest(ctx, t)
+			app, err := NewApplicationServiceForTest(ctx, t)
 			assert.NoError(err)
 			query, err := ParseQuery(tt.query)
 			assert.NoError(err)
 			platform := NewPlatform(os.Getenv("GOOS"), os.Getenv("GOARCH"))
-			pkg, err := client.Search(ctx, query, platform)
+			pkg, err := app.Search(ctx, query, platform)
 			assert.NoError(err)
 
-			err = client.Install(pkg, dir, io.Discard)
+			err = app.Install(pkg, dir, io.Discard)
 			assert.NoError(err)
 
 			cmd = exec.Command(tt.verifyCommand[0], tt.verifyCommand[1:]...)
@@ -602,11 +602,11 @@ func TestSearch(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			client, err := NewClientForTest(ctx, t)
+			app, err := NewApplicationServiceForTest(ctx, t)
 			assert.NoError(err)
 			query, err := ParseQuery(tt.query)
 			assert.NoError(err)
-			pkg, err := client.Search(ctx, query, tt.platform)
+			pkg, err := app.Search(ctx, query, tt.platform)
 			assert.NoError(err)
 			assert.Equal(tt.downloadURL, pkg.Asset.DownloadURL)
 			assert.Equal(tt.execBinary, pkg.ExecBinary.Name)

@@ -26,7 +26,7 @@ func NewCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
-			client, err := pkg.NewClient(ctx, token)
+			app, err := pkg.NewApplicationService(ctx, token)
 			if err != nil {
 				return err
 			}
@@ -35,7 +35,7 @@ func NewCommand() *cobra.Command {
 				return err
 			}
 			platform := pkg.NewPlatform(goos, goarch)
-			pkg, err := client.Search(ctx, query, platform)
+			pkg, err := app.Search(ctx, query, platform)
 			if err != nil {
 				return err
 			}
@@ -44,7 +44,7 @@ func NewCommand() *cobra.Command {
 				return nil
 			}
 			fmt.Println()
-			return client.Install(pkg, installDir, os.Stderr)
+			return app.Install(pkg, installDir, os.Stderr)
 		},
 	}
 
