@@ -46,6 +46,11 @@
   repo: cli
   execBinary:
     name: gh
+# docker/buildx
+- owner: docker
+  repo: buildx
+  execBinary:
+    name: docker-buildx
 # docker/compose
 - owner: docker
   repo: compose

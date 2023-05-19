@@ -272,6 +272,25 @@ func TestSearch(t *testing.T) {
 			downloadURL: "https://github.com/cli/cli/releases/download/v1.12.0/gh_1.12.0_windows_amd64.zip",
 			execBinary:  "gh.exe",
 		},
+		// docker/buildx
+		{
+			query:       "docker/buildx=v0.10.4",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/docker/buildx/releases/download/v0.10.4/buildx-v0.10.4.linux-amd64",
+			execBinary:  "docker-buildx",
+		},
+		{
+			query:       "docker/buildx=v0.10.4",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://github.com/docker/buildx/releases/download/v0.10.4/buildx-v0.10.4.darwin-amd64",
+			execBinary:  "docker-buildx",
+		},
+		{
+			query:       "docker/buildx=v0.10.4",
+			platform:    NewPlatform("windows", "amd64"),
+			downloadURL: "https://github.com/docker/buildx/releases/download/v0.10.4/buildx-v0.10.4.windows-amd64.exe",
+			execBinary:  "docker-buildx.exe",
+		},
 		// docker/compose
 		{
 			query:       "docker/compose=1.25.4",
