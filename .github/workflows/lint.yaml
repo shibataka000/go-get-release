@@ -1,11 +1,11 @@
 name: Lint
 on:
   push:
-permissions:
-  contents: read
 jobs:
   golangci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
