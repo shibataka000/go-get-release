@@ -9,7 +9,7 @@ import (
 
 // ApplicationService for package.
 type ApplicationService struct {
-	repository *Repository
+	repository *InfrastructureRepository
 	factory    *Factory
 }
 
@@ -21,7 +21,7 @@ type Query struct {
 
 // NewApplicationService return new application service instance.
 func NewApplicationService(ctx context.Context, token string) (*ApplicationService, error) {
-	repository := NewRepository(ctx, token)
+	repository := NewInfrastructureRepository(ctx, token)
 	index, err := repository.LoadBuiltInIndex()
 	if err != nil {
 		return &ApplicationService{}, err

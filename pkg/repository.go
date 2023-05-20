@@ -21,26 +21,26 @@ import (
 //go:embed index.yaml
 var builtInIndexData []byte
 
-// Repository for package domain.
-type Repository struct {
+// InfrastructureRepository for package domain.
+type InfrastructureRepository struct {
 	github *github.Client
 }
 
-// NewRepository return new repository instance.
-func NewRepository(ctx context.Context, token string) *Repository {
+// NewInfrastructureRepository return new infrastructure repository instance.
+func NewInfrastructureRepository(ctx context.Context, token string) *InfrastructureRepository {
 	var httpClient *http.Client
 	if token != "" {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	githubClient := github.NewClient(httpClient)
-	return &Repository{
+	return &InfrastructureRepository{
 		github: githubClient,
 	}
 }
 
 // SearchGitHubRepository search GitHub repository.
-func (r *Repository) SearchGitHubRepository(ctx context.Context, query string) (GitHubRepository, error) {
+func (r *InfrastructureRepository) SearchGitHubRepository(ctx context.Context, query string) (GitHubRepository, error) {
 	result, _, err := r.github.Search.Repositories(ctx, query, &github.SearchOptions{})
 	if err != nil {
 		return GitHubRepository{}, err
@@ -54,7 +54,7 @@ func (r *Repository) SearchGitHubRepository(ctx context.Context, query string) (
 }
 
 // FindGitHubRepository find GitHub repository.
-func (r *Repository) FindGitHubRepository(ctx context.Context, owner string, name string) (GitHubRepository, error) {
+func (r *InfrastructureRepository) FindGitHubRepository(ctx context.Context, owner string, name string) (GitHubRepository, error) {
 	repo, _, err := r.github.Repositories.Get(ctx, owner, name)
 	if err != nil {
 		return GitHubRepository{}, err
@@ -63,7 +63,7 @@ func (r *Repository) FindGitHubRepository(ctx context.Context, owner string, nam
 }
 
 // LatestGitHubRelease return latest GitHub release.
-func (r *Repository) LatestGitHubRelease(ctx context.Context, repo GitHubRepository) (GitHubRelease, error) {
+func (r *InfrastructureRepository) LatestGitHubRelease(ctx context.Context, repo GitHubRepository) (GitHubRelease, error) {
 	release, _, err := r.github.Repositories.GetLatestRelease(ctx, repo.Owner, repo.Name)
 	if err != nil {
 		return GitHubRelease{}, err
@@ -72,7 +72,7 @@ func (r *Repository) LatestGitHubRelease(ctx context.Context, repo GitHubReposit
 }
 
 // FindGitHubReleaseByTag return GitHub release by tag.
-func (r *Repository) FindGitHubReleaseByTag(ctx context.Context, repo GitHubRepository, tag string) (GitHubRelease, error) {
+func (r *InfrastructureRepository) FindGitHubReleaseByTag(ctx context.Context, repo GitHubRepository, tag string) (GitHubRelease, error) {
 	release, _, err := r.github.Repositories.GetReleaseByTag(ctx, repo.Owner, repo.Name, tag)
 	if err != nil {
 		return GitHubRelease{}, err
@@ -81,7 +81,7 @@ func (r *Repository) FindGitHubReleaseByTag(ctx context.Context, repo GitHubRepo
 }
 
 // ListGitHubAssets list assets in GitHub release.
-func (r *Repository) ListGitHubAssets(ctx context.Context, repo GitHubRepository, release GitHubRelease) ([]GitHubAsset, error) {
+func (r *InfrastructureRepository) ListGitHubAssets(ctx context.Context, repo GitHubRepository, release GitHubRelease) ([]GitHubAsset, error) {
 	result := []GitHubAsset{}
 	for page := 1; page != 0; {
 		assets, resp, err := r.github.Repositories.ListReleaseAssets(ctx, repo.Owner, repo.Name, release.ID, &github.ListOptions{
@@ -101,7 +101,7 @@ func (r *Repository) ListGitHubAssets(ctx context.Context, repo GitHubRepository
 }
 
 // LoadBuiltInIndex load and return built-in index.
-func (r *Repository) LoadBuiltInIndex() (Index, error) {
+func (r *InfrastructureRepository) LoadBuiltInIndex() (Index, error) {
 	repos := []RepositoryInIndex{}
 	err := yaml.Unmarshal(builtInIndexData, &repos)
 	if err != nil {
@@ -111,7 +111,7 @@ func (r *Repository) LoadBuiltInIndex() (Index, error) {
 }
 
 // Download file.
-func (r *Repository) Download(url URL, progressBar io.Writer) (File, error) {
+func (r *InfrastructureRepository) Download(url URL, progressBar io.Writer) (File, error) {
 	resp, err := http.Get(url.String())
 	if err != nil {
 		return File{}, err
@@ -132,7 +132,7 @@ func (r *Repository) Download(url URL, progressBar io.Writer) (File, error) {
 }
 
 // WriteFile write file to specified directory.
-func (r *Repository) WriteFile(file File, dir string, perm fs.FileMode) error {
+func (r *InfrastructureRepository) WriteFile(file File, dir string, perm fs.FileMode) error {
 	path := filepath.Join(dir, file.Name.String())
 	return os.WriteFile(path, file.Body, perm)
 }
