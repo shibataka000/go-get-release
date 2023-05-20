@@ -19,7 +19,7 @@ import (
 )
 
 //go:embed index.yaml
-var builtInIndexData []byte
+var BuiltInIndex []byte
 
 // InfrastructureRepository for package domain.
 type InfrastructureRepository struct {
@@ -103,7 +103,7 @@ func (r *InfrastructureRepository) ListGitHubAssets(ctx context.Context, repo Gi
 // LoadBuiltInIndex load and return built-in index.
 func (r *InfrastructureRepository) LoadBuiltInIndex() (Index, error) {
 	repos := []RepositoryInIndex{}
-	err := yaml.Unmarshal(builtInIndexData, &repos)
+	err := yaml.Unmarshal(BuiltInIndex, &repos)
 	if err != nil {
 		return Index{}, err
 	}
