@@ -40,10 +40,10 @@ func (a *ApplicationService) Search(ctx context.Context, query Query, platform P
 	var err error
 
 	var ghRepo GitHubRepository
-	if query.IsSingleRepositorySpecified() {
+	if query.HasOwner() {
 		ghRepo, err = a.repository.FindGitHubRepository(ctx, query.Repository.Owner, query.Repository.Name)
 	} else {
-		ghRepo, err = a.repository.SearchGitHubRepository(ctx, query.QueryToSearchGitHubRepository())
+		ghRepo, err = a.repository.SearchGitHubRepository(ctx, query.Repository.Name)
 	}
 	if err != nil {
 		return Package{}, err
@@ -124,17 +124,9 @@ func ParseQuery(query string) (Query, error) {
 	return NewQuery(NewRepository(submatch[2], submatch[3]), submatch[5]), nil
 }
 
-// QueryToSearchGitHubRepository return query string to search repository by SearchGitHubRepository function.
-func (q Query) QueryToSearchGitHubRepository() string {
-	if q.Repository.Owner == "" {
-		return q.Repository.Name
-	}
-	return q.Repository.FullName()
-}
-
-// IsSingleRepositorySpecified return true if query specify single repository.
-func (q Query) IsSingleRepositorySpecified() bool {
-	return q.Repository.Owner != "" && q.Repository.Name != ""
+// HasOwner return true if query has repository owner.
+func (q Query) HasOwner() bool {
+	return q.Repository.Owner != ""
 }
 
 // HasTag return true if query has tag.

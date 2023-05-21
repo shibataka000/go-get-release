@@ -661,54 +661,28 @@ func TestParseQuery(t *testing.T) {
 	}
 }
 
-func TestQueryQueryToSearchGitHubRepository(t *testing.T) {
+func TestQueryHasOwner(t *testing.T) {
 	tests := []struct {
-		name                          string
-		query                         Query
-		queryToSearchGitHubRepository string
+		name     string
+		query    Query
+		hasOwner bool
 	}{
 		{
-			name:                          "shibataka000/go-get-release=v0.0.1",
-			query:                         NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
-			queryToSearchGitHubRepository: "shibataka000/go-get-release",
+			name:     "shibataka000/go-get-release=v0.0.1",
+			query:    NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
+			hasOwner: true,
 		},
 		{
-			name:                          "go-get-release",
-			query:                         NewQuery(NewRepository("", "go-get-release"), ""),
-			queryToSearchGitHubRepository: "go-get-release",
+			name:     "go-get-release",
+			query:    NewQuery(NewRepository("", "go-get-release"), ""),
+			hasOwner: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
-			assert.Equal(tt.queryToSearchGitHubRepository, tt.query.QueryToSearchGitHubRepository())
-		})
-	}
-}
-
-func TestQueryIsSingleRepositorySpecified(t *testing.T) {
-	tests := []struct {
-		name                        string
-		query                       Query
-		isSingleRepositorySpecified bool
-	}{
-		{
-			name:                        "shibataka000/go-get-release=v0.0.1",
-			query:                       NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
-			isSingleRepositorySpecified: true,
-		},
-		{
-			name:                        "go-get-release",
-			query:                       NewQuery(NewRepository("", "go-get-release"), ""),
-			isSingleRepositorySpecified: false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert := require.New(t)
-			assert.Equal(tt.isSingleRepositorySpecified, tt.query.IsSingleRepositorySpecified())
+			assert.Equal(tt.hasOwner, tt.query.HasOwner())
 		})
 	}
 }
