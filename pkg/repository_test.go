@@ -9,12 +9,12 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func NewRepositoryForTest(ctx context.Context, t *testing.T) *Repository {
+func NewInfrastructureRepositoryForTest(ctx context.Context, t *testing.T) *InfrastructureRepository {
 	t.Helper()
-	return NewRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+	return NewInfrastructureRepository(ctx, os.Getenv("GITHUB_TOKEN"))
 }
 
-func TestRepositorySearchGitHubRepository(t *testing.T) {
+func TestInfrastructureRepositorySearchGitHubRepository(t *testing.T) {
 	tests := []struct {
 		name       string
 		query      string
@@ -31,7 +31,7 @@ func TestRepositorySearchGitHubRepository(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
+			repository := NewInfrastructureRepositoryForTest(ctx, t)
 			repo, err := repository.SearchGitHubRepository(ctx, tt.query)
 			assert.NoError(err)
 			assert.Equal(tt.repository, repo)
@@ -39,7 +39,7 @@ func TestRepositorySearchGitHubRepository(t *testing.T) {
 	}
 }
 
-func TestRepositoryFindGitHubRepository(t *testing.T) {
+func TestInfrastructureRepositoryFindGitHubRepository(t *testing.T) {
 	tests := []struct {
 		name       string
 		owner      string
@@ -58,7 +58,7 @@ func TestRepositoryFindGitHubRepository(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
+			repository := NewInfrastructureRepositoryForTest(ctx, t)
 			repo, err := repository.FindGitHubRepository(ctx, tt.owner, tt.repoName)
 			assert.NoError(err)
 			assert.Equal(tt.repository, repo)
@@ -66,7 +66,7 @@ func TestRepositoryFindGitHubRepository(t *testing.T) {
 	}
 }
 
-func TestRepositoryLatestGitHubRelease(t *testing.T) {
+func TestInfrastructureRepositoryLatestGitHubRelease(t *testing.T) {
 	tests := []struct {
 		name       string
 		repository GitHubRepository
@@ -83,7 +83,7 @@ func TestRepositoryLatestGitHubRelease(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
+			repository := NewInfrastructureRepositoryForTest(ctx, t)
 			release, err := repository.LatestGitHubRelease(ctx, tt.repository)
 			assert.NoError(err)
 			assert.Equal(tt.release, release)
@@ -91,7 +91,7 @@ func TestRepositoryLatestGitHubRelease(t *testing.T) {
 	}
 }
 
-func TestRepositoryFindGitHubReleaseByTag(t *testing.T) {
+func TestInfrastructureRepositoryFindGitHubReleaseByTag(t *testing.T) {
 	tests := []struct {
 		name       string
 		repository GitHubRepository
@@ -110,7 +110,7 @@ func TestRepositoryFindGitHubReleaseByTag(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
+			repository := NewInfrastructureRepositoryForTest(ctx, t)
 			release, err := repository.FindGitHubReleaseByTag(ctx, tt.repository, tt.tag)
 			assert.NoError(err)
 			assert.Equal(tt.release, release)
@@ -118,7 +118,7 @@ func TestRepositoryFindGitHubReleaseByTag(t *testing.T) {
 	}
 }
 
-func TestRepositoryListGitHubAssets(t *testing.T) {
+func TestInfrastructureRepositoryListGitHubAssets(t *testing.T) {
 	tests := []struct {
 		name       string
 		repository GitHubRepository
@@ -156,7 +156,7 @@ func TestRepositoryListGitHubAssets(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
+			repository := NewInfrastructureRepositoryForTest(ctx, t)
 			assets, err := repository.ListGitHubAssets(ctx, tt.repository, tt.release)
 			assert.NoError(err)
 			assert.Equal(tt.assets, assets)
@@ -164,7 +164,7 @@ func TestRepositoryListGitHubAssets(t *testing.T) {
 	}
 }
 
-func TestRepositoryDownload(t *testing.T) {
+func TestInfrastructureRepositoryDownload(t *testing.T) {
 	tests := []struct {
 		name string
 		url  URL
@@ -181,7 +181,7 @@ func TestRepositoryDownload(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryForTest(ctx, t)
+			repository := NewInfrastructureRepositoryForTest(ctx, t)
 			file, err := repository.Download(tt.url, io.Discard)
 			assert.NoError(err)
 			assert.Equal(tt.file, file)

@@ -1,25 +1,18 @@
 package pkg
 
-import (
-	"fmt"
-	"strings"
-
-	"golang.org/x/mod/semver"
-)
-
 // GitHubRepository is repository in GitHub.
 type GitHubRepository struct {
 	Owner string
 	Name  string
 }
 
-// GitHubRelease is release in GitHub repository.
+// GitHubRelease is release in GitHub.
 type GitHubRelease struct {
 	ID  int64
 	Tag string
 }
 
-// GitHubAsset is asset in GitHub release.
+// GitHubAsset is release asset in GitHub.
 type GitHubAsset struct {
 	DownloadURL URL
 }
@@ -32,26 +25,12 @@ func NewGitHubRepository(owner string, name string) GitHubRepository {
 	}
 }
 
-// FullName return GitHub repository full name.
-func (r GitHubRepository) FullName() string {
-	return fmt.Sprintf("%s/%s", r.Owner, r.Name)
-}
-
 // NewGitHubRelease return new GitHub release instance.
 func NewGitHubRelease(id int64, tag string) GitHubRelease {
 	return GitHubRelease{
 		ID:  id,
 		Tag: tag,
 	}
-}
-
-// SemVer return semver formatted release tag.
-// For example, if release tag is "v1.2.3", this return "1.2.3".
-func (r GitHubRelease) SemVer() (string, error) {
-	if !semver.IsValid(r.Tag) && !semver.IsValid(fmt.Sprintf("v%s", r.Tag)) {
-		return "", fmt.Errorf("%s is not valid semver", r.Tag)
-	}
-	return strings.TrimLeft(r.Tag, "v"), nil
 }
 
 // NewGitHubAsset return new GitHub release asset instance.
@@ -67,8 +46,23 @@ func (a GitHubAsset) HasExecBinary() bool {
 	return filename.IsExecBinary() || filename.IsArchived() || filename.IsCompressed()
 }
 
-// Platform return platform guessed by asset name.
+// Platform return platform guessed by asset file name.
 func (a GitHubAsset) Platform() (Platform, error) {
 	filename := a.DownloadURL.FileName()
 	return filename.Platform()
+}
+
+// FilterGitHubAssetByPlatform filter assets which has executable binary for specified platform.
+func FilterGitHubAssetByPlatform(assets []GitHubAsset, platform Platform) []GitHubAsset {
+	result := []GitHubAsset{}
+	for _, asset := range assets {
+		p, err := asset.Platform()
+		if err != nil {
+			continue
+		}
+		if asset.HasExecBinary() && platform.Equals(p) {
+			result = append(result, asset)
+		}
+	}
+	return result
 }
