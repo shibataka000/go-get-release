@@ -33,27 +33,6 @@ func TestPackageStringToPrompt(t *testing.T) {
 	}
 }
 
-func TestRepositoryFullName(t *testing.T) {
-	tests := []struct {
-		name       string
-		repository Repository
-		fullName   string
-	}{
-		{
-			name:       "hashicorp/terraform",
-			repository: NewRepository("hashicorp", "terraform"),
-			fullName:   "hashicorp/terraform",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert := require.New(t)
-			assert.Equal(tt.fullName, tt.repository.FullName())
-		})
-	}
-}
-
 func TestReleaseSemVer(t *testing.T) {
 	tests := []struct {
 		name    string

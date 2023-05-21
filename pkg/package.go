@@ -75,11 +75,6 @@ func (p Package) StringToPrompt() string {
 	return fmt.Sprintf("Repo:\t%s/%s\nTag:\t%s\nAsset:\t%s\nBinary:\t%s", p.Repository.Owner, p.Repository.Name, p.Release.Tag, p.Asset.DownloadURL.FileName().String(), p.ExecBinary.Name)
 }
 
-// FullName return repository full name.
-func (r Repository) FullName() string {
-	return fmt.Sprintf("%s/%s", r.Owner, r.Name)
-}
-
 // SemVer return semver formatted release tag.
 // For example, if release tag is "v1.2.3", this return "1.2.3".
 func (r Release) SemVer() (string, error) {
