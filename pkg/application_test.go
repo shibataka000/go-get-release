@@ -17,7 +17,7 @@ func NewApplicationServiceForTest(ctx context.Context, t *testing.T) *Applicatio
 	return NewApplicationService(repository, factory)
 }
 
-func TestInstall(t *testing.T) {
+func TestApplicationServiceInstall(t *testing.T) {
 	tests := []struct {
 		query         string
 		verifyCommand []string
@@ -88,7 +88,7 @@ func TestInstall(t *testing.T) {
 	}
 }
 
-func TestSearch(t *testing.T) {
+func TestApplicationServiceSearch(t *testing.T) {
 	tests := []struct {
 		query       string
 		platform    Platform
