@@ -3,60 +3,56 @@ package pkg
 import "fmt"
 
 // Factory.
-type Factory struct {
-	index Index
-}
+type Factory struct{}
 
 // NewFactory return new factory instance.
-func NewFactory(index Index) *Factory {
-	return &Factory{
-		index: index,
-	}
+func NewFactory() *Factory {
+	return &Factory{}
 }
 
-// NewAssetMeta return new metadata instance about GitHub release asset.
-// If metadata is defined in index, it is returned. Otherwise metadata got from GitHub is returned.
-func (f *Factory) NewAssetMeta(repo GitHubRepository, release GitHubRelease, assets []GitHubAsset, platform Platform) (AssetMeta, error) {
-	if f.index.HasAsset(repo, platform) {
-		asset, err := f.index.FindAsset(repo, platform)
-		if err != nil {
-			return AssetMeta{}, err
-		}
-		return NewAssetMetaFromIndex(asset, release)
-	}
+// NewRepository return new repository instance.
+func (f *Factory) NewRepository(repo GitHubRepository) Repository {
+	return Repository(repo)
+}
 
-	asset, err := findAssetByPlatform(assets, platform)
+// NewRelease return new repository instance.
+func (f *Factory) NewRelease(release GitHubRelease) Release {
+	return NewRelease(release.Tag)
+}
+
+// NewAssetFromIndex return new asset instance from index.
+func (f *Factory) NewAssetFromIndex(asset AssetInIndex, release Release) (Asset, error) {
+	downloadURL, err := asset.DownloadURL.RenderWithRelease(release)
 	if err != nil {
-		return AssetMeta{}, err
+		return Asset{}, err
 	}
-	return AssetMeta(asset), err
+	return NewAsset(downloadURL), nil
 }
 
-// NewExecBinaryMeta return new metadata instance about executable binary.
-// If metadata is defined in index, it is returned. Otherwise metadata got from GitHub is returned.
-// In latter case, binary name is same to GitHub repository name.
-func (f *Factory) NewExecBinaryMeta(repo GitHubRepository, platform Platform) (ExecBinaryMeta, error) {
-	if f.index.HasExecBinary(repo) {
-		execBinary, err := f.index.FindExecBinary(repo)
-		if err != nil {
-			return ExecBinaryMeta{}, err
-		}
-		return NewExecBinaryMetaWithPlatform(execBinary.BaseName, platform), nil
+// NewAssetFromGitHub return new asset instance from GitHub.
+func (f *Factory) NewAssetFromGitHub(assets []GitHubAsset, platform Platform) (Asset, error) {
+	filtered := FilterGitHubAssetByPlatform(assets, platform)
+	if len(filtered) == 0 {
+		return Asset{}, fmt.Errorf("asset for %v was not found", platform)
 	}
-
-	return NewExecBinaryMetaWithPlatform(NewFileName(repo.Name), platform), nil
+	return Asset(filtered[0]), nil
 }
 
-// findAssetByPlatform find asset which has executable binary and whose platform is same to one in arguments from assets in arguments.
-func findAssetByPlatform(assets []GitHubAsset, platform Platform) (GitHubAsset, error) {
-	for _, asset := range assets {
-		p, err := asset.Platform()
-		if err != nil {
-			continue
-		}
-		if asset.HasExecBinary() && platform.Equals(p) {
-			return asset, nil
-		}
+// NewExecBinaryFromIndex return executable binary instance from index.
+func (f *Factory) NewExecBinaryFromIndex(execBinary ExecBinaryInIndex, platform Platform) ExecBinary {
+	return f.NewExecBinaryWithPlatform(execBinary.BaseName, platform)
+}
+
+// NewExecBinaryFromGitHub return executable binary instance from GitHub.
+func (f *Factory) NewExecBinaryFromGitHub(repo GitHubRepository, platform Platform) ExecBinary {
+	return f.NewExecBinaryWithPlatform(NewFileName(repo.Name), platform)
+}
+
+// NewExecBinaryWithPlatform return new executable binary instance.
+// If os is windows, extension ".exe" is added.
+func (f *Factory) NewExecBinaryWithPlatform(baseName FileName, platform Platform) ExecBinary {
+	if platform.OS == "windows" {
+		return NewExecBinary(baseName.AddExt(".exe"))
 	}
-	return GitHubAsset{}, fmt.Errorf("asset for %v was not found in %v", platform, assets)
+	return NewExecBinary(baseName)
 }

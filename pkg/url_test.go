@@ -31,13 +31,13 @@ func TestURLTemplateRenderWithRelease(t *testing.T) {
 	tests := []struct {
 		name    string
 		tmpl    URLTemplate
-		release GitHubRelease
+		release Release
 		url     URL
 	}{
 		{
 			name:    "https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Linux_x86_64.tar.gz",
 			tmpl:    NewURLTemplate("https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Linux_x86_64.tar.gz"),
-			release: NewGitHubRelease(0, "v4.1.0"),
+			release: NewRelease("v4.1.0"),
 			url:     NewURL("https://github.com/viaduct-ai/kustomize-sops/releases/download/v4.1.0/ksops_4.1.0_Linux_x86_64.tar.gz"),
 		},
 	}

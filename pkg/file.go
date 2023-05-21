@@ -22,6 +22,12 @@ type File struct {
 	Body []byte
 }
 
+// AssetFile is asset file.
+type AssetFile File
+
+// ExecBinaryFile is executable binary file.
+type ExecBinaryFile File
+
 // FileName is file name.
 type FileName string
 
@@ -31,6 +37,27 @@ func NewFile(name FileName, body []byte) File {
 		Name: name,
 		Body: body,
 	}
+}
+
+// NewAssetFile return new asset file instance.
+func NewAssetFile(name FileName, body []byte) AssetFile {
+	return AssetFile{
+		Name: name,
+		Body: body,
+	}
+}
+
+// NewExecBinaryFile return new executable binary file instance.
+func NewExecBinaryFile(name FileName, body []byte) ExecBinaryFile {
+	return ExecBinaryFile{
+		Name: name,
+		Body: body,
+	}
+}
+
+// NewFileName return new file name instance.
+func NewFileName(name string) FileName {
+	return FileName(name)
 }
 
 // Extract compressed file.
@@ -56,7 +83,7 @@ func (f File) Extract() (File, error) {
 	return NewFile(fileName.TrimExt(), dst.Bytes()), nil
 }
 
-// FindFile find file in archived file and return it.
+// FindFile find file in archived file.
 func (f File) FindFile(target FileName) (File, error) {
 	fileName := f.Name.Normalize()
 	src := bytes.NewReader(f.Body)
@@ -166,9 +193,30 @@ func copyFileInZip(dst io.Writer, src io.Reader, target FileName) error {
 	return fmt.Errorf("file '%s' was not found in zip file", target)
 }
 
-// NewFileName return new FileName instance.
-func NewFileName(name string) FileName {
-	return FileName(name)
+// ExecBinary return executable binary file in asset file.
+func (f AssetFile) ExecBinary(execBinary FileName) (ExecBinaryFile, error) {
+	file := File(f)
+	var err error
+
+	if file.Name.IsCompressed() && (!file.Name.IsArchived() || file.Name.IsTarBall()) {
+		file, err = file.Extract()
+		if err != nil {
+			return ExecBinaryFile{}, err
+		}
+	}
+
+	if file.Name.IsArchived() {
+		file, err = file.FindFile(execBinary)
+		if err != nil {
+			return ExecBinaryFile{}, err
+		}
+	}
+
+	if !file.Name.IsExecBinary() {
+		return ExecBinaryFile{}, fmt.Errorf("%s is not executable binary", file.Name)
+	}
+
+	return NewExecBinaryFile(execBinary, file.Body), nil
 }
 
 // String return string typed file name.
@@ -185,6 +233,11 @@ func (f FileName) Ext() string {
 func (f FileName) TrimExt() FileName {
 	name := strings.TrimSuffix(f.String(), f.Ext())
 	return NewFileName(name)
+}
+
+// AddExt add extension to file name and return new FileName instance.
+func (f FileName) AddExt(ext string) FileName {
+	return NewFileName(fmt.Sprintf("%s.%s", f.String(), strings.TrimPrefix(ext, ".")))
 }
 
 // Normalize file name.
@@ -238,7 +291,7 @@ func (f FileName) Platform() (Platform, error) {
 
 }
 
-// os return os guessed by file name.
+// os guessed by file name.
 func (f FileName) os() (string, error) {
 	// These are listed by following command.
 	// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\1/g" | sort | uniq`
@@ -262,7 +315,7 @@ func (f FileName) os() (string, error) {
 	return findKeyWhichHasLongestMatchValue(platforms, lowner)
 }
 
-// arch return arch guessed by file name.
+// arch guessed by file name.
 // 'amd64' is returned by default.
 func (f FileName) arch() (string, error) {
 	// These are listed by following command.

@@ -26,15 +26,14 @@ func NewCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			ctx := context.Background()
-			app, err := pkg.NewApplicationService(ctx, token)
-			if err != nil {
-				return err
-			}
+			repository := pkg.NewInfrastructureRepository(ctx, token)
+			factory := pkg.NewFactory()
+			app := pkg.NewApplicationService(repository, factory)
+			platform := pkg.NewPlatform(goos, goarch)
 			query, err := pkg.ParseQuery(args[0])
 			if err != nil {
 				return err
 			}
-			platform := pkg.NewPlatform(goos, goarch)
 			pkg, err := app.Search(ctx, query, platform)
 			if err != nil {
 				return err

@@ -7,7 +7,7 @@ import (
 	"regexp"
 )
 
-// ApplicationService for package.
+// ApplicationService.
 type ApplicationService struct {
 	repository *InfrastructureRepository
 	factory    *Factory
@@ -15,60 +15,87 @@ type ApplicationService struct {
 
 // Query to search package.
 type Query struct {
-	Repository GitHubRepository
+	Repository Repository
 	Tag        string
 }
 
 // NewApplicationService return new application service instance.
-func NewApplicationService(ctx context.Context, token string) (*ApplicationService, error) {
-	repository := NewInfrastructureRepository(ctx, token)
-	index, err := repository.LoadBuiltInIndex()
-	if err != nil {
-		return &ApplicationService{}, err
-	}
-	factory := NewFactory(index)
+func NewApplicationService(repository *InfrastructureRepository, factory *Factory) *ApplicationService {
 	return &ApplicationService{
 		repository: repository,
 		factory:    factory,
-	}, nil
+	}
+}
+
+// NewQuery return new query instance.
+func NewQuery(repo Repository, tag string) Query {
+	return Query{
+		Repository: repo,
+		Tag:        tag,
+	}
 }
 
 // Search package.
 func (a *ApplicationService) Search(ctx context.Context, query Query, platform Platform) (Package, error) {
 	var err error
 
-	var repo GitHubRepository
-	if query.HasFullRepositoryName() {
-		repo, err = a.repository.FindGitHubRepository(ctx, query.Repository.Owner, query.Repository.Name)
+	var ghRepo GitHubRepository
+	if query.IsSingleRepositorySpecified() {
+		ghRepo, err = a.repository.FindGitHubRepository(ctx, query.Repository.Owner, query.Repository.Name)
 	} else {
-		repo, err = a.repository.SearchGitHubRepository(ctx, query.SearchRepositoryQuery())
+		ghRepo, err = a.repository.SearchGitHubRepository(ctx, query.QueryToSearchGitHubRepository())
 	}
 	if err != nil {
 		return Package{}, err
 	}
+	repo := a.factory.NewRepository(ghRepo)
 
-	var release GitHubRelease
+	var ghRelease GitHubRelease
 	if query.HasTag() {
-		release, err = a.repository.FindGitHubReleaseByTag(ctx, repo, query.Tag)
+		ghRelease, err = a.repository.FindGitHubReleaseByTag(ctx, ghRepo, query.Tag)
 	} else {
-		release, err = a.repository.LatestGitHubRelease(ctx, repo)
+		ghRelease, err = a.repository.LatestGitHubRelease(ctx, ghRepo)
 	}
+	if err != nil {
+		return Package{}, err
+	}
+	release := a.factory.NewRelease(ghRelease)
+
+	index, err := a.repository.LoadBuiltInIndex()
 	if err != nil {
 		return Package{}, err
 	}
 
-	assets, err := a.repository.ListGitHubAssets(ctx, repo, release)
-	if err != nil {
-		return Package{}, err
-	}
-	asset, err := a.factory.NewAssetMeta(repo, release, assets, platform)
-	if err != nil {
-		return Package{}, err
+	var asset Asset
+	if index.HasAsset(repo, platform) {
+		assetInIndex, err := index.FindAsset(repo, platform)
+		if err != nil {
+			return Package{}, err
+		}
+		asset, err = a.factory.NewAssetFromIndex(assetInIndex, release)
+		if err != nil {
+			return Package{}, err
+		}
+	} else {
+		ghAssets, err := a.repository.ListGitHubAssets(ctx, ghRepo, ghRelease)
+		if err != nil {
+			return Package{}, err
+		}
+		asset, err = a.factory.NewAssetFromGitHub(ghAssets, platform)
+		if err != nil {
+			return Package{}, err
+		}
 	}
 
-	execBinary, err := a.factory.NewExecBinaryMeta(repo, platform)
-	if err != nil {
-		return Package{}, err
+	var execBinary ExecBinary
+	if index.HasExecBinary(repo) {
+		execBinaryInIndex, err := index.FindExecBinary(repo)
+		if err != nil {
+			return Package{}, err
+		}
+		execBinary = a.factory.NewExecBinaryFromIndex(execBinaryInIndex, platform)
+	} else {
+		execBinary = a.factory.NewExecBinaryFromGitHub(ghRepo, platform)
 	}
 
 	return New(repo, release, asset, execBinary), nil
@@ -87,14 +114,6 @@ func (a *ApplicationService) Install(pkg Package, dir string, progressBar io.Wri
 	return a.repository.WriteFile(File(execBinary), dir, 0755)
 }
 
-// NewQuery return new query instance to search package.
-func NewQuery(repo GitHubRepository, tag string) Query {
-	return Query{
-		Repository: repo,
-		Tag:        tag,
-	}
-}
-
 // ParseQuery parse query string and return query instance.
 func ParseQuery(query string) (Query, error) {
 	re := regexp.MustCompile(`(([^/=]+)/)?([^/=]+)(=([^/=]+))?`)
@@ -102,23 +121,23 @@ func ParseQuery(query string) (Query, error) {
 	if submatch == nil || len(submatch) != 6 {
 		return Query{}, fmt.Errorf("%s is invalid query", query)
 	}
-	return NewQuery(NewGitHubRepository(submatch[2], submatch[3]), submatch[5]), nil
+	return NewQuery(NewRepository(submatch[2], submatch[3]), submatch[5]), nil
 }
 
-// SearchRepositoryQuery return query string to search GitHub repository by SearchRepository function.
-func (q Query) SearchRepositoryQuery() string {
+// QueryToSearchGitHubRepository return query string to search repository by SearchGitHubRepository function.
+func (q Query) QueryToSearchGitHubRepository() string {
 	if q.Repository.Owner == "" {
 		return q.Repository.Name
 	}
 	return q.Repository.FullName()
 }
 
-// HasFullRepositoryName return true if query string has both of owner and name of GitHub repository.
-func (q Query) HasFullRepositoryName() bool {
+// IsSingleRepositorySpecified return true if query specify single repository.
+func (q Query) IsSingleRepositorySpecified() bool {
 	return q.Repository.Owner != "" && q.Repository.Name != ""
 }
 
-// HasTag return true if query string has GitHub release tag.
+// HasTag return true if query has tag.
 func (q Query) HasTag() bool {
 	return q.Tag != ""
 }

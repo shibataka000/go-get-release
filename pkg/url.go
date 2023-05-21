@@ -17,20 +17,20 @@ func NewURL(url string) URL {
 	return URL(url)
 }
 
+// NewURLTemplate return URL template instance.
+func NewURLTemplate(tmpl string) URLTemplate {
+	return URLTemplate(tmpl)
+}
+
 // String return string typed URL.
 func (url URL) String() string {
 	return string(url)
 }
 
-// FileName return file name downloaded from this URL.
+// FileName return file name of downloaded file from this URL.
 func (url URL) FileName() FileName {
 	base := path.Base(url.String())
 	return NewFileName(base)
-}
-
-// NewURLTemplate return URL template instance.
-func NewURLTemplate(tmpl string) URLTemplate {
-	return URLTemplate(tmpl)
 }
 
 // String return string typed URL template.
@@ -38,8 +38,8 @@ func (url URLTemplate) String() string {
 	return string(url)
 }
 
-// RenderWithRelease render URL with GitHub release.
-func (url URLTemplate) RenderWithRelease(release GitHubRelease) (URL, error) {
+// RenderWithRelease render URL with release.
+func (url URLTemplate) RenderWithRelease(release Release) (URL, error) {
 	semver, err := release.SemVer()
 	if err != nil {
 		return "", err

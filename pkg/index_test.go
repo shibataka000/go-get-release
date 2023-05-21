@@ -25,12 +25,12 @@ func LoadIndexForTest(t *testing.T) (Index, error) {
 func TestIndexFindRepository(t *testing.T) {
 	tests := []struct {
 		name       string
-		githubRepo GitHubRepository
+		githubRepo Repository
 		indexRepo  RepositoryInIndex
 	}{
 		{
 			name:       "hashicorp/terraform",
-			githubRepo: NewGitHubRepository("hashicorp", "terraform"),
+			githubRepo: NewRepository("hashicorp", "terraform"),
 			indexRepo: NewRepositoryInIndex("hashicorp", "terraform", []AssetInIndex{
 				NewAssetInIndex("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip", "linux", "amd64"),
 				NewAssetInIndex("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip", "darwin", "amd64"),
@@ -54,13 +54,13 @@ func TestIndexFindRepository(t *testing.T) {
 func TestIndexFindAsset(t *testing.T) {
 	tests := []struct {
 		name       string
-		repository GitHubRepository
+		repository Repository
 		platform   Platform
 		asset      AssetInIndex
 	}{
 		{
 			name:       "hashicorp/terraform",
-			repository: NewGitHubRepository("hashicorp", "terraform"),
+			repository: NewRepository("hashicorp", "terraform"),
 			platform:   NewPlatform("linux", "amd64"),
 			asset:      NewAssetInIndex("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip", "linux", "amd64"),
 		},
@@ -81,19 +81,19 @@ func TestIndexFindAsset(t *testing.T) {
 func TestIndexHasAsset(t *testing.T) {
 	tests := []struct {
 		name       string
-		repository GitHubRepository
+		repository Repository
 		platform   Platform
 		hasAsset   bool
 	}{
 		{
 			name:       "hashicorp/terraform",
-			repository: NewGitHubRepository("hashicorp", "terraform"),
+			repository: NewRepository("hashicorp", "terraform"),
 			platform:   NewPlatform("linux", "amd64"),
 			hasAsset:   true,
 		},
 		{
 			name:       "shibataka000/go-get-release",
-			repository: NewGitHubRepository("shibataka000", "go-get-release"),
+			repository: NewRepository("shibataka000", "go-get-release"),
 			platform:   NewPlatform("linux", "amd64"),
 			hasAsset:   false,
 		},
@@ -113,12 +113,12 @@ func TestIndexHasAsset(t *testing.T) {
 func TestIndexFindExecBinary(t *testing.T) {
 	tests := []struct {
 		name       string
-		repository GitHubRepository
+		repository Repository
 		execBinary ExecBinaryInIndex
 	}{
 		{
 			name:       "hashicorp/terraform",
-			repository: NewGitHubRepository("hashicorp", "terraform"),
+			repository: NewRepository("hashicorp", "terraform"),
 			execBinary: NewExecBinaryInIndex("terraform"),
 		},
 	}
@@ -138,17 +138,17 @@ func TestIndexFindExecBinary(t *testing.T) {
 func TestIndexHasExecBinary(t *testing.T) {
 	tests := []struct {
 		name          string
-		repository    GitHubRepository
+		repository    Repository
 		hasExecBinary bool
 	}{
 		{
 			name:          "hashicorp/terraform",
-			repository:    NewGitHubRepository("hashicorp", "terraform"),
+			repository:    NewRepository("hashicorp", "terraform"),
 			hasExecBinary: true,
 		},
 		{
 			name:          "shibataka000/go-get-release",
-			repository:    NewGitHubRepository("shibataka000", "go-get-release"),
+			repository:    NewRepository("shibataka000", "go-get-release"),
 			hasExecBinary: false,
 		},
 	}
@@ -168,19 +168,19 @@ func TestRepositoryInIndexEquals(t *testing.T) {
 	tests := []struct {
 		name       string
 		indexRepo  RepositoryInIndex
-		githubRepo GitHubRepository
+		githubRepo Repository
 		equals     bool
 	}{
 		{
 			name:       "hashicorp/terraform",
 			indexRepo:  NewRepositoryInIndex("hashicorp", "terraform", []AssetInIndex{}, NewExecBinaryInIndex("")),
-			githubRepo: NewGitHubRepository("hashicorp", "terraform"),
+			githubRepo: NewRepository("hashicorp", "terraform"),
 			equals:     true,
 		},
 		{
 			name:       "hashicorp/terraform",
 			indexRepo:  NewRepositoryInIndex("hashicorp", "terraform", []AssetInIndex{}, NewExecBinaryInIndex("")),
-			githubRepo: NewGitHubRepository("hashicorp", "vault"),
+			githubRepo: NewRepository("hashicorp", "vault"),
 			equals:     false,
 		},
 	}

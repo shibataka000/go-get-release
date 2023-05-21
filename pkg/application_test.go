@@ -10,9 +10,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func NewApplicationServiceForTest(ctx context.Context, t *testing.T) (*ApplicationService, error) {
+func NewApplicationServiceForTest(ctx context.Context, t *testing.T) *ApplicationService {
 	t.Helper()
-	return NewApplicationService(ctx, os.Getenv("GITHUB_TOKEN"))
+	repository := NewInfrastructureRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+	factory := NewFactory()
+	return NewApplicationService(repository, factory)
 }
 
 func TestInstall(t *testing.T) {
@@ -69,8 +71,7 @@ func TestInstall(t *testing.T) {
 			defer os.RemoveAll(dir)
 
 			ctx := context.Background()
-			app, err := NewApplicationServiceForTest(ctx, t)
-			assert.NoError(err)
+			app := NewApplicationServiceForTest(ctx, t)
 			query, err := ParseQuery(tt.query)
 			assert.NoError(err)
 			platform := NewPlatform(os.Getenv("GOOS"), os.Getenv("GOARCH"))
@@ -621,8 +622,7 @@ func TestSearch(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			assert := require.New(t)
 			ctx := context.Background()
-			app, err := NewApplicationServiceForTest(ctx, t)
-			assert.NoError(err)
+			app := NewApplicationServiceForTest(ctx, t)
 			query, err := ParseQuery(tt.query)
 			assert.NoError(err)
 			pkg, err := app.Search(ctx, query, tt.platform)
@@ -642,12 +642,12 @@ func TestParseQuery(t *testing.T) {
 		{
 			name:     "shibataka000/go-get-release=v0.0.1",
 			queryStr: "shibataka000/go-get-release=v0.0.1",
-			query:    NewQuery(NewGitHubRepository("shibataka000", "go-get-release"), "v0.0.1"),
+			query:    NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
 		},
 		{
 			name:     "go-get-release",
 			queryStr: "go-get-release",
-			query:    NewQuery(NewGitHubRepository("", "go-get-release"), ""),
+			query:    NewQuery(NewRepository("", "go-get-release"), ""),
 		},
 	}
 
@@ -661,54 +661,54 @@ func TestParseQuery(t *testing.T) {
 	}
 }
 
-func TestQuerySearchRepositoryQuery(t *testing.T) {
+func TestQueryQueryToSearchGitHubRepository(t *testing.T) {
 	tests := []struct {
-		name                  string
-		query                 Query
-		searchRepositoryQuery string
+		name                          string
+		query                         Query
+		queryToSearchGitHubRepository string
 	}{
 		{
-			name:                  "shibataka000/go-get-release=v0.0.1",
-			query:                 NewQuery(NewGitHubRepository("shibataka000", "go-get-release"), "v0.0.1"),
-			searchRepositoryQuery: "shibataka000/go-get-release",
+			name:                          "shibataka000/go-get-release=v0.0.1",
+			query:                         NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
+			queryToSearchGitHubRepository: "shibataka000/go-get-release",
 		},
 		{
-			name:                  "go-get-release",
-			query:                 NewQuery(NewGitHubRepository("", "go-get-release"), ""),
-			searchRepositoryQuery: "go-get-release",
+			name:                          "go-get-release",
+			query:                         NewQuery(NewRepository("", "go-get-release"), ""),
+			queryToSearchGitHubRepository: "go-get-release",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
-			assert.Equal(tt.searchRepositoryQuery, tt.query.SearchRepositoryQuery())
+			assert.Equal(tt.queryToSearchGitHubRepository, tt.query.QueryToSearchGitHubRepository())
 		})
 	}
 }
 
-func TestQueryHasFullRepositoryName(t *testing.T) {
+func TestQueryIsSingleRepositorySpecified(t *testing.T) {
 	tests := []struct {
-		name                  string
-		query                 Query
-		hasFullRepositoryName bool
+		name                        string
+		query                       Query
+		isSingleRepositorySpecified bool
 	}{
 		{
-			name:                  "shibataka000/go-get-release=v0.0.1",
-			query:                 NewQuery(NewGitHubRepository("shibataka000", "go-get-release"), "v0.0.1"),
-			hasFullRepositoryName: true,
+			name:                        "shibataka000/go-get-release=v0.0.1",
+			query:                       NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
+			isSingleRepositorySpecified: true,
 		},
 		{
-			name:                  "go-get-release",
-			query:                 NewQuery(NewGitHubRepository("", "go-get-release"), ""),
-			hasFullRepositoryName: false,
+			name:                        "go-get-release",
+			query:                       NewQuery(NewRepository("", "go-get-release"), ""),
+			isSingleRepositorySpecified: false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
-			assert.Equal(tt.hasFullRepositoryName, tt.query.HasFullRepositoryName())
+			assert.Equal(tt.isSingleRepositorySpecified, tt.query.IsSingleRepositorySpecified())
 		})
 	}
 }
@@ -721,12 +721,12 @@ func TestQueryHasTag(t *testing.T) {
 	}{
 		{
 			name:   "shibataka000/go-get-release=v0.0.1",
-			query:  NewQuery(NewGitHubRepository("shibataka000", "go-get-release"), "v0.0.1"),
+			query:  NewQuery(NewRepository("shibataka000", "go-get-release"), "v0.0.1"),
 			hasTag: true,
 		},
 		{
 			name:   "go-get-release",
-			query:  NewQuery(NewGitHubRepository("", "go-get-release"), ""),
+			query:  NewQuery(NewRepository("", "go-get-release"), ""),
 			hasTag: false,
 		},
 	}
@@ -734,7 +734,7 @@ func TestQueryHasTag(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			assert := require.New(t)
-			assert.Equal(tt.hasTag, tt.query.HasFullRepositoryName())
+			assert.Equal(tt.hasTag, tt.query.HasTag())
 		})
 	}
 }
