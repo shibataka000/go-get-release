@@ -117,6 +117,11 @@
   repo: istio
   execBinary:
     name: istioctl
+# open-policy-agent/gatekeeper
+- owner: open-policy-agent
+  repo: gatekeeper
+  execBinary:
+    name: gator
 # protocolbuffers/protobuf
 - owner: protocolbuffers
   repo: protobuf

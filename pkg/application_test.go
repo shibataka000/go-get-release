@@ -520,6 +520,19 @@ func TestApplicationServiceSearch(t *testing.T) {
 			downloadURL: "https://github.com/open-policy-agent/conftest/releases/download/v0.21.0/conftest_0.21.0_Windows_x86_64.zip",
 			execBinary:  "conftest.exe",
 		},
+		// open-policy-agent/gatekeeper
+		{
+			query:       "open-policy-agent/gatekeeper=v3.12.0",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/open-policy-agent/gatekeeper/releases/download/v3.12.0/gator-v3.12.0-linux-amd64.tar.gz",
+			execBinary:  "gator",
+		},
+		{
+			query:       "open-policy-agent/gatekeeper=v3.12.0",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://github.com/open-policy-agent/gatekeeper/releases/download/v3.12.0/gator-v3.12.0-darwin-amd64.tar.gz",
+			execBinary:  "gator",
+		},
 		// open-policy-agent/opa
 		{
 			query:       "open-policy-agent/opa=v0.29.4",
