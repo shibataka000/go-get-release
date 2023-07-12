@@ -51,7 +51,7 @@ func TestApplicationServiceInstall(t *testing.T) {
 			verifyCommand: []string{"shellcheck", "--version"},
 		},
 		{
-			query:         "mozilla/sops",
+			query:         "getsops/sops",
 			verifyCommand: []string{"sops", "--version"},
 		},
 	}
@@ -482,23 +482,23 @@ func TestApplicationServiceSearch(t *testing.T) {
 			downloadURL: "https://github.com/mikefarah/yq/releases/download/v4.7.1/yq_windows_amd64.exe",
 			execBinary:  "yq.exe",
 		},
-		// mozilla/sops
+		// getsops/sops
 		{
-			query:       "mozilla/sops=v3.5.0",
+			query:       "getsops/sops=v3.5.0",
 			platform:    NewPlatform("linux", "amd64"),
-			downloadURL: "https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.linux",
+			downloadURL: "https://github.com/getsops/sops/releases/download/v3.5.0/sops-v3.5.0.linux",
 			execBinary:  "sops",
 		},
 		{
-			query:       "mozilla/sops=v3.5.0",
+			query:       "getsops/sops=v3.5.0",
 			platform:    NewPlatform("darwin", "amd64"),
-			downloadURL: "https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.darwin",
+			downloadURL: "https://github.com/getsops/sops/releases/download/v3.5.0/sops-v3.5.0.darwin",
 			execBinary:  "sops",
 		},
 		{
-			query:       "mozilla/sops=v3.5.0",
+			query:       "getsops/sops=v3.5.0",
 			platform:    NewPlatform("windows", "amd64"),
-			downloadURL: "https://github.com/mozilla/sops/releases/download/v3.5.0/sops-v3.5.0.exe",
+			downloadURL: "https://github.com/getsops/sops/releases/download/v3.5.0/sops-v3.5.0.exe",
 			execBinary:  "sops.exe",
 		},
 		// open-policy-agent/conftest
