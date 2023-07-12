@@ -136,6 +136,11 @@
     downloadURL: https://github.com/snyk/cli/releases/download/{{.Tag}}/snyk-macos
   execBinary:
     name: snyk
+# tektoncd/cli
+- owner: tektoncd
+  repo: cli
+  execBinary:
+    name: tkn
 # viaduct-ai/kustomize-sops
 - owner: viaduct-ai
   repo: kustomize-sops

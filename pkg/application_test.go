@@ -609,6 +609,25 @@ func TestApplicationServiceSearch(t *testing.T) {
 			downloadURL: "https://github.com/snyk/cli/releases/download/v1.1140.0/snyk-win.exe",
 			execBinary:  "snyk.exe",
 		},
+		// tektoncd/cli
+		{
+			query:       "tektoncd/cli=v0.31.1",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/tektoncd/cli/releases/download/v0.31.1/tkn_0.31.1_Linux_x86_64.tar.gz",
+			execBinary:  "tkn",
+		},
+		{
+			query:       "tektoncd/cli=v0.31.1",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://github.com/tektoncd/cli/releases/download/v0.31.1/tkn_0.31.1_Darwin_all.tar.gz",
+			execBinary:  "tkn",
+		},
+		{
+			query:       "tektoncd/cli=v0.31.1",
+			platform:    NewPlatform("windows", "amd64"),
+			downloadURL: "https://github.com/tektoncd/cli/releases/download/v0.31.1/tkn_0.31.1_Windows_x86_64.zip",
+			execBinary:  "tkn.exe",
+		},
 		// viaduct-ai/kustomize-sops
 		{
 			query:       "viaduct-ai/kustomize-sops=v2.3.3",
