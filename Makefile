@@ -1,6 +1,5 @@
-.PHONY: default setup fmt lint test build install clean vulncheck
-
-default: build
+.PHONY: setup fmt lint test build install clean vulncheck
+.DEFAULT_GOAL := build
 
 setup:
 	go install golang.org/x/tools/cmd/goimports@latest
