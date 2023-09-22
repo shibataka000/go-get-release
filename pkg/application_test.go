@@ -463,6 +463,25 @@ func TestApplicationServiceSearch(t *testing.T) {
 			downloadURL: "https://github.com/istio/istio/releases/download/1.6.0/istio-1.6.0-win.zip",
 			execBinary:  "istioctl.exe",
 		},
+		// kubernetes/kubernetes (for kubectl)
+		{
+			query:       "kubernetes/kubernetes=v1.28.2",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://dl.k8s.io/release/v1.28.2/bin/linux/amd64/kubectl",
+			execBinary:  "kubectl",
+		},
+		{
+			query:       "kubernetes/kubernetes=v1.28.2",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://dl.k8s.io/release/v1.28.2/bin/darwin/amd64/kubectl",
+			execBinary:  "kubectl",
+		},
+		{
+			query:       "kubernetes/kubernetes=v1.28.2",
+			platform:    NewPlatform("windows", "amd64"),
+			downloadURL: "https://dl.k8s.io/release/v1.28.2/bin/windows/amd64/kubectl.exe",
+			execBinary:  "kubectl.exe",
+		},
 		// mikefarah/yq
 		{
 			query:       "mikefarah/yq=v4.7.1",
