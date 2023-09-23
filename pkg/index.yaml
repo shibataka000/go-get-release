@@ -117,6 +117,21 @@
   repo: istio
   execBinary:
     name: istioctl
+# kubernetes/kubernetes (for kubectl)
+- owner: kubernetes
+  repo: kubernetes
+  assets:
+  - os: linux
+    arch: amd64
+    downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/linux/amd64/kubectl
+  - os: darwin
+    arch: amd64
+    downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/darwin/amd64/kubectl
+  - os: windows
+    arch: amd64
+    downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/windows/amd64/kubectl.exe
+  execBinary:
+    name: kubectl
 # open-policy-agent/gatekeeper
 - owner: open-policy-agent
   repo: gatekeeper
