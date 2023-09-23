@@ -598,6 +598,12 @@ func TestApplicationServiceSearch(t *testing.T) {
 			execBinary:  "starship",
 		},
 		{
+			query:       "starship/starship=v1.16.0",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/starship/starship/releases/download/v1.16.0/starship-x86_64-unknown-linux-gnu.tar.gz",
+			execBinary:  "starship",
+		},
+		{
 			query:       "starship/starship=v0.47.0",
 			platform:    NewPlatform("darwin", "amd64"),
 			downloadURL: "https://github.com/starship/starship/releases/download/v0.47.0/starship-x86_64-apple-darwin.tar.gz",
