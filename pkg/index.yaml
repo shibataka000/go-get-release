@@ -137,6 +137,11 @@
   repo: gatekeeper
   execBinary:
     name: gator
+# openshift-pipelines/pipelines-as-code
+- owner: openshift-pipelines
+  repo: pipelines-as-code
+  execBinary:
+    name: tkn-pac
 # protocolbuffers/protobuf
 - owner: protocolbuffers
   repo: protobuf

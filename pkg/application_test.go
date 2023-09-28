@@ -571,6 +571,25 @@ func TestApplicationServiceSearch(t *testing.T) {
 			downloadURL: "https://github.com/open-policy-agent/opa/releases/download/v0.29.4/opa_windows_amd64.exe",
 			execBinary:  "opa.exe",
 		},
+		// openshift-pipelines/pipelines-as-code
+		{
+			query:       "openshift-pipelines/pipelines-as-code=v0.21.1",
+			platform:    NewPlatform("linux", "amd64"),
+			downloadURL: "https://github.com/openshift-pipelines/pipelines-as-code/releases/download/v0.21.1/tkn-pac_0.21.1_linux_x86_64.tar.gz",
+			execBinary:  "tkn-pac",
+		},
+		{
+			query:       "openshift-pipelines/pipelines-as-code=v0.21.1",
+			platform:    NewPlatform("darwin", "amd64"),
+			downloadURL: "https://github.com/openshift-pipelines/pipelines-as-code/releases/download/v0.21.1/tkn-pac_0.21.1_darwin_all.tar.gz",
+			execBinary:  "tkn-pac",
+		},
+		{
+			query:       "openshift-pipelines/pipelines-as-code=v0.21.1",
+			platform:    NewPlatform("windows", "amd64"),
+			downloadURL: "https://github.com/openshift-pipelines/pipelines-as-code/releases/download/v0.21.1/tkn-pac_0.21.1_windows_x86_64.zip",
+			execBinary:  "tkn-pac.exe",
+		},
 		// protocolbuffers/protobuf
 		{
 			query:       "protocolbuffers/protobuf=v3.11.4",
