@@ -3,6 +3,7 @@ on:
   push:
 jobs:
   golangci-lint:
+    name: golangci-lint
     runs-on: ubuntu-latest
     permissions:
       contents: read
