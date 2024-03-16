@@ -24,7 +24,7 @@ func NewCommand() *cobra.Command {
 		Use:   "go-get-release [<owner>/]<repo>[=<tag>]",
 		Short: "Install executable binary from GitHub release asset.",
 		Args:  cobra.ExactArgs(1),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(_ *cobra.Command, args []string) error {
 			ctx := context.Background()
 			repository := pkg.NewInfrastructureRepository(ctx, token)
 			factory := pkg.NewFactory()
