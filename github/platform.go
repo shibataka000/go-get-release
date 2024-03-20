@@ -1,4 +1,4 @@
-package pkg
+package github
 
 // Platform is pair of OS and Arch.
 type Platform struct {

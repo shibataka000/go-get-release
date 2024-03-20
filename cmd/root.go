@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/Songmu/prompter"
-	"github.com/shibataka000/go-get-release/pkg"
+	"github.com/shibataka000/go-get-release/github"
 	"github.com/spf13/cobra"
 )
 
@@ -26,11 +26,11 @@ func NewCommand() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			ctx := context.Background()
-			repository := pkg.NewInfrastructureRepository(ctx, token)
-			factory := pkg.NewFactory()
-			app := pkg.NewApplicationService(repository, factory)
-			platform := pkg.NewPlatform(goos, goarch)
-			query, err := pkg.ParseQuery(args[0])
+			repository := github.NewInfrastructureRepository(ctx, token)
+			factory := github.NewFactory()
+			app := github.NewApplicationService(repository, factory)
+			platform := github.NewPlatform(goos, goarch)
+			query, err := github.ParseQuery(args[0])
 			if err != nil {
 				return err
 			}
