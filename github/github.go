@@ -1,4 +1,4 @@
-package pkg
+package github
 
 // GitHubRepository is repository in GitHub.
 type GitHubRepository struct {
