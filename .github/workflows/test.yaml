@@ -14,4 +14,4 @@ jobs:
         env:
           GOOS: linux
           GOARCH: amd64
-          GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
