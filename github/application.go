@@ -38,7 +38,7 @@ func NewSearchResult(repository Repository, release Release, assetMeta AssetMeta
 func (a *ApplicationService) Search(ctx context.Context, queryStr string, os string, arch string) (SearchResult, error) {
 	platform := NewPlatform(OS(os), Arch(arch))
 
-	query, err := ParseQuery(queryStr)
+	query, err := ParseSearchQuery(queryStr)
 	if err != nil {
 		return SearchResult{}, err
 	}
@@ -70,17 +70,17 @@ func (a *ApplicationService) Search(ctx context.Context, queryStr string, os str
 // If query speficy repository's owner and name, this return it.
 // Otherwise, this search repository in GitHub and return it.
 func (a *ApplicationService) searchRepository(ctx context.Context, query SearchQuery) (Repository, error) {
-	if query.HasOwner() {
+	if query.HasRepository() {
 		return query.Repository, nil
 	}
-	return a.repository.SearchRepository(ctx, query.Repository.Name)
+	return a.repository.SearchRepository(ctx, query.SearchRepositoryQuery())
 }
 
 // findRelease return release in GitHub.
 // If query speficy tag, this return it's release.
 // Otherwise, this return latest release.
 func (a *ApplicationService) findRelease(ctx context.Context, query SearchQuery, repository Repository) (Release, error) {
-	if query.HasTag() {
+	if query.HasRelease() {
 		return query.Release, nil
 	}
 	return a.repository.LatestRelease(ctx, repository)

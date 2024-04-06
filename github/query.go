@@ -19,8 +19,8 @@ func NewSearchQuery(repo Repository, release Release) SearchQuery {
 	}
 }
 
-// ParseQuery parse search query string and return search query instance.
-func ParseQuery(query string) (SearchQuery, error) {
+// ParseSearchQuery parse search query string and return search query instance.
+func ParseSearchQuery(query string) (SearchQuery, error) {
 	re := regexp.MustCompile(`(([^/=]+)/)?([^/=]+)(=([^/=]+))?`)
 	submatch := re.FindStringSubmatch(query)
 	if submatch == nil || len(submatch) != 6 {
@@ -29,12 +29,17 @@ func ParseQuery(query string) (SearchQuery, error) {
 	return NewSearchQuery(NewRepository(submatch[2], submatch[3]), NewRelease(submatch[5])), nil
 }
 
-// HasOwner return true if search query has repository owner.
-func (q SearchQuery) HasOwner() bool {
-	return q.Repository.Owner != ""
+// HasRepository return true if search query specify repository's owner and name.
+func (q SearchQuery) HasRepository() bool {
+	return q.Repository.Owner != "" && q.Repository.Name != ""
 }
 
-// HasTag return true if search query has tag.
-func (q SearchQuery) HasTag() bool {
+// HasRelease return true if search query specify release tag.
+func (q SearchQuery) HasRelease() bool {
 	return q.Release.Tag != ""
+}
+
+// SearchRepositoryQuery return query string to search repository in GitHub.
+func (q SearchQuery) SearchRepositoryQuery() string {
+	return q.Repository.Name
 }

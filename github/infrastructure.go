@@ -49,7 +49,7 @@ func (r *InfrastructureRepository) LatestRelease(ctx context.Context, repo Repos
 	return NewRelease(release.GetTagName()), nil
 }
 
-// ListGitHubAssets list assets in GitHub release.
+// ListGitHubAssets list GitHub release assets.
 func (r *InfrastructureRepository) ListAssetMeta(ctx context.Context, repo Repository, release Release) ([]AssetMeta, error) {
 	githubRelease, _, err := r.github.Repositories.GetReleaseByTag(ctx, repo.Owner, repo.Name, release.Tag)
 	if err != nil {
