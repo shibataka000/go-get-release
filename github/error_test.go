@@ -23,14 +23,14 @@ func TestError(t *testing.T) {
 			errStr: "value 'x' was not found in [a b c]",
 		},
 		{
-			name:   "UnsupportedFileFormatError",
-			err:    NewUnsupportedFileFormatError(".tar.gz"),
-			errStr: "unsupported file format: .tar.gz",
-		},
-		{
 			name:   "InvalidSemVerError",
 			err:    NewInvalidSemVerError("x.y.z"),
 			errStr: "invalid semver: x.y.z",
+		},
+		{
+			name:   "UnsupportedFileFormatError",
+			err:    NewUnsupportedFileFormatError(".tar.gz"),
+			errStr: "unsupported file format: .tar.gz",
 		},
 	}
 

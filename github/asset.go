@@ -1,35 +1,27 @@
 package github
 
-type AssetMeta struct {
-	DownloadURL URL
-}
-
-type AssetMetaTemplate struct {
-	DownloadURL URLTemplate
-}
-
-type AssetContent []byte
-
+// Asset in GitHub release.
 type Asset struct {
 	Meta    AssetMeta
 	Content AssetContent
 }
 
+// AssetMeta is meta of GitHub release asset.
+type AssetMeta struct {
+	DownloadURL URL
+}
+
+// AssetMetaTemplate is template of AssetMeta.
+type AssetMetaTemplate struct {
+	DownloadURL URLTemplate
+}
+
+// AssetContent is content of GitHub release asset.
+type AssetContent []byte
+
+// NewAssetMeta return new asset meta instance.
 func NewAssetMeta(url URL) AssetMeta {
 	return AssetMeta{
 		DownloadURL: url,
-	}
-}
-
-func NewAssetMetaTemplate(url URLTemplate) AssetMetaTemplate {
-	return AssetMetaTemplate{
-		DownloadURL: url,
-	}
-}
-
-func NewAsset(meta AssetMeta, content AssetContent) Asset {
-	return Asset{
-		Meta:    meta,
-		Content: content,
 	}
 }

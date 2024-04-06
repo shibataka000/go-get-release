@@ -7,7 +7,7 @@ import (
 	"golang.org/x/mod/semver"
 )
 
-// Release is release in GitHub.
+// Release is release in GitHub repository.
 type Release struct {
 	Tag string
 }
