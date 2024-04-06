@@ -30,7 +30,7 @@ func TestError(t *testing.T) {
 		{
 			name:   "InvalidSemVerError",
 			err:    NewInvalidSemVerError("x.y.z"),
-			errStr: "invalid semver: x.ya.z",
+			errStr: "invalid semver: x.y.z",
 		},
 	}
 
