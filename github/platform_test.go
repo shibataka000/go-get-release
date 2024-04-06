@@ -29,9 +29,9 @@ func TestPlatformEquals(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert := require.New(t)
+			require := require.New(t)
 			equals := tt.p1.Equals(tt.p2)
-			assert.Equal(tt.equals, equals)
+			require.Equal(tt.equals, equals)
 		})
 	}
 }

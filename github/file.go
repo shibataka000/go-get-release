@@ -1,4 +1,4 @@
-package pkg
+package github
 
 import (
 	"archive/tar"
@@ -18,85 +18,61 @@ import (
 
 // File.
 type File struct {
-	Name FileName
-	Body []byte
+	Name    FileName
+	Content FileContent
 }
 
-// AssetFile is asset file.
-type AssetFile File
-
-// ExecBinaryFile is executable binary file.
-type ExecBinaryFile File
-
-// FileName is file name.
+// FileName.
 type FileName string
 
+// FileContent.
+type FileContent []byte
+
 // NewFile return new file instance.
-func NewFile(name FileName, body []byte) File {
+func NewFile(name FileName, content FileContent) File {
 	return File{
-		Name: name,
-		Body: body,
+		Name:    name,
+		Content: content,
 	}
-}
-
-// NewAssetFile return new asset file instance.
-func NewAssetFile(name FileName, body []byte) AssetFile {
-	return AssetFile{
-		Name: name,
-		Body: body,
-	}
-}
-
-// NewExecBinaryFile return new executable binary file instance.
-func NewExecBinaryFile(name FileName, body []byte) ExecBinaryFile {
-	return ExecBinaryFile{
-		Name: name,
-		Body: body,
-	}
-}
-
-// NewFileName return new file name instance.
-func NewFileName(name string) FileName {
-	return FileName(name)
 }
 
 // Extract compressed file.
 func (f File) Extract() (File, error) {
-	fileName := f.Name.Normalize()
-	src := bytes.NewReader(f.Body)
+	name := f.Name.Normalize()
+	src := bytes.NewReader(f.Content)
 	dst := new(bytes.Buffer)
 	var err error
 
-	switch fileName.Ext() {
+	switch name.Ext() {
 	case ".gz":
 		err = extractGzip(dst, src)
 	case ".xz":
 		err = extractXz(dst, src)
 	default:
-		err = fmt.Errorf("unsupported file format: %s", fileName.Ext())
+		err = NewUnsupportedFileFormatError(name.Ext())
 	}
 
 	if err != nil {
 		return File{}, err
 	}
 
-	return NewFile(fileName.TrimExt(), dst.Bytes()), nil
+	return NewFile(name.TrimExt(), dst.Bytes()), nil
 }
 
 // FindFile find file in archived file.
 func (f File) FindFile(target FileName) (File, error) {
-	fileName := f.Name.Normalize()
-	src := bytes.NewReader(f.Body)
+	name := f.Name.Normalize()
+	src := bytes.NewReader(f.Content)
 	dst := new(bytes.Buffer)
 	var err error
 
-	switch fileName.Ext() {
+	switch name.Ext() {
 	case ".tar":
 		err = copyFileInTar(dst, src, target)
 	case ".zip":
 		err = copyFileInZip(dst, src, target)
 	default:
-		err = fmt.Errorf("unsupported file format: %s", fileName.Ext())
+		err = NewUnsupportedFileFormatError(name.Ext())
 	}
 
 	if err != nil {
@@ -143,19 +119,17 @@ func copyFileInTar(dst io.Writer, src io.Reader, target FileName) error {
 		}
 
 		switch header.Typeflag {
-		case tar.TypeDir:
-			// do nothing
 		case tar.TypeReg:
 			if filepath.Base(header.Name) == target.String() {
 				_, err := io.Copy(dst, tarSrc)
 				return err
 			}
 		default:
-			return fmt.Errorf("unexpected typeflag: %v", header.Typeflag)
+			// do nothing
 		}
 	}
 
-	return fmt.Errorf("file '%s' was not found in tarball", target)
+	return NewNotFoundError("file '%s' was not found in tarball", target)
 }
 
 // copyFileInZip find a file in zip file and copy it to dst.
@@ -190,33 +164,7 @@ func copyFileInZip(dst io.Writer, src io.Reader, target FileName) error {
 		}
 	}
 
-	return fmt.Errorf("file '%s' was not found in zip file", target)
-}
-
-// ExecBinary return executable binary file in asset file.
-func (f AssetFile) ExecBinary(execBinary FileName) (ExecBinaryFile, error) {
-	file := File(f)
-	var err error
-
-	if file.Name.IsCompressed() && (!file.Name.IsArchived() || file.Name.IsTarBall()) {
-		file, err = file.Extract()
-		if err != nil {
-			return ExecBinaryFile{}, err
-		}
-	}
-
-	if file.Name.IsArchived() {
-		file, err = file.FindFile(execBinary)
-		if err != nil {
-			return ExecBinaryFile{}, err
-		}
-	}
-
-	if !file.Name.IsExecBinary() {
-		return ExecBinaryFile{}, fmt.Errorf("%s is not executable binary", file.Name)
-	}
-
-	return NewExecBinaryFile(execBinary, file.Body), nil
+	return NewNotFoundError("file '%s' was not found in zip file", target)
 }
 
 // String return string typed file name.
@@ -232,12 +180,12 @@ func (f FileName) Ext() string {
 // TrimExt trim file name extension and return new FileName insntace.
 func (f FileName) TrimExt() FileName {
 	name := strings.TrimSuffix(f.String(), f.Ext())
-	return NewFileName(name)
+	return FileName(name)
 }
 
 // AddExt add extension to file name and return new FileName instance.
 func (f FileName) AddExt(ext string) FileName {
-	return NewFileName(fmt.Sprintf("%s.%s", f.String(), strings.TrimPrefix(ext, ".")))
+	return FileName(fmt.Sprintf("%s.%s", f.String(), strings.TrimPrefix(ext, ".")))
 }
 
 // Normalize file name.
@@ -278,24 +226,15 @@ func (f FileName) IsTarBall() bool {
 }
 
 // Platform return platform guessed by file name.
-func (f FileName) Platform() (Platform, error) {
-	os, err := f.os()
-	if err != nil {
-		return Platform{}, err
-	}
-	arch, err := f.arch()
-	if err != nil {
-		return Platform{}, err
-	}
-	return NewPlatform(os, arch), nil
-
+func (f FileName) Platform() Platform {
+	return NewPlatform(f.OS(), f.Arch())
 }
 
-// os guessed by file name.
-func (f FileName) os() (string, error) {
+// OS return os guessed by file name. Default value is "unknown".
+func (f FileName) OS() OS {
 	// These are listed by following command.
 	// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\1/g" | sort | uniq`
-	platforms := map[string][]string{
+	platforms := map[OS][]string{
 		"aix":       {"aix"},
 		"android":   {"android"},
 		"darwin":    {"darwin", "macos", "osx"},
@@ -312,15 +251,18 @@ func (f FileName) os() (string, error) {
 		"windows":   {"windows", "win", ".exe"},
 	}
 	lowner := strings.ToLower(f.String())
-	return findKeyWhichHasLongestMatchValue(platforms, lowner)
+	os, err := findKeyWhichHasLongestMatchValue(platforms, lowner)
+	if err != nil {
+		return UnknownOS
+	}
+	return os
 }
 
-// arch guessed by file name.
-// 'amd64' is returned by default.
-func (f FileName) arch() (string, error) {
+// Arch return arch guessed by file name. Default value is 'amd64'.
+func (f FileName) Arch() Arch {
 	// These are listed by following command.
 	// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\2/g" | sort | uniq`
-	platforms := map[string][]string{
+	platforms := map[Arch][]string{
 		"386":      {"386", "x86_32", "32bit", "win32"},
 		"686":      {"686"},
 		"amd64":    {"amd64", "x86_64", "64bit", "win64"},
@@ -339,13 +281,15 @@ func (f FileName) arch() (string, error) {
 	lowner := strings.ToLower(f.String())
 	arch, err := findKeyWhichHasLongestMatchValue(platforms, lowner)
 	if err != nil {
-		return "amd64", nil
+		return "amd64"
 	}
-	return arch, nil
+	return arch
 }
 
 // findKeyWhichHasLongestMatchValue return key in map which has longest matched value.
-func findKeyWhichHasLongestMatchValue(m map[string][]string, value string) (string, error) {
+func findKeyWhichHasLongestMatchValue[T comparable](m map[T][]string, value string) (T, error) {
+	var empty T
+
 	values := []string{}
 	for _, vs := range m {
 		values = append(values, vs...)
@@ -362,7 +306,7 @@ func findKeyWhichHasLongestMatchValue(m map[string][]string, value string) (stri
 		}
 	}
 	if !found {
-		return "", fmt.Errorf("no value was matched")
+		return empty, NewNotFoundError("value '%s' was not found in %v", value, values)
 	}
 
 	for k, vs := range m {
@@ -370,5 +314,5 @@ func findKeyWhichHasLongestMatchValue(m map[string][]string, value string) (stri
 			return k, nil
 		}
 	}
-	return "", fmt.Errorf("no key was found")
+	return empty, NewNotFoundError("value '%s' was not found in %v", longestMatchValue, m)
 }

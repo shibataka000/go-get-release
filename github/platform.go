@@ -6,11 +6,17 @@ type OS string
 // Arch.
 type Arch string
 
-// Platform is pair of OS and Arch.
+// Platform is pair of os and arch.
 type Platform struct {
 	OS   OS
 	Arch Arch
 }
+
+// UnknownOS is unknown os.
+var UnknownOS OS = "unknown"
+
+// UnknownArch is unknown arch.
+var UnknownArch Arch = "unknown"
 
 // NewPlatform return new platform instance.
 func NewPlatform(os OS, arch Arch) Platform {
