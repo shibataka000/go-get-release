@@ -26,7 +26,7 @@ func NewPlatform(os OS, arch Arch) Platform {
 	}
 }
 
-// Equals return true if two platforms are same.
-func (p Platform) Equals(other Platform) bool {
+// Equal return true if two platforms are same.
+func (p Platform) Equal(other Platform) bool {
 	return p.OS == other.OS && p.Arch == other.Arch
 }
