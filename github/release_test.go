@@ -1,0 +1,49 @@
+package github
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func NewReleaseWithoutID(tag string) Release {
+	return NewRelease(0, tag)
+}
+
+func TestReleaseSemVer(t *testing.T) {
+	tests := []struct {
+		name    string
+		release Release
+		semver  string
+		err     error
+	}{
+		{
+			name:    "v1.2.3",
+			release: NewReleaseWithoutID("v1.2.3"),
+			semver:  "1.2.3",
+		},
+		{
+			name:    "1.2.3",
+			release: NewReleaseWithoutID("1.2.3"),
+			semver:  "1.2.3",
+		},
+		{
+			name:    "x.y.z",
+			release: NewReleaseWithoutID("x.y.z"),
+			err:     NewInvalidSemVerError("x.y.z"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			semver, err := tt.release.SemVer()
+			if tt.err == nil {
+				require.NoError(err)
+				require.Equal(tt.semver, semver)
+			} else {
+				require.EqualError(err, tt.err.Error())
+			}
+		})
+	}
+}

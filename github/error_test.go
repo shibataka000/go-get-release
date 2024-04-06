@@ -27,13 +27,17 @@ func TestError(t *testing.T) {
 			err:    NewUnsupportedFileFormatError(".tar.gz"),
 			errStr: "unsupported file format: .tar.gz",
 		},
+		{
+			name:   "InvalidSemVerError",
+			err:    NewInvalidSemVerError("x.y.z"),
+			errStr: "invalid semver: x.ya.z",
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			require.Error(tt.err)
-			require.Equal(tt.errStr, tt.err.Error())
+			require.EqualError(tt.err, tt.errStr)
 		})
 	}
 }
