@@ -6,10 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func NewReleaseWithoutID(tag string) Release {
-	return NewRelease(0, tag)
-}
-
 func TestReleaseSemVer(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -19,17 +15,17 @@ func TestReleaseSemVer(t *testing.T) {
 	}{
 		{
 			name:    "v1.2.3",
-			release: NewReleaseWithoutID("v1.2.3"),
+			release: NewRelease("v1.2.3"),
 			semver:  "1.2.3",
 		},
 		{
 			name:    "1.2.3",
-			release: NewReleaseWithoutID("1.2.3"),
+			release: NewRelease("1.2.3"),
 			semver:  "1.2.3",
 		},
 		{
 			name:    "x.y.z",
-			release: NewReleaseWithoutID("x.y.z"),
+			release: NewRelease("x.y.z"),
 			err:     NewInvalidSemVerError("x.y.z"),
 		},
 	}

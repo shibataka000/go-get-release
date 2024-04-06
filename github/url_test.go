@@ -21,8 +21,8 @@ func TestURLFileName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert := require.New(t)
-			assert.Equal(tt.filename, tt.url.FileName())
+			require := require.New(t)
+			require.Equal(tt.filename, tt.url.FileName())
 		})
 	}
 }
@@ -37,17 +37,17 @@ func TestURLTemplateRenderWithRelease(t *testing.T) {
 		{
 			name:    "https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Linux_x86_64.tar.gz",
 			tmpl:    "https://github.com/viaduct-ai/kustomize-sops/releases/download/{{.Tag}}/ksops_{{.SemVer}}_Linux_x86_64.tar.gz",
-			release: NewReleaseWithoutID("v4.1.0"),
+			release: NewRelease("v4.1.0"),
 			url:     "https://github.com/viaduct-ai/kustomize-sops/releases/download/v4.1.0/ksops_4.1.0_Linux_x86_64.tar.gz",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert := require.New(t)
+			require := require.New(t)
 			url, err := tt.tmpl.RenderWithRelease(tt.release)
-			assert.NoError(err)
-			assert.Equal(tt.url, url)
+			require.NoError(err)
+			require.Equal(tt.url, url)
 		})
 	}
 }

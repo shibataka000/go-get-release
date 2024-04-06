@@ -9,7 +9,7 @@ type NotFoundError struct {
 	Message string
 }
 
-// UnsupportedFileFormatError raised if archive or compress format is not supported.
+// UnsupportedFileFormatError raised if file format is not supported.
 type UnsupportedFileFormatError struct {
 	Format string
 }

@@ -9,14 +9,12 @@ import (
 
 // Release is release in GitHub.
 type Release struct {
-	ID  int64
 	Tag string
 }
 
 // NewRelease return new release instance.
-func NewRelease(id int64, tag string) Release {
+func NewRelease(tag string) Release {
 	return Release{
-		ID:  id,
 		Tag: tag,
 	}
 }
