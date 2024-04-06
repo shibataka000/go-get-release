@@ -9,7 +9,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/ulikunitz/xz"
@@ -288,31 +287,20 @@ func (f FileName) Arch() Arch {
 
 // findKeyWhichHasLongestMatchValue return key in map which has longest matched value.
 func findKeyWhichHasLongestMatchValue[T comparable](m map[T][]string, value string) (T, error) {
-	var empty T
-
-	values := []string{}
-	for _, vs := range m {
-		values = append(values, vs...)
-	}
-	sort.Slice(values, func(i, j int) bool { return len(values[i]) > len(values[j]) })
-
-	longestMatchValue := ""
-	found := false
-	for _, v := range values {
-		if strings.Contains(value, v) {
-			longestMatchValue = v
-			found = true
-			break
-		}
-	}
-	if !found {
-		return empty, NewNotFoundError("value '%s' was not found in %v", value, values)
-	}
+	var matchKey T
+	var matchValue string
 
 	for k, vs := range m {
-		if slices.Contains(vs, longestMatchValue) {
-			return k, nil
+		for _, v := range vs {
+			if strings.Contains(value, v) && len(v) > len(matchValue) {
+				matchKey = k
+				matchValue = v
+			}
 		}
 	}
-	return empty, NewNotFoundError("value '%s' was not found in %v", longestMatchValue, m)
+
+	if matchValue == "" {
+		return matchKey, NewNotFoundError("value '%s' did not match any of %v", value, m)
+	}
+	return matchKey, nil
 }

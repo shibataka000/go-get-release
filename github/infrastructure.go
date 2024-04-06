@@ -34,7 +34,7 @@ func (r *InfrastructureRepository) SearchRepository(ctx context.Context, query s
 	}
 	repos := result.Repositories
 	if len(repos) == 0 {
-		return Repository{}, NewNotFoundError("repository '%s' was not found", query)
+		return Repository{}, NewNotFoundError("no repository was found by query '%s'", query)
 	}
 	repo := repos[0]
 	return NewRepository(repo.GetOwner().GetLogin(), repo.GetName()), nil
