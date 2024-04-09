@@ -1,0 +1,205 @@
+# aquasecurity/tfsec
+- repository:
+    owner: aquasecurity
+    name: tfsec
+  assets:
+  - downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-linux-amd64
+    platform:
+      os: linux
+      arch: amd64
+  - downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-darwin-amd64
+    platform:
+      os: darwin
+      arch: amd64
+  - downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-windows-amd64.exe
+    platform:
+      os: windows
+      arch: amd64
+# argoproj/argo-cd
+- repository:
+    owner: argoproj
+    name: argo-cd
+  execBinary:
+    name: argocd
+# argoproj/argo-rollouts
+- repository:
+    owner: argoproj
+    name: argo-rollouts
+  execBinary:
+    name: kubectl-argo-rollouts
+# argoproj/argo-workflows
+- repository:
+    owner: argoproj
+    name: argo-workflows
+  execBinary:
+    name: argo
+# aws/amazon-ec2-instance-selector
+- repository:
+    owner: aws
+    name: amazon-ec2-instance-selector
+  execBinary:
+    name: ec2-instance-selector
+# bitnami-labs/sealed-secrets
+- repository:
+    owner: bitnami-labs
+    name: sealed-secrets
+  execBinary:
+    name: kubeseal
+# CircleCI-Public/circleci-cli
+- repository:
+    owner: CircleCI-Public
+    name: circleci-cli
+  execBinary:
+    name: circleci
+# cli/cli
+- repository:
+    owner: cli
+    name: cli
+  execBinary:
+    name: gh
+# docker/buildx
+- repository:
+    owner: docker
+    name: buildx
+  execBinary:
+    name: docker-buildx
+# docker/compose
+- repository:
+    owner: docker
+    name: compose
+  execBinary:
+    name: docker-compose
+# docker/machine
+- repository:
+    owner: docker
+    name: machine
+  execBinary:
+    name: docker-machine
+# docker/scan-cli-plugin
+- repository:
+    owner: docker
+    name: scan-cli-plugin
+  execBinary:
+    name: docker-scan
+# fluxcd/flux2
+- repository:
+    owner: fluxcd
+    name: flux2
+  execBinary:
+    name: flux
+# gravitational/teleport
+- repository:
+    owner: gravitational
+    name: teleport
+  assets:
+  - downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-linux-amd64-bin.tar.gz
+    platform:
+      os: linux
+      arch: amd64
+  - downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-darwin-amd64-bin.tar.gz
+    platform:
+      os: darwin
+      arch: amd64
+  - downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-windows-amd64-bin.zip
+    platform:
+      os: windows
+      arch: amd64
+  execBinary:
+    name: tsh
+# hashicorp/terraform
+- owner: hashicorp
+  name: terraform
+  assets:
+  - downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip
+    platform:
+      os: linux
+      arch: amd64
+  - downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip
+    platform:
+      os: darwin
+      arch: amd64
+  - downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip
+    platform:
+      os: windows
+      arch: amd64
+# helm/helm
+- owner: helm
+  name: helm
+  assets:
+  - downloadURL: https://get.helm.sh/helm-{{.Tag}}-linux-amd64.tar.gz
+    platform:
+      os: linux
+      arch: amd64
+  - downloadURL: https://get.helm.sh/helm-{{.Tag}}-darwin-amd64.tar.gz
+    platform:
+      os: darwin
+      arch: amd64
+  - downloadURL: https://get.helm.sh/helm-{{.Tag}}-windows-amd64.zip
+    platform:
+      os: windows
+      arch: amd64
+# istio/istio
+- owner: istio
+  name: istio
+  execBinary:
+    name: istioctl
+# kubernetes/kubernetes (for kubectl)
+- repository:
+    owner: kubernetes
+    name: kubernetes
+  assets:
+  - downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/linux/amd64/kubectl
+    platform:
+      os: linux
+      arch: amd64
+  - downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/darwin/amd64/kubectl
+    platform:
+      os: darwin
+      arch: amd64
+  - downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/windows/amd64/kubectl.exe
+    platform:
+      os: windows
+      arch: amd64
+  execBinary:
+    name: kubectl
+# open-policy-agent/gatekeeper
+- repository:
+    owner: open-policy-agent
+    name: gatekeeper
+  execBinary:
+    name: gator
+# openshift-pipelines/pipelines-as-code
+- repository:
+    owner: openshift-pipelines
+    name: pipelines-as-code
+  execBinary:
+    name: tkn-pac
+# protocolbuffers/protobuf
+- repository:
+    owner: protocolbuffers
+    name: protobuf
+  execBinary:
+    name: protoc
+# snyk/cli
+- repository:
+    owner: snyk
+    name: cli
+  assets:
+  - downloadURL: https://github.com/snyk/cli/releases/download/{{.Tag}}/snyk-macos
+    platform:
+      os: darwin
+      arch: amd64
+  execBinary:
+    name: snyk
+# tektoncd/cli
+- repository:
+    owner: tektoncd
+    name: cli
+  execBinary:
+    name: tkn
+# viaduct-ai/kustomize-sops
+- repository:
+    owner: viaduct-ai
+    name: kustomize-sops
+  execBinary:
+    name: ksops

@@ -50,14 +50,14 @@ func (r *InfrastructureRepository) LatestRelease(ctx context.Context, repo Repos
 }
 
 // ListGitHubAssets list GitHub release assets.
-func (r *InfrastructureRepository) ListAssetMeta(ctx context.Context, repo Repository, release Release) ([]AssetMeta, error) {
+func (r *InfrastructureRepository) ListAssetMeta(ctx context.Context, repo Repository, release Release) (AssetMetaSet, error) {
 	githubRelease, _, err := r.github.Repositories.GetReleaseByTag(ctx, repo.Owner, repo.Name, release.Tag)
 	if err != nil {
-		return []AssetMeta{}, err
+		return AssetMetaSet{}, err
 	}
 	releaseID := githubRelease.GetID()
 
-	result := []AssetMeta{}
+	result := AssetMetaSet{}
 	for page := 1; page != 0; {
 		assets, resp, err := r.github.Repositories.ListReleaseAssets(ctx, repo.Owner, repo.Name, releaseID, &github.ListOptions{
 			Page:    page,
@@ -73,4 +73,8 @@ func (r *InfrastructureRepository) ListAssetMeta(ctx context.Context, repo Repos
 		page = resp.NextPage
 	}
 	return result, nil
+}
+
+func (r *InfrastructureRepository) ListKnownEntries() (KnownItemdSet, error) {
+	return []KnownItem{}, nil
 }

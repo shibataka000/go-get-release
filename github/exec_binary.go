@@ -11,5 +11,10 @@ type ExecBinaryMeta struct {
 	Name FileName
 }
 
+// ExecBinaryMetaTemplate is template of ExecBinaryMeta.
+type ExecBinaryMetaTemplate struct {
+	BaseName FileName
+}
+
 // ExecBinaryContent is content of exec binary.
 type ExecBinaryContent []byte

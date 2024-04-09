@@ -25,45 +25,45 @@ func NewApplicationService(repository *InfrastructureRepository) *ApplicationSer
 }
 
 // NewSearchResult return new SearchResult instance.
-func NewSearchResult(repository Repository, release Release, assetMeta AssetMeta, execBinaryMeta ExecBinaryMeta) SearchResult {
+func NewSearchResult(repo Repository, release Release, asset AssetMeta, execBinary ExecBinaryMeta) SearchResult {
 	return SearchResult{
-		Repository: repository,
+		Repository: repo,
 		Release:    release,
-		Asset:      assetMeta,
-		ExecBinary: execBinaryMeta,
+		Asset:      asset,
+		ExecBinary: execBinary,
 	}
 }
 
 // Search repository, release, asset, exec binary in GitHub.
-func (a *ApplicationService) Search(ctx context.Context, queryStr string, os string, arch string) (SearchResult, error) {
+func (a *ApplicationService) Search(ctx context.Context, query string, os string, arch string) (SearchResult, error) {
 	platform := NewPlatform(OS(os), Arch(arch))
 
-	query, err := ParseSearchQuery(queryStr)
+	q, err := ParseSearchQuery(query)
 	if err != nil {
 		return SearchResult{}, err
 	}
 
-	repository, err := a.searchRepository(ctx, query)
+	repo, err := a.searchRepository(ctx, q)
 	if err != nil {
 		return SearchResult{}, err
 	}
 
-	release, err := a.findRelease(ctx, query, repository)
+	release, err := a.findRelease(ctx, q, repo)
 	if err != nil {
 		return SearchResult{}, err
 	}
 
-	assetMeta, err := a.findAssetMeta(ctx, repository, release, platform)
+	assetMeta, err := a.findAssetMeta(ctx, repo, release, platform)
 	if err != nil {
 		return SearchResult{}, err
 	}
 
-	execBinaryMeta, err := a.findExecBinaryMeta(repository, platform)
+	execBinaryMeta, err := a.findExecBinaryMeta(repo, platform)
 	if err != nil {
 		return SearchResult{}, err
 	}
 
-	return NewSearchResult(repository, release, assetMeta, execBinaryMeta), nil
+	return NewSearchResult(repo, release, assetMeta, execBinaryMeta), nil
 }
 
 // searchRepository search repository in GitHub.
@@ -79,23 +79,47 @@ func (a *ApplicationService) searchRepository(ctx context.Context, query SearchQ
 // findRelease return release in GitHub.
 // If query speficy tag, this return it's release.
 // Otherwise, this return latest release.
-func (a *ApplicationService) findRelease(ctx context.Context, query SearchQuery, repository Repository) (Release, error) {
+func (a *ApplicationService) findRelease(ctx context.Context, query SearchQuery, repo Repository) (Release, error) {
 	if query.HasRelease() {
 		return query.Release, nil
 	}
-	return a.repository.LatestRelease(ctx, repository)
+	return a.repository.LatestRelease(ctx, repo)
 }
 
 // findAssetMeta return asset meta in GitHub which suits specific platform.
 // This try to find asset meta from known.yaml first.
 // If not found, this try to find asset meta from GitHub release next.
-func (a *ApplicationService) findAssetMeta(ctx context.Context, repository Repository, release Release, platform Platform) (AssetMeta, error) {
+func (a *ApplicationService) findAssetMeta(ctx context.Context, repo Repository, release Release, platform Platform) (AssetMeta, error) {
+	if asset, err := a.findAssetMetaFromKnownEntry(repo, release, platform); err == nil {
+		return asset, err
+	}
+	return a.findAssetMetaFromGitHub(ctx, repo, release, platform)
+}
+
+func (a *ApplicationService) findAssetMetaFromGitHub(ctx context.Context, repo Repository, release Release, platform Platform) (AssetMeta, error) {
+	assets, err := a.repository.ListAssetMeta(ctx, repo, release)
+	if err != nil {
+		return AssetMeta{}, err
+	}
+	return assets.FindByPlatform(platform)
+}
+
+func (a *ApplicationService) findAssetMetaFromKnownEntry(repo Repository, release Release, platform Platform) (AssetMeta, error) {
+	// knownEntries, err := a.repository.ListKnownEntries()
+	// if err != nil {
+	// 	return AssetMeta{}, err
+	// }
+	// knownEntry, err := knownEntries.Find(repo)
+	// if err != nil {
+	// 	return AssetMeta{}, err
+	// }
+	// knownEntry.Assets
 	return AssetMeta{}, nil
 }
 
 // findExecBinaryMeta return meta of exec binary in asset.
 // If exec binary meta is defined in known.yaml, this return it.
 // Otherwise, this treat repository name as exec binary name and return it.
-func (a *ApplicationService) findExecBinaryMeta(repository Repository, platform Platform) (ExecBinaryMeta, error) {
+func (a *ApplicationService) findExecBinaryMeta(repo Repository, platform Platform) (ExecBinaryMeta, error) {
 	return ExecBinaryMeta{}, nil
 }
