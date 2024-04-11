@@ -10,8 +10,11 @@ builds:
     goarch:
       - amd64
 archives:
-  - format: binary
+  - format: tar.gz
     name_template: '{{ .Binary }}_{{ .Os }}_{{ .Arch }}'
+    format_overrides:
+      - goos: windows
+        format: zip
 changelog:
   sort: asc
   groups:
