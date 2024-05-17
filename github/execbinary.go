@@ -1,4 +1,4 @@
-package api
+package github
 
 import "github.com/shibataka000/go-get-release/file"
 
