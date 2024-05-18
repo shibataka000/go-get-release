@@ -24,34 +24,34 @@ changelog:
     - title: Features
       regexp: '^.*?feat(\([[:word:]]+\))??:.+$'
       order: 1
-    - title: "Bug fixes"
+    - title: Bug fixes
       regexp: '^.*?fix(\([[:word:]]+\))??:.+$'
       order: 2
-    - title: "Documentations"
+    - title: Documentations
       regexp: '^.*?docs(\([[:word:]]+\))??:.+$'
       order: 3
-    - title: "Styles"
+    - title: Styles
       regexp: '^.*?style(\([[:word:]]+\))??:.+$'
       order: 4
-    - title: "Code refactoring"
+    - title: Code refactoring
       regexp: '^.*?refactor(\([[:word:]]+\))??:.+$'
       order: 5
-    - title: "Performance improvements"
+    - title: Performance improvements
       regexp: '^.*?perf(\([[:word:]]+\))??:.+$'
       order: 6
-    - title: "Tests"
+    - title: Tests
       regexp: '^.*?test(\([[:word:]]+\))??:.+$'
       order: 7
-    - title: "Builds"
+    - title: Builds
       regexp: '^.*?build(\([[:word:]]+\))??:.+$'
       order: 8
-    - title: "Continuous integrations"
+    - title: Continuous integrations
       regexp: '^.*?ci(\([[:word:]]+\))??:.+$'
       order: 9
-    - title: "Chores"
+    - title: Chores
       regexp: '^.*?chore(\([[:word:]]+\))??:.+$'
       order: 10
-    - title: "Reverts"
+    - title: Reverts
       regexp: '^.*?revert(\([[:word:]]+\))??:.+$'
       order: 11
     - title: Others
