@@ -18,3 +18,9 @@ func newExecutableBinaryMeta(baseName file.Name) ExecutableBinaryMeta {
 func newExecutableBinaryMetaFromRepository(repo Repository) ExecutableBinaryMeta {
 	return newExecutableBinaryMeta(file.Name(repo.Name))
 }
+
+type ExecutableBinaryRepository struct{}
+
+func NewExecutableBinaryRepository() *ExecutableBinaryRepository {
+	return &ExecutableBinaryRepository{}
+}

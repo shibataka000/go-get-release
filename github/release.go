@@ -2,8 +2,11 @@ package github
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/google/go-github/v48/github"
+	"golang.org/x/mod/semver"
 )
 
 // Release represents a GitHub release in a repository.
@@ -16,6 +19,15 @@ func newRelease(tag string) Release {
 	return Release{
 		Tag: tag,
 	}
+}
+
+// semVer return semver formatted release tag.
+// For example, if release tag is "v1.2.3", this return "1.2.3".
+func (r Release) semVer() (string, error) {
+	if !semver.IsValid(r.Tag) && !semver.IsValid(fmt.Sprintf("v%s", r.Tag)) {
+		return "", fmt.Errorf("%s is not valid semver", r.Tag)
+	}
+	return strings.TrimLeft(r.Tag, "v"), nil
 }
 
 // ReleaseRepository is repository for Release.
