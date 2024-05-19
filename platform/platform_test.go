@@ -13,8 +13,18 @@ func TestGuess(t *testing.T) {
 		arch Arch
 	}{
 		{
-			name: "gh_2.21.0_linux_amd64.tar.gz",
+			name: "linux_amd64",
 			os:   "linux",
+			arch: "amd64",
+		},
+		{
+			name: "dragonfly_js_mips64le_arm",
+			os:   "dragonfly",
+			arch: "mips64le",
+		},
+		{
+			name: "",
+			os:   "unknown",
 			arch: "amd64",
 		},
 	}

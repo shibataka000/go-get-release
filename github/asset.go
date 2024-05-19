@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"slices"
 
 	"github.com/google/go-github/v48/github"
 	"github.com/shibataka000/go-get-release/platform"
@@ -12,20 +13,31 @@ import (
 // AssetMeta represents a GitHub release asset in a repository.
 type AssetMeta struct {
 	DownloadURL url.URL
-	GOOS        platform.OS
-	GOARCH      platform.Arch
+	OS          platform.OS
+	Arch        platform.Arch
+}
+
+// newAssetMeat return new AssetMeta object.
+func newAssetMeta(downloadURL url.URL, os platform.OS, arch platform.Arch) AssetMeta {
+	return AssetMeta{
+		DownloadURL: downloadURL,
+		OS:          os,
+		Arch:        arch,
+	}
 }
 
 // AssetMetaList is a list of AssetMeta.
 type AssetMetaList []AssetMeta
 
-// newAssetMeat return new AssetMeta object.
-func newAssetMeta(downloadURL url.URL, goos platform.OS, goarch platform.Arch) AssetMeta {
-	return AssetMeta{
-		DownloadURL: downloadURL,
-		GOOS:        goos,
-		GOARCH:      goarch,
+// find AssetMeta by OS/Arch.
+func (assets AssetMetaList) find(goos platform.OS, goarch platform.Arch) (AssetMeta, error) {
+	i := slices.IndexFunc(assets, func(a AssetMeta) bool {
+		return a.OS == goos && a.Arch == goarch
+	})
+	if i == -1 {
+		return AssetMeta{}, &AssetNotFoundError{}
 	}
+	return assets[i], nil
 }
 
 // AssetRepository is repository for Asset.
@@ -40,8 +52,8 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 }
 
-// list return lit of AssetMeta in a GitHub release.
-func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetMetaList, error) {
+// listFromAPI return a listFromAPI of AssetMeta in a GitHub release.
+func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, release Release) (AssetMetaList, error) {
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.Owner, repo.Name, release.Tag)
 	if err != nil {
 		return nil, err
@@ -50,8 +62,7 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	result := AssetMetaList{}
 	for page := 1; page != 0; {
 		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.Owner, repo.Name, *githubRelease.ID, &github.ListOptions{
-			Page:    page,
-			PerPage: 100,
+			Page: page,
 		})
 		if err != nil {
 			return result, err
@@ -66,38 +77,46 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return result, nil
 }
 
+// listFromBuiltIn return a list of AssetMeta in `builtin.yaml`.
 func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (AssetMetaList, error) {
-	type Entry struct {
+	// Find AssetMeta in builtin.
+	type Record struct {
 		Repository Repository
 		Assets     AssetMetaList
 	}
-	entries := []Entry{}
-	err := yaml.Unmarshal(builtin, &entries)
+	records := []Record{}
+	err := yaml.Unmarshal(builtin, &records)
 	if err != nil {
 		return nil, err
 	}
-	entry := Entry{}
-	found := false
-	for _, e := range entries {
-		if e.Repository.Owner == repo.Owner && e.Repository.Name == repo.Name {
-			entry = e
-			found = true
-		}
-	}
-	if found {
+	index := slices.IndexFunc(records, func(r Record) bool {
+		return r.Repository.Owner == repo.Owner && r.Repository.Name == repo.Name && r.Assets != nil
+	})
+	if index == -1 {
 		return nil, &AssetNotFoundError{}
 	}
-	return entry.Assets, nil
-}
 
-// find AssetMeta by GOOS/GOARCH.
-func (a AssetMetaList) find(goos platform.OS, goarch platform.Arch) (AssetMeta, error) {
-	for _, asset := range a {
-		if asset.GOOS == goos && asset.GOARCH == goarch {
-			return asset, nil
+	// Fill download URL template.
+	assets := records[index].Assets
+	semver, err := release.semVer()
+	if err != nil {
+		return nil, err
+	}
+	type Parameter struct {
+		Tag    string
+		SemVer string
+	}
+	param := Parameter{
+		Tag:    release.Tag,
+		SemVer: semver,
+	}
+	for _, asset := range assets {
+		asset.DownloadURL, err = url.Template(asset.DownloadURL).Execute(param)
+		if err != nil {
+			return nil, err
 		}
 	}
-	return AssetMeta{}, &AssetNotFoundError{}
+	return assets, nil
 }
 
 // AssetNotFoundError is error raised when try to find AssetMeta by GOOS/GOARCH but no AssetMeta was found.

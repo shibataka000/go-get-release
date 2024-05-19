@@ -32,13 +32,18 @@ func (a *ApplicationService) LatestRelease(ctx context.Context, repo Repository)
 	return a.release.latest(ctx, repo)
 }
 
-// FindAsset return a GitHub release asset in a repository whose GOOS/GOARCH are same to passed values.
-func (a *ApplicationService) FindAsset(ctx context.Context, repo Repository, release Release, goos platform.OS, goarch platform.Arch) (AssetMeta, error) {
-	assets, err := a.asset.list(ctx, repo, release)
+// FindAsset return a GitHub release asset in a repository whose OS/Arch are same to passed values.
+func (a *ApplicationService) FindAsset(ctx context.Context, repo Repository, release Release, os platform.OS, arch platform.Arch) (AssetMeta, error) {
+	assets1, err := a.asset.listFromAPI(ctx, repo, release)
 	if err != nil {
 		return AssetMeta{}, err
 	}
-	return assets.find(goos, goarch)
+	assets2, err := a.asset.listFromBuiltIn(repo, release)
+	if err != nil {
+		return AssetMeta{}, err
+	}
+	assets := append(assets1, assets2...)
+	return assets.find(os, arch)
 }
 
 // GetExecutableBinaryMeta return executable binary metadata from GitHub repository.
