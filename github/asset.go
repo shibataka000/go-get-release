@@ -84,7 +84,10 @@ func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (Ass
 			found = true
 		}
 	}
-	if found
+	if found {
+		return nil, &AssetNotFoundError{}
+	}
+	return entry.Assets, nil
 }
 
 // find AssetMeta by GOOS/GOARCH.
