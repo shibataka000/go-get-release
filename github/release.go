@@ -21,13 +21,14 @@ func newRelease(tag string) Release {
 	}
 }
 
-// semVer return semver formatted release tag.
+// semver return semver formatted release tag.
 // For example, if release tag is "v1.2.3", this return "1.2.3".
-func (r Release) semVer() (string, error) {
+// If release tag format is not supported, this returns empty string.
+func (r Release) semver() string {
 	if !semver.IsValid(r.Tag) && !semver.IsValid(fmt.Sprintf("v%s", r.Tag)) {
-		return "", fmt.Errorf("%s is not valid semver", r.Tag)
+		return ""
 	}
-	return strings.TrimLeft(r.Tag, "v"), nil
+	return strings.TrimLeft(r.Tag, "v")
 }
 
 // ReleaseRepository is repository for Release.

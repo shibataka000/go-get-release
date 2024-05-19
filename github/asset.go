@@ -12,9 +12,9 @@ import (
 
 // AssetMeta represents a GitHub release asset in a repository.
 type AssetMeta struct {
-	DownloadURL url.URL
-	OS          platform.OS
-	Arch        platform.Arch
+	DownloadURL url.URL       `yaml:"downloadURL"`
+	OS          platform.OS   `yaml:"os"`
+	Arch        platform.Arch `yaml:"arch"`
 }
 
 // newAssetMeat return new AssetMeta object.
@@ -79,7 +79,7 @@ func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, rele
 
 // listFromBuiltIn return a list of AssetMeta in `builtin.yaml`.
 func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (AssetMetaList, error) {
-	// Find AssetMeta in builtin.
+	// Find AssetMeta from builtin.
 	type Record struct {
 		Repository Repository
 		Assets     AssetMetaList
@@ -98,31 +98,18 @@ func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (Ass
 
 	// Fill download URL template.
 	assets := records[index].Assets
-	semver, err := release.semVer()
-	if err != nil {
-		return nil, err
-	}
-	type Parameter struct {
+	param := struct {
 		Tag    string
 		SemVer string
-	}
-	param := Parameter{
+	}{
 		Tag:    release.Tag,
-		SemVer: semver,
+		SemVer: release.semver(),
 	}
-	for _, asset := range assets {
-		asset.DownloadURL, err = url.Template(asset.DownloadURL).Execute(param)
+	for i, asset := range assets {
+		assets[i].DownloadURL, err = url.Template(asset.DownloadURL).Execute(param)
 		if err != nil {
 			return nil, err
 		}
 	}
 	return assets, nil
-}
-
-// AssetNotFoundError is error raised when try to find AssetMeta by GOOS/GOARCH but no AssetMeta was found.
-type AssetNotFoundError struct{}
-
-// Error return error string.
-func (e *AssetNotFoundError) Error() string {
-	return "No asset was found."
 }

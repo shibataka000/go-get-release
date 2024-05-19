@@ -8,8 +8,8 @@ import (
 
 // Repository represents a GitHub repository.
 type Repository struct {
-	Owner string
-	Name  string
+	Owner string `yaml:"owner"`
+	Name  string `yaml:"name"`
 }
 
 // newRepository return new Repository object.
@@ -44,12 +44,4 @@ func (r *RepositoryRepository) search(ctx context.Context, query string) (Reposi
 	}
 	repo := repos[0]
 	return newRepository(repo.GetOwner().GetLogin(), repo.GetName()), nil
-}
-
-// RepositoryNotFoundError is error raised when search repository but no repository was found.
-type RepositoryNotFoundError struct{}
-
-// Error return error string.
-func (e *RepositoryNotFoundError) Error() string {
-	return "No repository was found."
 }
