@@ -3,7 +3,7 @@ package github
 import (
 	"context"
 
-	"github.com/shibataka000/go-get-release/runtime"
+	"github.com/shibataka000/go-get-release/platform"
 )
 
 // ApplicationService.
@@ -33,7 +33,7 @@ func (a *ApplicationService) LatestRelease(ctx context.Context, repo Repository)
 }
 
 // FindAsset return a GitHub release asset in a repository whose GOOS/GOARCH are same to passed values.
-func (a *ApplicationService) FindAsset(ctx context.Context, repo Repository, release Release, goos runtime.OS, goarch runtime.Arch) (AssetMeta, error) {
+func (a *ApplicationService) FindAsset(ctx context.Context, repo Repository, release Release, goos platform.OS, goarch platform.Arch) (AssetMeta, error) {
 	assets, err := a.asset.list(ctx, repo, release)
 	if err != nil {
 		return AssetMeta{}, err

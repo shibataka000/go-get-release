@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/shibataka000/go-get-release/runtime"
+	"github.com/shibataka000/go-get-release/platform"
 	"github.com/shibataka000/go-get-release/url"
 	"gopkg.in/yaml.v3"
 )
@@ -12,15 +12,15 @@ import (
 // AssetMeta represents a GitHub release asset in a repository.
 type AssetMeta struct {
 	DownloadURL url.URL
-	GOOS        runtime.OS
-	GOARCH      runtime.Arch
+	GOOS        platform.OS
+	GOARCH      platform.Arch
 }
 
 // AssetMetaList is a list of AssetMeta.
 type AssetMetaList []AssetMeta
 
 // newAssetMeat return new AssetMeta object.
-func newAssetMeta(downloadURL url.URL, goos runtime.OS, goarch runtime.Arch) AssetMeta {
+func newAssetMeta(downloadURL url.URL, goos platform.OS, goarch platform.Arch) AssetMeta {
 	return AssetMeta{
 		DownloadURL: downloadURL,
 		GOOS:        goos,
@@ -58,7 +58,7 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 		}
 		for _, asset := range assets {
 			downloadURL := url.URL(asset.GetBrowserDownloadURL())
-			goos, goarch := runtime.Guess(downloadURL.Base())
+			goos, goarch := platform.Guess(downloadURL.Base())
 			result = append(result, newAssetMeta(downloadURL, goos, goarch))
 		}
 		page = resp.NextPage
@@ -91,7 +91,7 @@ func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (Ass
 }
 
 // find AssetMeta by GOOS/GOARCH.
-func (a AssetMetaList) find(goos runtime.OS, goarch runtime.Arch) (AssetMeta, error) {
+func (a AssetMetaList) find(goos platform.OS, goarch platform.Arch) (AssetMeta, error) {
 	for _, asset := range a {
 		if asset.GOOS == goos && asset.GOARCH == goarch {
 			return asset, nil
