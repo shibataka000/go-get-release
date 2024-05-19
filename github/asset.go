@@ -6,6 +6,7 @@ import (
 	"github.com/google/go-github/v48/github"
 	"github.com/shibataka000/go-get-release/runtime"
 	"github.com/shibataka000/go-get-release/url"
+	"gopkg.in/yaml.v3"
 )
 
 // AssetMeta represents a GitHub release asset in a repository.
@@ -63,6 +64,27 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 		page = resp.NextPage
 	}
 	return result, nil
+}
+
+func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (AssetMetaList, error) {
+	type Entry struct {
+		Repository Repository
+		Assets     AssetMetaList
+	}
+	entries := []Entry{}
+	err := yaml.Unmarshal(builtin, &entries)
+	if err != nil {
+		return nil, err
+	}
+	entry := Entry{}
+	found := false
+	for _, e := range entries {
+		if e.Repository.Owner == repo.Owner && e.Repository.Name == repo.Name {
+			entry = e
+			found = true
+		}
+	}
+	if found
 }
 
 // find AssetMeta by GOOS/GOARCH.
