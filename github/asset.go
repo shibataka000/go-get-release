@@ -27,13 +27,13 @@ type AssetMetaList []AssetMeta
 
 // find AssetMeta which has executable binary and whose OS/Arch are same as passed value.
 func (assets AssetMetaList) find(os platform.OS, arch platform.Arch) (AssetMeta, error) {
-	i := slices.IndexFunc(assets, func(asset AssetMeta) bool {
+	asset, err := slices.Find(assets, func(asset AssetMeta) bool {
 		return asset.OS == os && asset.Arch == arch && asset.hasExecutableBinary()
 	})
-	if i == -1 {
+	if err != nil {
 		return AssetMeta{}, &AssetNotFoundError{}
 	}
-	return assets[i], nil
+	return asset, nil
 }
 
 // AssetRepository is repository for a GitHub release asset.
@@ -56,7 +56,6 @@ func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, rele
 	if err != nil {
 		return nil, err
 	}
-
 	githubAssets := []*github.ReleaseAsset{}
 	for page := 1; page != 0; {
 		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.Owner, repo.Name, *githubRelease.ID, &github.ListOptions{
@@ -68,8 +67,7 @@ func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, rele
 		githubAssets = append(githubAssets, assets...)
 		page = resp.NextPage
 	}
-
-	return slices.Map[[]*github.ReleaseAsset, []AssetMeta](githubAssets, func(asset *github.ReleaseAsset) AssetMeta {
+	return slices.Map[AssetMetaList](githubAssets, func(asset *github.ReleaseAsset) AssetMeta {
 		return r.factory.newMetaFromDownloadURL(url.URL(asset.GetBrowserDownloadURL()))
 	}), nil
 }
@@ -85,13 +83,13 @@ func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (Ass
 	if err != nil {
 		return nil, err
 	}
-	index := slices.IndexFunc(records, func(r Record) bool {
+	record, err := slices.Find(records, func(r Record) bool {
 		return r.Repository.Owner == repo.Owner && r.Repository.Name == repo.Name && r.Assets != nil
 	})
-	if index == -1 {
+	if err != nil {
 		return nil, &AssetNotFoundError{}
 	}
-	return slices.MapE[AssetMetaList, AssetMetaList](records[index].Assets, func(asset AssetMeta) (AssetMeta, error) {
+	return slices.MapE[AssetMetaList](record.Assets, func(asset AssetMeta) (AssetMeta, error) {
 		return r.factory.newMetaFromDownloadURLTemplate(url.Template(asset.DownloadURL), asset.OS, asset.Arch, release)
 	})
 }
