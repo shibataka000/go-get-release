@@ -13,3 +13,10 @@ type AssetNotFoundError struct{}
 func (e *AssetNotFoundError) Error() string {
 	return "No asset was found."
 }
+
+// AssetNotFoundError is error raised when no ExecutableBinaryMeta was found.
+type ExecutableBinaryNotFoundError struct{}
+
+func (e *ExecutableBinaryNotFoundError) Error() string {
+	return "No executable binary was found."
+}

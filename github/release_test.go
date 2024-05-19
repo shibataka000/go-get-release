@@ -9,6 +9,8 @@ import (
 )
 
 func TestReleaseSemVer(t *testing.T) {
+	factory := NewReleaseFactory()
+
 	tests := []struct {
 		name    string
 		release Release
@@ -16,17 +18,17 @@ func TestReleaseSemVer(t *testing.T) {
 	}{
 		{
 			name:    "v1.2.3",
-			release: newRelease("v1.2.3"),
+			release: factory.new("v1.2.3"),
 			semver:  "1.2.3",
 		},
 		{
 			name:    "1.2.3",
-			release: newRelease("1.2.3"),
+			release: factory.new("1.2.3"),
 			semver:  "1.2.3",
 		},
 		{
 			name:    "x.y.z",
-			release: newRelease("x.y.z"),
+			release: factory.new("x.y.z"),
 			semver:  "",
 		},
 	}
@@ -41,6 +43,9 @@ func TestReleaseSemVer(t *testing.T) {
 }
 
 func TestLatestRelease(t *testing.T) {
+	repositoryFactory := NewRepositoryFactory()
+	releaseFactory := NewReleaseFactory()
+
 	tests := []struct {
 		name    string
 		repo    Repository
@@ -48,8 +53,8 @@ func TestLatestRelease(t *testing.T) {
 	}{
 		{
 			name:    "shibataka000/go-get-release-test",
-			repo:    newRepository("shibataka000", "go-get-release-test"),
-			release: newRelease("v0.0.2"),
+			repo:    repositoryFactory.new("shibataka000", "go-get-release-test"),
+			release: releaseFactory.new("v0.0.2"),
 		},
 	}
 
@@ -57,7 +62,7 @@ func TestLatestRelease(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
-			repository := NewReleaseRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+			repository := NewReleaseRepository(ctx, os.Getenv("GITHUB_TOKEN"), releaseFactory)
 			release, err := repository.latest(ctx, tt.repo)
 			require.NoError(err)
 			require.Equal(tt.release, release)

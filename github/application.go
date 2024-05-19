@@ -48,5 +48,5 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repo Repository, rel
 
 // GetExecutableBinaryMeta return executable binary metadata from GitHub repository.
 func (a *ApplicationService) GetExecutableBinaryMeta(repo Repository) ExecutableBinaryMeta {
-	return newExecutableBinaryMetaFromRepository(repo)
+	return newExecutableBinaryMetaFromRepository(repo, "")
 }

@@ -19,7 +19,7 @@ func (url URL) Base() string {
 
 // Execute applies a URL template to the specified data object, and return it as URL.
 func (url Template) Execute(data any) (URL, error) {
-	tmpl, err := template.New("url").Parse(string(url))
+	tmpl, err := template.New("").Parse(string(url))
 	if err != nil {
 		return "", err
 	}

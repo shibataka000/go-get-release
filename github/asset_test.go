@@ -10,6 +10,8 @@ import (
 )
 
 func TestFindAssetMeta(t *testing.T) {
+	factory := NewAssetFactory()
+
 	tests := []struct {
 		name   string
 		assets AssetMetaList
@@ -20,13 +22,13 @@ func TestFindAssetMeta(t *testing.T) {
 		{
 			name: "linux_amd64",
 			assets: AssetMetaList{
-				newAssetMeta("", "linux", "amd64"),
-				newAssetMeta("", "darwin", "amd64"),
-				newAssetMeta("", "windows", "amd64"),
+				factory.newMeta("", "linux", "amd64"),
+				factory.newMeta("", "darwin", "amd64"),
+				factory.newMeta("", "windows", "amd64"),
 			},
 			os:    "linux",
 			arch:  "amd64",
-			asset: newAssetMeta("", "linux", "amd64"),
+			asset: factory.newMeta("", "linux", "amd64"),
 		},
 	}
 
@@ -41,6 +43,10 @@ func TestFindAssetMeta(t *testing.T) {
 }
 
 func TestListAssetsFromAPI(t *testing.T) {
+	repositoryFactory := NewRepositoryFactory()
+	releaseFactory := NewReleaseFactory()
+	assetFactory := NewAssetFactory()
+
 	tests := []struct {
 		name    string
 		repo    Repository
@@ -49,12 +55,12 @@ func TestListAssetsFromAPI(t *testing.T) {
 	}{
 		{
 			name:    "shibataka000/go-get-release-test",
-			repo:    newRepository("shibataka000", "go-get-release-test"),
-			release: newRelease("v0.0.2"),
+			repo:    repositoryFactory.new("shibataka000", "go-get-release-test"),
+			release: releaseFactory.new("v0.0.2"),
 			assets: AssetMetaList{
-				newAssetMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_darwin_amd64", "darwin", "amd64"),
-				newAssetMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_linux_amd64", "linux", "amd64"),
-				newAssetMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_windows_amd64.exe", "windows", "amd64"),
+				assetFactory.newMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_darwin_amd64", "darwin", "amd64"),
+				assetFactory.newMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_linux_amd64", "linux", "amd64"),
+				assetFactory.newMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_windows_amd64.exe", "windows", "amd64"),
 			},
 		},
 	}
@@ -63,7 +69,7 @@ func TestListAssetsFromAPI(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
-			repository := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+			repository := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"), assetFactory)
 			assets, err := repository.listFromAPI(ctx, tt.repo, tt.release)
 			require.NoError(err)
 			require.Equal(tt.assets, assets)
@@ -72,6 +78,10 @@ func TestListAssetsFromAPI(t *testing.T) {
 }
 
 func TestListAssetsFromBuiltIn(t *testing.T) {
+	repositoryFactory := NewRepositoryFactory()
+	releaseFactory := NewReleaseFactory()
+	assetFactory := NewAssetFactory()
+
 	tests := []struct {
 		name    string
 		repo    Repository
@@ -80,12 +90,12 @@ func TestListAssetsFromBuiltIn(t *testing.T) {
 	}{
 		{
 			name:    "hashicorp/terraform",
-			repo:    newRepository("hashicorp", "terraform"),
-			release: newRelease("v1.0.0"),
+			repo:    repositoryFactory.new("hashicorp", "terraform"),
+			release: releaseFactory.new("v1.0.0"),
 			assets: AssetMetaList{
-				newAssetMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip", "linux", "amd64"),
-				newAssetMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_darwin_amd64.zip", "darwin", "amd64"),
-				newAssetMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_windows_amd64.zip", "windows", "amd64"),
+				assetFactory.newMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip", "linux", "amd64"),
+				assetFactory.newMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_darwin_amd64.zip", "darwin", "amd64"),
+				assetFactory.newMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_windows_amd64.zip", "windows", "amd64"),
 			},
 		},
 	}
@@ -94,7 +104,7 @@ func TestListAssetsFromBuiltIn(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
-			repository := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+			repository := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"), assetFactory)
 			assets, err := repository.listFromBuiltIn(tt.repo, tt.release)
 			require.NoError(err)
 			require.Equal(tt.assets, assets)
