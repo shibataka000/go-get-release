@@ -12,15 +12,15 @@ import (
 // AssetMeta represents a GitHub release asset in a repository.
 type AssetMeta struct {
 	DownloadURL url.URL
-	GOOS        runtime.GOOS
-	GOARCH      runtime.GOARCH
+	GOOS        runtime.OS
+	GOARCH      runtime.Arch
 }
 
 // AssetMetaList is a list of AssetMeta.
 type AssetMetaList []AssetMeta
 
 // newAssetMeat return new AssetMeta object.
-func newAssetMeta(downloadURL url.URL, goos runtime.GOOS, goarch runtime.GOARCH) AssetMeta {
+func newAssetMeta(downloadURL url.URL, goos runtime.OS, goarch runtime.Arch) AssetMeta {
 	return AssetMeta{
 		DownloadURL: downloadURL,
 		GOOS:        goos,
@@ -91,7 +91,7 @@ func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (Ass
 }
 
 // find AssetMeta by GOOS/GOARCH.
-func (a AssetMetaList) find(goos runtime.GOOS, goarch runtime.GOARCH) (AssetMeta, error) {
+func (a AssetMetaList) find(goos runtime.OS, goarch runtime.Arch) (AssetMeta, error) {
 	for _, asset := range a {
 		if asset.GOOS == goos && asset.GOARCH == goarch {
 			return asset, nil

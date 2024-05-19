@@ -4,13 +4,16 @@ import (
 	"strings"
 )
 
-// GOOS is the running program's operating system target.
-type GOOS string
+// OS is operating system.
+type OS string
 
-// GOARCH is the running program's architecture target.
-type GOARCH string
+// Arch is architecture.
+type Arch string
 
-var goosKeywords = map[GOOS][]string{
+// osKeywords is a map whose key is OS and whose values are its keywords.
+// OSes are listed by following command.
+// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\1/g" | sort | uniq`
+var osKeywords = map[OS][]string{
 	"aix":       {"aix"},
 	"android":   {"android"},
 	"darwin":    {"darwin", "macos", "osx"},
@@ -27,7 +30,10 @@ var goosKeywords = map[GOOS][]string{
 	"windows":   {"windows", "win", ".exe"},
 }
 
-var goarchKeywords = map[GOARCH][]string{
+// archKeywords is a map whose key is Arch and whose values are its keywords.
+// Arches are listed by following command.
+// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\2/g" | sort | uniq`
+var archKeywords = map[Arch][]string{
 	"386":      {"386", "x86_32", "32bit", "win32"},
 	"686":      {"686"},
 	"amd64":    {"amd64", "x86_64", "64bit", "win64"},
@@ -44,13 +50,16 @@ var goarchKeywords = map[GOARCH][]string{
 	"wasm":     {"wasm"},
 }
 
-func Guess(name string) (GOOS, GOARCH) {
-	goos := findKeyWhichHasLongestMatchValue(goosKeywords, name, "unknown")
-	goarch := findKeyWhichHasLongestMatchValue(goarchKeywords, name, "amd64")
+// Guess OS/Arch from name.
+// If OS/Arch can't be guessed, this return "unknown"/"amd64" for each.
+func Guess(name string) (OS, Arch) {
+	goos := findKeyWhichHasLongestMatchValue(osKeywords, name, "unknown")
+	goarch := findKeyWhichHasLongestMatchValue(archKeywords, name, "amd64")
 	return goos, goarch
 }
 
-// findKeyWhichHasLongestMatchValue return key in map which has longest matched value.
+// findKeyWhichHasLongestMatchValue return key in map which has longest matched value with target.
+// If no value was matched with target, this returns defaultKey.
 func findKeyWhichHasLongestMatchValue[E ~string](m map[E][]string, target string, defaultKey E) E {
 	var matchKey E = ""
 	var matchValue string = ""
