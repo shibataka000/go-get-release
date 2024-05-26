@@ -46,12 +46,12 @@ func (assets AssetMetaList) find(os platform.OS, arch platform.Arch) (AssetMeta,
 	return assets[index], nil
 }
 
-// AssetRepository is repository for a GitHub release asset.
+// AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
 	client *github.Client
 }
 
-// NewAssetRepository returns new AssetRepository object.
+// NewAssetRepository returns a new AssetRepository object.
 func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	return &AssetRepository{
 		client: newGitHubClient(ctx, token),

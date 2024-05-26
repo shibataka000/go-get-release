@@ -8,7 +8,8 @@ import (
 
 // ApplicationService.
 type ApplicationService struct {
-	asset *AssetRepository
+	asset            *AssetRepository
+	executableBinary *ExecutableBinaryRepository
 }
 
 // NewApplicationService return new ApplicationService object.
@@ -18,7 +19,6 @@ func NewApplicationService(asset *AssetRepository) *ApplicationService {
 	}
 }
 
-// FindAsset return a GitHub release asset in a repository whose OS/Arch are same to passed values.
 func (a *ApplicationService) FindAssetMeta(ctx context.Context, repoFullName string, tag string, os platform.OS, arch platform.Arch) (AssetMeta, error) {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
@@ -47,7 +47,9 @@ func (a *ApplicationService) findAssetMetaFromBuiltIn(repo Repository, release R
 	return assets.find(os, arch)
 }
 
-// GetExecutableBinaryMeta return executable binary metadata from GitHub repository.
-func (a *ApplicationService) GetExecutableBinaryMeta(repo Repository) ExecutableBinaryMeta {
-	return newExecutableBinaryMetaFromRepository(repo, "")
+func (a *ApplicationService) FindExecutableBinaryMeta(repo Repository, os platform.OS) ExecutableBinaryMeta {
+	if bin, err := a.executableBinary.find(repo, os); err == nil {
+		return bin
+	}
+	return newExecutableBinaryMetaFromRepository(repo, os)
 }
