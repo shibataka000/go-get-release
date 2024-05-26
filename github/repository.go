@@ -12,17 +12,23 @@ type Repository struct {
 	Name  string `yaml:"name"`
 }
 
+// newRepository return new GitHub repository object.
+func newRepository(owner string, name string) Repository {
+	return Repository{
+		Owner: owner,
+		Name:  name,
+	}
+}
+
 // Repository is repository for a GitHub repository.
 type RepositoryRepository struct {
-	client  *github.Client
-	factory *RepositoryFactory
+	client *github.Client
 }
 
 // NewRepositoryRepository return new RepositoryRepository object.
-func NewRepositoryRepository(ctx context.Context, token string, factory *RepositoryFactory) *RepositoryRepository {
+func NewRepositoryRepository(ctx context.Context, token string) *RepositoryRepository {
 	return &RepositoryRepository{
-		client:  newGitHubClient(ctx, token),
-		factory: factory,
+		client: newGitHubClient(ctx, token),
 	}
 }
 
@@ -37,21 +43,5 @@ func (r *RepositoryRepository) search(ctx context.Context, query string) (Reposi
 		return Repository{}, &RepositoryNotFoundError{}
 	}
 	repo := repos[0]
-	return r.factory.new(repo.GetOwner().GetLogin(), repo.GetName()), nil
-}
-
-// RepositoryFactory is factory to create new GitHub repository object.
-type RepositoryFactory struct{}
-
-// NewRepositoryFactory return new RepositoryFactory object.
-func NewRepositoryFactory() *RepositoryFactory {
-	return &RepositoryFactory{}
-}
-
-// new GitHub repository object.
-func (f *RepositoryFactory) new(owner string, name string) Repository {
-	return Repository{
-		Owner: owner,
-		Name:  name,
-	}
+	return newRepository(repo.GetOwner().GetLogin(), repo.GetName()), nil
 }

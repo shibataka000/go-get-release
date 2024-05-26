@@ -9,8 +9,6 @@ import (
 )
 
 func TestSearchRepository(t *testing.T) {
-	factory := NewRepositoryFactory()
-
 	tests := []struct {
 		name  string
 		query string
@@ -19,7 +17,7 @@ func TestSearchRepository(t *testing.T) {
 		{
 			name:  "terraform",
 			query: "terraform",
-			repo:  factory.new("hashicorp", "terraform"),
+			repo:  newRepository("hashicorp", "terraform"),
 		},
 	}
 
@@ -27,7 +25,7 @@ func TestSearchRepository(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
-			repository := NewRepositoryRepository(ctx, os.Getenv("GITHUB_TOKEN"), factory)
+			repository := NewRepositoryRepository(ctx, os.Getenv("GITHUB_TOKEN"))
 			repo, err := repository.search(ctx, "terraform")
 			require.NoError(err)
 			require.Equal(tt.repo, repo)

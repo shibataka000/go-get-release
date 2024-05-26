@@ -2,10 +2,10 @@ package github
 
 import (
 	"context"
+	"slices"
 
 	"github.com/google/go-github/v48/github"
 	"github.com/shibataka000/go-get-release/platform"
-	"github.com/shibataka000/go-get-release/slices"
 	"github.com/shibataka000/go-get-release/url"
 	"gopkg.in/yaml.v3"
 )
@@ -15,6 +15,15 @@ type AssetMeta struct {
 	DownloadURL url.URL       `yaml:"downloadURL"`
 	OS          platform.OS   `yaml:"os"`
 	Arch        platform.Arch `yaml:"arch"`
+}
+
+// newAssetMeta return new AssetMeta object.
+func newAssetMeta(downloadURL url.URL, os platform.OS, arch platform.Arch) AssetMeta {
+	return AssetMeta{
+		DownloadURL: downloadURL,
+		OS:          os,
+		Arch:        arch,
+	}
 }
 
 // hasExecutableBinary return true if AssetMeta has executable binary.
@@ -27,38 +36,40 @@ type AssetMetaList []AssetMeta
 
 // find AssetMeta which has executable binary and whose OS/Arch are same as passed value.
 func (assets AssetMetaList) find(os platform.OS, arch platform.Arch) (AssetMeta, error) {
-	asset, err := slices.Find(assets, func(asset AssetMeta) bool {
-		return asset.OS == os && asset.Arch == arch && asset.hasExecutableBinary()
+	index := slices.IndexFunc(assets, func(asset AssetMeta) bool {
+		return asset.hasExecutableBinary() && asset.OS == os && asset.Arch == arch
 	})
-	if err != nil {
+	if index == -1 {
 		return AssetMeta{}, &AssetNotFoundError{}
 	}
-	return asset, nil
+	return assets[index], nil
 }
 
 // AssetRepository is repository for a GitHub release asset.
 type AssetRepository struct {
-	client  *github.Client
-	factory *AssetFactory
+	client *github.Client
 }
 
 // NewAssetRepository return new AssetRepository object.
-func NewAssetRepository(ctx context.Context, token string, factory *AssetFactory) *AssetRepository {
+func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	return &AssetRepository{
-		client:  newGitHubClient(ctx, token),
-		factory: factory,
+		client: newGitHubClient(ctx, token),
 	}
 }
 
-// listFromAPI return a list of AssetMeta in a GitHub release.
+// listFromAPI return a list of AssetMeta in a GitHub release using GitHub API.
 func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, release Release) (AssetMetaList, error) {
+	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.Owner, repo.Name, release.Tag)
 	if err != nil {
 		return nil, err
 	}
+	releaseID := *githubRelease.ID
+
+	// List GitHub release assets.
 	githubAssets := []*github.ReleaseAsset{}
 	for page := 1; page != 0; {
-		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.Owner, repo.Name, *githubRelease.ID, &github.ListOptions{
+		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.Owner, repo.Name, releaseID, &github.ListOptions{
 			Page: page,
 		})
 		if err != nil {
@@ -67,56 +78,44 @@ func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, rele
 		githubAssets = append(githubAssets, assets...)
 		page = resp.NextPage
 	}
-	return slices.Map[AssetMetaList](githubAssets, func(asset *github.ReleaseAsset) AssetMeta {
-		return r.factory.newMetaFromDownloadURL(url.URL(asset.GetBrowserDownloadURL()))
-	}), nil
+
+	// Create AssetMetaList from list of GitHub release asset.
+	result := AssetMetaList{}
+	for _, githubAsset := range githubAssets {
+		downloadURL := url.URL(githubAsset.GetBrowserDownloadURL())
+		os, arch := platform.Guess(downloadURL.Base())
+		result = append(result, newAssetMeta(downloadURL, os, arch))
+	}
+
+	return result, nil
 }
 
-// listFromBuiltIn return a list of AssetMeta in `builtin.yaml`.
+// listFromBuiltIn return a list of AssetMeta from built-in data.
 func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (AssetMetaList, error) {
+	// Define structure about record in built-in data to unmarshal them.
 	type Record struct {
 		Repository Repository    `yaml:"repository"`
 		Assets     AssetMetaList `yaml:"assets"`
 	}
+
+	// Unmarshal built-in data.
 	records := []Record{}
 	err := yaml.Unmarshal(builtin, &records)
 	if err != nil {
 		return nil, err
 	}
-	record, err := slices.Find(records, func(r Record) bool {
+
+	// Find record in built-in data by repository.
+	index := slices.IndexFunc(records, func(r Record) bool {
 		return r.Repository.Owner == repo.Owner && r.Repository.Name == repo.Name && r.Assets != nil
 	})
-	if err != nil {
+	if index == -1 {
 		return nil, &AssetNotFoundError{}
 	}
-	return slices.MapE[AssetMetaList](record.Assets, func(asset AssetMeta) (AssetMeta, error) {
-		return r.factory.newMetaFromDownloadURLTemplate(url.Template(asset.DownloadURL), asset.OS, asset.Arch, release)
-	})
-}
+	record := records[index]
 
-// AssetFactory is factory to create a new GitHub release asset object.
-type AssetFactory struct{}
-
-// NewAssetFactory return new AssetFactory object.
-func NewAssetFactory() *AssetFactory {
-	return &AssetFactory{}
-}
-
-// newMeta return new AssetMeta object.
-func (f *AssetFactory) newMeta(downloadURL url.URL, os platform.OS, arch platform.Arch) AssetMeta {
-	return AssetMeta{
-		DownloadURL: downloadURL,
-		OS:          os,
-		Arch:        arch,
-	}
-}
-
-func (f *AssetFactory) newMetaFromDownloadURL(downloadURL url.URL) AssetMeta {
-	os, arch := platform.Guess(downloadURL.Base())
-	return f.newMeta(downloadURL, os, arch)
-}
-
-func (f *AssetFactory) newMetaFromDownloadURLTemplate(downloadURL url.Template, os platform.OS, arch platform.Arch, release Release) (AssetMeta, error) {
+	// Apply a download URL template to the GitHub release object.
+	result := AssetMetaList{}
 	param := struct {
 		Tag    string
 		SemVer string
@@ -124,9 +123,14 @@ func (f *AssetFactory) newMetaFromDownloadURLTemplate(downloadURL url.Template, 
 		Tag:    release.Tag,
 		SemVer: release.semver(),
 	}
-	url, err := downloadURL.Execute(param)
-	if err != nil {
-		return AssetMeta{}, err
+	for _, asset := range record.Assets {
+		downloadURLTemplate := url.Template(asset.DownloadURL)
+		downloadURL, err := downloadURLTemplate.Execute(param)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, newAssetMeta(downloadURL, asset.OS, asset.Arch))
 	}
-	return f.newMeta(url, os, arch), nil
+
+	return result, nil
 }

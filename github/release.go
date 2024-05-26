@@ -14,6 +14,13 @@ type Release struct {
 	Tag string
 }
 
+// newRelease return new GitHub release object.
+func newRelease(tag string) Release {
+	return Release{
+		Tag: tag,
+	}
+}
+
 // semver return semver formatted release tag.
 // For example, if release tag is "v1.2.3", this return "1.2.3".
 // If release tag is invalid format, this returns empty string.
@@ -30,15 +37,13 @@ func (r Release) semver() string {
 
 // ReleaseRepository is repository for a GitHub release.
 type ReleaseRepository struct {
-	client  *github.Client
-	factory *ReleaseFactory
+	client *github.Client
 }
 
 // NewReleaseRepository return new ReleaseRepository object.
-func NewReleaseRepository(ctx context.Context, token string, factory *ReleaseFactory) *ReleaseRepository {
+func NewReleaseRepository(ctx context.Context, token string) *ReleaseRepository {
 	return &ReleaseRepository{
-		client:  newGitHubClient(ctx, token),
-		factory: factory,
+		client: newGitHubClient(ctx, token),
 	}
 }
 
@@ -48,20 +53,5 @@ func (r *ReleaseRepository) latest(ctx context.Context, repo Repository) (Releas
 	if err != nil {
 		return Release{}, err
 	}
-	return r.factory.new(release.GetTagName()), nil
-}
-
-// ReleaseFactory is factory to create a new GitHub release object.
-type ReleaseFactory struct{}
-
-// NewReleaseFactory return new ReleaseFactory object.
-func NewReleaseFactory() *ReleaseFactory {
-	return &ReleaseFactory{}
-}
-
-// new GitHub release object.
-func (f *ReleaseFactory) new(tag string) Release {
-	return Release{
-		Tag: tag,
-	}
+	return newRelease(release.GetTagName()), nil
 }
