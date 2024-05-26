@@ -5,6 +5,7 @@ import (
 	"slices"
 
 	"github.com/google/go-github/v48/github"
+	"github.com/shibataka000/go-get-release/file"
 	"github.com/shibataka000/go-get-release/platform"
 	"github.com/shibataka000/go-get-release/url"
 	"gopkg.in/yaml.v3"
@@ -26,9 +27,15 @@ func newAssetMeta(downloadURL url.URL, os platform.OS, arch platform.Arch) Asset
 	}
 }
 
-// hasExecutableBinary return true if AssetMeta has executable binary.
+// fileName return file name of GitHub release asset.
+func (a AssetMeta) fileName() file.Name {
+	return file.Name(a.DownloadURL.Base())
+}
+
+// hasExecutableBinary return true if AssetMeta may have executable binary.
 func (a AssetMeta) hasExecutableBinary() bool {
-	return true
+	exts := []string{"", ".exe", ".linux", ".darwin", ".linux-amd64", ".darwin-amd64", ".amd64", ".gz", ".xz", ".zip", ".tar"}
+	return slices.Contains(exts, a.fileName().Ext())
 }
 
 // AssetMetaList is a list of GitHub releaset asset.
