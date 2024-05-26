@@ -1,10 +1,6 @@
 package github
 
-import (
-	"context"
-
-	"github.com/google/go-github/v48/github"
-)
+import "strings"
 
 // Repository represents a GitHub repository.
 type Repository struct {
@@ -12,7 +8,7 @@ type Repository struct {
 	Name  string `yaml:"name"`
 }
 
-// newRepository return new GitHub repository object.
+// newRepository returns a new GitHub repository object.
 func newRepository(owner string, name string) Repository {
 	return Repository{
 		Owner: owner,
@@ -20,28 +16,12 @@ func newRepository(owner string, name string) Repository {
 	}
 }
 
-// Repository is repository for a GitHub repository.
-type RepositoryRepository struct {
-	client *github.Client
-}
-
-// NewRepositoryRepository return new RepositoryRepository object.
-func NewRepositoryRepository(ctx context.Context, token string) *RepositoryRepository {
-	return &RepositoryRepository{
-		client: newGitHubClient(ctx, token),
+// newRepositoryFromFullName returns a new GitHub repository object from repository full name.
+// Repository full name must be 'OWNER/REPO' format.
+func newRepositoryFromFullName(fullName string) (Repository, error) {
+	s := strings.Split(fullName, "/")
+	if len(s) != 2 {
+		return Repository{}, nil
 	}
-}
-
-// search GitHub repository.
-func (r *RepositoryRepository) search(ctx context.Context, query string) (Repository, error) {
-	result, _, err := r.client.Search.Repositories(ctx, query, &github.SearchOptions{})
-	if err != nil {
-		return Repository{}, err
-	}
-	repos := result.Repositories
-	if len(repos) == 0 {
-		return Repository{}, &RepositoryNotFoundError{}
-	}
-	repo := repos[0]
-	return newRepository(repo.GetOwner().GetLogin(), repo.GetName()), nil
+	return newRepository(s[0], s[1]), nil
 }

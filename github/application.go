@@ -8,41 +8,42 @@ import (
 
 // ApplicationService.
 type ApplicationService struct {
-	repository *RepositoryRepository
-	release    *ReleaseRepository
-	asset      *AssetRepository
+	asset *AssetRepository
 }
 
 // NewApplicationService return new ApplicationService object.
-func NewApplicationService(repository *RepositoryRepository, release *ReleaseRepository, asset *AssetRepository) *ApplicationService {
+func NewApplicationService(asset *AssetRepository) *ApplicationService {
 	return &ApplicationService{
-		repository: repository,
-		release:    release,
-		asset:      asset,
+		asset: asset,
 	}
-}
-
-// SearchRepository return a GitHub repository searched by query.
-func (a *ApplicationService) SearchRepository(ctx context.Context, query string) (Repository, error) {
-	return a.repository.search(ctx, query)
-}
-
-// LatestRelease return a latest GitHub release in a repository.
-func (a *ApplicationService) LatestRelease(ctx context.Context, repo Repository) (Release, error) {
-	return a.release.latest(ctx, repo)
 }
 
 // FindAsset return a GitHub release asset in a repository whose OS/Arch are same to passed values.
-func (a *ApplicationService) FindAsset(ctx context.Context, repo Repository, release Release, os platform.OS, arch platform.Arch) (AssetMeta, error) {
-	assets1, err := a.asset.listFromAPI(ctx, repo, release)
+func (a *ApplicationService) FindAssetMeta(ctx context.Context, repoNameWithOwner string, tag string, os platform.OS, arch platform.Arch) (AssetMeta, error) {
+	repo, err := newRepositoryFromFullName(repoNameWithOwner)
 	if err != nil {
 		return AssetMeta{}, err
 	}
-	assets2, err := a.asset.listFromBuiltIn(repo, release)
+	release := newRelease(tag)
+	if asset, err := a.findAssetMetaFromBuiltIn(repo, release, os, arch); err == nil {
+		return asset, nil
+	}
+	return a.findAssetMetaFromAPI(ctx, repo, release, os, arch)
+}
+
+func (a *ApplicationService) findAssetMetaFromAPI(ctx context.Context, repo Repository, release Release, os platform.OS, arch platform.Arch) (AssetMeta, error) {
+	assets, err := a.asset.listFromAPI(ctx, repo, release)
 	if err != nil {
 		return AssetMeta{}, err
 	}
-	assets := append(assets1, assets2...)
+	return assets.find(os, arch)
+}
+
+func (a *ApplicationService) findAssetMetaFromBuiltIn(repo Repository, release Release, os platform.OS, arch platform.Arch) (AssetMeta, error) {
+	assets, err := a.asset.listFromBuiltIn(repo, release)
+	if err != nil {
+		return AssetMeta{}, err
+	}
 	return assets.find(os, arch)
 }
 

@@ -11,8 +11,8 @@ import (
 
 // ExecutableBinaryMeta is metadata of executable binary in a GitHub release asset.
 type ExecutableBinaryMeta struct {
-	BaseName file.Name `yaml:"name"`
-	OS       platform.OS
+	BaseName file.Name   `yaml:"name"`
+	OS       platform.OS `yaml:"os"`
 }
 
 // newExecutableBinaryMeta return new ExecutableBinaryMeta object.
@@ -28,6 +28,7 @@ func newExecutableBinaryMetaFromRepository(repo Repository, os platform.OS) Exec
 	return newExecutableBinaryMeta(file.Name(repo.Name), os)
 }
 
+// Name return file name.
 func (b ExecutableBinaryMeta) Name() file.Name {
 	if b.OS == "windows" {
 		return file.Name(fmt.Sprintf("%s.exe", b.BaseName))
@@ -35,14 +36,16 @@ func (b ExecutableBinaryMeta) Name() file.Name {
 	return b.BaseName
 }
 
+// ExecutableBinaryRepository is repository for executable binary.
 type ExecutableBinaryRepository struct{}
 
+// NewExecutableBinaryRepository return new ExecutableBinaryRepository object.
 func NewExecutableBinaryRepository() *ExecutableBinaryRepository {
 	return &ExecutableBinaryRepository{}
 }
 
+// find metadata of executable binary from built-in data.
 func (r *ExecutableBinaryRepository) find(repo Repository, os platform.OS) (ExecutableBinaryMeta, error) {
-	// Find ExecutableBinaryMeta from builtin.
 	type Record struct {
 		Repository       Repository           `yaml:"repository"`
 		ExecutableBinary ExecutableBinaryMeta `yaml:"executableBinary"`

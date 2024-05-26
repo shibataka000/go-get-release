@@ -18,7 +18,7 @@ type AssetMeta struct {
 	Arch        platform.Arch `yaml:"arch"`
 }
 
-// newAssetMeta return new AssetMeta object.
+// newAssetMeta returns a new GitHub release asset metadata object.
 func newAssetMeta(downloadURL url.URL, os platform.OS, arch platform.Arch) AssetMeta {
 	return AssetMeta{
 		DownloadURL: downloadURL,
