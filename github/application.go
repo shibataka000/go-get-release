@@ -19,8 +19,8 @@ func NewApplicationService(asset *AssetRepository) *ApplicationService {
 }
 
 // FindAsset return a GitHub release asset in a repository whose OS/Arch are same to passed values.
-func (a *ApplicationService) FindAssetMeta(ctx context.Context, repoNameWithOwner string, tag string, os platform.OS, arch platform.Arch) (AssetMeta, error) {
-	repo, err := newRepositoryFromFullName(repoNameWithOwner)
+func (a *ApplicationService) FindAssetMeta(ctx context.Context, repoFullName string, tag string, os platform.OS, arch platform.Arch) (AssetMeta, error) {
+	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return AssetMeta{}, err
 	}

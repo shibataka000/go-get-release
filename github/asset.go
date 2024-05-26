@@ -5,7 +5,6 @@ import (
 	"slices"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/shibataka000/go-get-release/file"
 	"github.com/shibataka000/go-get-release/platform"
 	"github.com/shibataka000/go-get-release/url"
 	"gopkg.in/yaml.v3"
@@ -27,21 +26,16 @@ func newAssetMeta(downloadURL url.URL, os platform.OS, arch platform.Arch) Asset
 	}
 }
 
-// fileName return file name of GitHub release asset.
-func (a AssetMeta) fileName() file.Name {
-	return file.Name(a.DownloadURL.Base())
-}
-
-// hasExecutableBinary return true if AssetMeta may have executable binary.
+// hasExecutableBinary returns true if asset may have executable binary.
 func (a AssetMeta) hasExecutableBinary() bool {
 	exts := []string{"", ".exe", ".linux", ".darwin", ".linux-amd64", ".darwin-amd64", ".amd64", ".gz", ".xz", ".zip", ".tar"}
-	return slices.Contains(exts, a.fileName().Ext())
+	return slices.Contains(exts, a.DownloadURL.Base())
 }
 
-// AssetMetaList is a list of GitHub releaset asset.
+// AssetMetaList is a list of GitHub releaset asset metadata.
 type AssetMetaList []AssetMeta
 
-// find AssetMeta which has executable binary and whose OS/Arch are same as passed value.
+// find a GitHub release asset metadata which has executable binary and whose os/arch are same as supplied value.
 func (assets AssetMetaList) find(os platform.OS, arch platform.Arch) (AssetMeta, error) {
 	index := slices.IndexFunc(assets, func(asset AssetMeta) bool {
 		return asset.hasExecutableBinary() && asset.OS == os && asset.Arch == arch
@@ -57,14 +51,14 @@ type AssetRepository struct {
 	client *github.Client
 }
 
-// NewAssetRepository return new AssetRepository object.
+// NewAssetRepository returns new AssetRepository object.
 func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	return &AssetRepository{
 		client: newGitHubClient(ctx, token),
 	}
 }
 
-// listFromAPI return a list of AssetMeta in a GitHub release using GitHub API.
+// listFromAPI returns a list of GitHub release asset metadata in a GitHub release using GitHub API.
 func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, release Release) (AssetMetaList, error) {
 	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.Owner, repo.Name, release.Tag)
@@ -97,7 +91,7 @@ func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, rele
 	return result, nil
 }
 
-// listFromBuiltIn return a list of AssetMeta from built-in data.
+// listFromBuiltIn returns a list of GitHub release asset metadata from built-in data.
 func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (AssetMetaList, error) {
 	// Define structure about record in built-in data to unmarshal them.
 	type Record struct {
