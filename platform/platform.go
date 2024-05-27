@@ -10,7 +10,7 @@ type OS string
 // Arch is architecture.
 type Arch string
 
-// osKeywords is a map whose key is OS and whose values are its keywords.
+// osKeywords is a map whose key is os and whose values are its keywords.
 // OSes are listed by following command.
 // `go tool dist list | sed -r "s/(\w+)\/(\w+)/\1/g" | sort | uniq`
 var osKeywords = map[OS][]string{
@@ -30,7 +30,7 @@ var osKeywords = map[OS][]string{
 	"windows":   {"windows", "win", ".exe"},
 }
 
-// archKeywords is a map whose key is Arch and whose values are its keywords.
+// archKeywords is a map whose key is arch and whose values are its keywords.
 // Arches are listed by following command.
 // `go tool dist list | sed -r "s/(\w+)\/(\w+)/\2/g" | sort | uniq`
 var archKeywords = map[Arch][]string{
@@ -50,15 +50,15 @@ var archKeywords = map[Arch][]string{
 	"wasm":     {"wasm"},
 }
 
-// Guess OS/Arch from name.
-// If OS/Arch can't be guessed, this return "unknown"/"amd64" for each.
-func Guess(name string) (OS, Arch) {
-	goos := findKeyWhichHasLongestMatchValue(osKeywords, name, "unknown")
-	goarch := findKeyWhichHasLongestMatchValue(archKeywords, name, "amd64")
-	return goos, goarch
+// Detect os/arch from name.
+// If os/arch can't be guessed, this return "unknown"/"amd64" for each.
+func Detect(name string) (OS, Arch) {
+	os := findKeyWhichHasLongestMatchValue(osKeywords, name, "unknown")
+	arch := findKeyWhichHasLongestMatchValue(archKeywords, name, "amd64")
+	return os, arch
 }
 
-// findKeyWhichHasLongestMatchValue return key in map which has longest matched value with target.
+// findKeyWhichHasLongestMatchValue returns key in map which has longest matched value with target.
 // If no value was matched with target, this returns defaultKey.
 func findKeyWhichHasLongestMatchValue[E ~string](m map[E][]string, target string, defaultKey E) E {
 	var matchKey E = ""

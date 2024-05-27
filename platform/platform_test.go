@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGuess(t *testing.T) {
+func TestDetect(t *testing.T) {
 	tests := []struct {
 		name string
 		os   OS
@@ -32,7 +32,7 @@ func TestGuess(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			os, arch := Guess(tt.name)
+			os, arch := Detect(tt.name)
 			require.Equal(tt.os, os)
 			require.Equal(tt.arch, arch)
 		})
