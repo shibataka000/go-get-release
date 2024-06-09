@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/Songmu/prompter v0.5.1
 	github.com/cheggaaa/pb/v3 v3.1.4
+	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/go-github/v48 v48.2.0
 	github.com/spf13/cobra v1.7.0
 	github.com/stretchr/testify v1.8.1
@@ -28,10 +29,10 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/crypto v0.23.0 // indirect
+	golang.org/x/net v0.25.0 // indirect
+	golang.org/x/sys v0.20.0 // indirect
+	golang.org/x/term v0.20.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 )

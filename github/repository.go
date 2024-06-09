@@ -4,15 +4,15 @@ import "strings"
 
 // Repository represents a GitHub repository.
 type Repository struct {
-	Owner string `yaml:"owner"`
-	Name  string `yaml:"name"`
+	owner string `yaml:"owner"`
+	name  string `yaml:"name"`
 }
 
 // newRepository returns a new GitHub repository object.
 func newRepository(owner string, name string) Repository {
 	return Repository{
-		Owner: owner,
-		Name:  name,
+		owner: owner,
+		name:  name,
 	}
 }
 

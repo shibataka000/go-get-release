@@ -4,26 +4,25 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/Songmu/prompter"
+	"github.com/shibataka000/go-get-release/github"
 	"github.com/shibataka000/go-get-release/pkg"
 	"github.com/spf13/cobra"
 )
 
-// NewCommand return cobra command
+// NewCommand returns cobra command
 func NewCommand() *cobra.Command {
 	var (
-		token      string
-		goos       string
-		goarch     string
-		installDir string
+		repoFullName string
+		tag          string
+		token        string
+		dir          string
 	)
 
 	command := &cobra.Command{
-		Use:   "go-get-release [<owner>/]<repo>[=<tag>]",
+		Use:   "go-get-release <owner>/<repo>",
 		Short: "Install executable binary from GitHub release asset.",
-		Args:  cobra.ExactArgs(1),
 		RunE: func(_ *cobra.Command, args []string) error {
 			ctx := context.Background()
 			repository := pkg.NewInfrastructureRepository(ctx, token)
@@ -43,14 +42,29 @@ func NewCommand() *cobra.Command {
 				return nil
 			}
 			fmt.Println()
-			return app.Install(pkg, installDir, os.Stderr)
+			return app.Install(pkg, dir, os.Stderr)
 		},
 	}
 
-	command.Flags().StringVar(&token, "token", os.Getenv("GITHUB_TOKEN"), "github token [$GITHUB_TOKEN]")
-	command.Flags().StringVar(&goos, "goos", os.Getenv("GOOS"), "goos [$GOOS]")
-	command.Flags().StringVar(&goarch, "goarch", os.Getenv("GOARCH"), "goarch [$GOARCH]")
-	command.Flags().StringVar(&installDir, "install-dir", filepath.Join(os.Getenv("GOPATH"), "bin"), "directory where executable binary will be installed to")
+	command.Flags().StringVar(&token, "token", os.Getenv("GITHUB_TOKEN"), "GitHub token. [$GITHUB_TOKEN]")
+	command.Flags().StringVar(&dir, "dir", "/usr/local/bin", "The directory to download files into.")
 
 	return command
+}
+
+func run(repoFullName string, tag string, token string, dir string) error {
+	ctx := context.Background()
+	app := newGitHubApplicationService(ctx, token)
+	assetMeta, err := app.FindAssetMeta(ctx, repoFullName, tag)
+	if err != nil {
+		return err
+	}
+	binMeta, err := app.FindAssetMeta()
+}
+
+func newGitHubApplicationService(ctx context.Context, token string) github.ApplicationService {
+	return *github.NewApplicationService(
+		github.NewAssetRepository(ctx, token),
+		github.NewExecutableBinaryRepository(),
+	)
 }

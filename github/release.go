@@ -9,13 +9,13 @@ import (
 
 // Release represents a GitHub release in a repository.
 type Release struct {
-	Tag string
+	tag string
 }
 
 // newRelease returns new GitHub release object.
 func newRelease(tag string) Release {
 	return Release{
-		Tag: tag,
+		tag: tag,
 	}
 }
 
@@ -24,10 +24,10 @@ func newRelease(tag string) Release {
 // If release tag is not valid format, this returns empty string.
 func (r Release) semver() string {
 	switch {
-	case semver.IsValid(r.Tag):
-		return strings.TrimLeft(r.Tag, "v")
-	case semver.IsValid(fmt.Sprintf("v%s", r.Tag)):
-		return r.Tag
+	case semver.IsValid(r.tag):
+		return strings.TrimLeft(r.tag, "v")
+	case semver.IsValid(fmt.Sprintf("v%s", r.tag)):
+		return r.tag
 	default:
 		return ""
 	}

@@ -8,23 +8,23 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// ExecutableBinaryMeta represents an executable binary in a GitHub release asset.
-type ExecutableBinaryMeta struct {
+// ExecutableBinary represents an executable binary in a GitHub release asset.
+type ExecutableBinary struct {
 	BaseName file.Name `yaml:"name"`
 	OS       platform.OS
 }
 
-// newExecutableBinaryMeta returns a new executable binary metadata object.
-func newExecutableBinaryMeta(baseName file.Name, os platform.OS) ExecutableBinaryMeta {
-	return ExecutableBinaryMeta{
+// newExecutableBinary returns a new executable binary metadata object.
+func newExecutableBinary(baseName file.Name, os platform.OS) ExecutableBinary {
+	return ExecutableBinary{
 		BaseName: baseName,
 		OS:       os,
 	}
 }
 
 // newExecutableBinaryMetaFromRepository returns a new executable binary metadata object from Repository.
-func newExecutableBinaryMetaFromRepository(repo Repository, os platform.OS) ExecutableBinaryMeta {
-	return newExecutableBinaryMeta(file.Name(repo.Name), os)
+func newExecutableBinaryMetaFromRepository(repo Repository, os platform.OS) ExecutableBinary {
+	return newExecutableBinary(file.Name(repo.name), os)
 }
 
 // ExecutableBinaryRepository is a repository for executable binary.
@@ -36,28 +36,28 @@ func NewExecutableBinaryRepository() *ExecutableBinaryRepository {
 }
 
 // find an executable binary metadata from built-in data.
-func (r *ExecutableBinaryRepository) find(repo Repository, os platform.OS) (ExecutableBinaryMeta, error) {
+func (r *ExecutableBinaryRepository) find(repo Repository, os platform.OS) (ExecutableBinary, error) {
 	// Define structure about record in built-in data to unmarshal them.
 	type Record struct {
-		Repository       Repository           `yaml:"repository"`
-		ExecutableBinary ExecutableBinaryMeta `yaml:"executableBinary"`
+		Repository       Repository       `yaml:"repository"`
+		ExecutableBinary ExecutableBinary `yaml:"executableBinary"`
 	}
 
 	// Unmarshal built-in data.
 	records := []Record{}
 	err := yaml.Unmarshal(builtin, &records)
 	if err != nil {
-		return ExecutableBinaryMeta{}, err
+		return ExecutableBinary{}, err
 	}
 
 	// Find record in built-in data by repository.
 	index := slices.IndexFunc(records, func(r Record) bool {
-		return r.Repository.Owner == repo.Owner && r.Repository.Name == repo.Name && r.ExecutableBinary.BaseName != ""
+		return r.Repository.owner == repo.owner && r.Repository.name == repo.name && r.ExecutableBinary.BaseName != ""
 	})
 	if index == -1 {
-		return ExecutableBinaryMeta{}, &ExecutableBinaryNotFoundError{}
+		return ExecutableBinary{}, &ExecutableBinaryNotFoundError{}
 	}
 	bin := records[index].ExecutableBinary
 
-	return newExecutableBinaryMeta(bin.BaseName, os), nil
+	return newExecutableBinary(bin.BaseName, os), nil
 }

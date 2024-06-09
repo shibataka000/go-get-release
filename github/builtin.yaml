@@ -1,17 +1,3 @@
-# aquasecurity/tfsec
-- repository:
-    owner: aquasecurity
-    name: tfsec
-  assets:
-  - downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-linux-amd64
-    os: linux
-    arch: amd64
-  - downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-darwin-amd64
-    os: darwin
-    arch: amd64
-  - downloadURL: https://github.com/aquasecurity/tfsec/releases/download/{{.Tag}}/tfsec-windows-amd64.exe
-    os: windows
-    arch: amd64
 # argoproj/argo-cd
 - repository:
     owner: argoproj
@@ -90,14 +76,8 @@
     name: teleport
   assets:
   - downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-linux-amd64-bin.tar.gz
-    os: linux
-    arch: amd64
   - downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-darwin-amd64-bin.tar.gz
-    os: darwin
-    arch: amd64
   - downloadURL: https://get.gravitational.com/teleport-{{.Tag}}-windows-amd64-bin.zip
-    os: windows
-    arch: amd64
   executableBinary:
     name: tsh
 # hashicorp/terraform
@@ -106,28 +86,16 @@
     name: terraform
   assets:
   - downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip
-    os: linux
-    arch: amd64
   - downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip
-    os: darwin
-    arch: amd64
   - downloadURL: https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip
-    os: windows
-    arch: amd64
 # helm/helm
 - repository:
     owner: helm
     name: helm
   assets:
   - downloadURL: https://get.helm.sh/helm-{{.Tag}}-linux-amd64.tar.gz
-    os: linux
-    arch: amd64
   - downloadURL: https://get.helm.sh/helm-{{.Tag}}-darwin-amd64.tar.gz
-    os: darwin
-    arch: amd64
   - downloadURL: https://get.helm.sh/helm-{{.Tag}}-windows-amd64.zip
-    os: windows
-    arch: amd64
 # istio/istio
 - repository:
     owner: istio
@@ -140,14 +108,8 @@
     name: kubernetes
   assets:
   - downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/linux/amd64/kubectl
-    os: linux
-    arch: amd64
   - downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/darwin/amd64/kubectl
-    os: darwin
-    arch: amd64
   - downloadURL: https://dl.k8s.io/release/{{.Tag}}/bin/windows/amd64/kubectl.exe
-    os: windows
-    arch: amd64
   executableBinary:
     name: kubectl
 # open-policy-agent/gatekeeper
@@ -172,10 +134,6 @@
 - repository:
     owner: snyk
     name: cli
-  assets:
-  - downloadURL: https://github.com/snyk/cli/releases/download/{{.Tag}}/snyk-macos
-    os: darwin
-    arch: amd64
   executableBinary:
     name: snyk
 # tektoncd/cli

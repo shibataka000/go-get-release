@@ -11,7 +11,7 @@ type OS string
 type Arch string
 
 // osKeywords is a map whose key is os and whose values are its keywords.
-// OSes are listed by following command.
+// These are listed by following command.
 // `go tool dist list | sed -r "s/(\w+)\/(\w+)/\1/g" | sort | uniq`
 var osKeywords = map[OS][]string{
 	"aix":       {"aix"},
@@ -31,7 +31,7 @@ var osKeywords = map[OS][]string{
 }
 
 // archKeywords is a map whose key is arch and whose values are its keywords.
-// Arches are listed by following command.
+// These are listed by following command.
 // `go tool dist list | sed -r "s/(\w+)\/(\w+)/\2/g" | sort | uniq`
 var archKeywords = map[Arch][]string{
 	"386":      {"386", "x86_32", "32bit", "win32"},
@@ -51,10 +51,10 @@ var archKeywords = map[Arch][]string{
 }
 
 // Detect os/arch from name.
-// If os/arch can't be guessed, this return "unknown"/"amd64" for each.
+// If os/arch can't be detected, this returns empty string.
 func Detect(name string) (OS, Arch) {
-	os := findKeyWhichHasLongestMatchValue(osKeywords, name, "unknown")
-	arch := findKeyWhichHasLongestMatchValue(archKeywords, name, "amd64")
+	os := findKeyWhichHasLongestMatchValue(osKeywords, name, "")
+	arch := findKeyWhichHasLongestMatchValue(archKeywords, name, "")
 	return os, arch
 }
 

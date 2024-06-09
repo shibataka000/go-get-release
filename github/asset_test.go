@@ -12,21 +12,21 @@ import (
 func TestFindAssetMeta(t *testing.T) {
 	tests := []struct {
 		name   string
-		assets AssetMetaList
+		assets AssetList
 		os     platform.OS
 		arch   platform.Arch
-		asset  AssetMeta
+		asset  Asset
 	}{
 		{
 			name: "linux_amd64",
-			assets: AssetMetaList{
-				newAssetMeta("", "linux", "amd64"),
-				newAssetMeta("", "darwin", "amd64"),
-				newAssetMeta("", "windows", "amd64"),
+			assets: AssetList{
+				newAsset("", "linux", "amd64"),
+				newAsset("", "darwin", "amd64"),
+				newAsset("", "windows", "amd64"),
 			},
 			os:    "linux",
 			arch:  "amd64",
-			asset: newAssetMeta("", "linux", "amd64"),
+			asset: newAsset("", "linux", "amd64"),
 		},
 	}
 
@@ -46,16 +46,16 @@ func TestListAssetsFromAPI(t *testing.T) {
 		name    string
 		repo    Repository
 		release Release
-		assets  AssetMetaList
+		assets  AssetList
 	}{
 		{
 			name:    "shibataka000/go-get-release-test",
 			repo:    newRepository("shibataka000", "go-get-release-test"),
 			release: newRelease("v0.0.2"),
-			assets: AssetMetaList{
-				newAssetMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_darwin_amd64", "darwin", "amd64"),
-				newAssetMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_linux_amd64", "linux", "amd64"),
-				newAssetMeta("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_windows_amd64.exe", "windows", "amd64"),
+			assets: AssetList{
+				newAsset("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_darwin_amd64", "darwin", "amd64"),
+				newAsset("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_linux_amd64", "linux", "amd64"),
+				newAsset("https://github.com/shibataka000/go-get-release-test/releases/download/v0.0.2/go-get-release_v0.0.2_windows_amd64.exe", "windows", "amd64"),
 			},
 		},
 	}
@@ -77,16 +77,16 @@ func TestListAssetsFromBuiltIn(t *testing.T) {
 		name    string
 		repo    Repository
 		release Release
-		assets  AssetMetaList
+		assets  AssetList
 	}{
 		{
 			name:    "hashicorp/terraform",
 			repo:    newRepository("hashicorp", "terraform"),
 			release: newRelease("v1.0.0"),
-			assets: AssetMetaList{
-				newAssetMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip", "linux", "amd64"),
-				newAssetMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_darwin_amd64.zip", "darwin", "amd64"),
-				newAssetMeta("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_windows_amd64.zip", "windows", "amd64"),
+			assets: AssetList{
+				newAsset("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_linux_amd64.zip", "linux", "amd64"),
+				newAsset("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_darwin_amd64.zip", "darwin", "amd64"),
+				newAsset("https://releases.hashicorp.com/terraform/1.0.0/terraform_1.0.0_windows_amd64.zip", "windows", "amd64"),
 			},
 		},
 	}

@@ -24,8 +24,8 @@ func TestDetect(t *testing.T) {
 		},
 		{
 			name: "",
-			os:   "unknown",
-			arch: "amd64",
+			os:   "",
+			arch: "",
 		},
 	}
 
