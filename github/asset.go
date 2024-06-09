@@ -34,7 +34,7 @@ type AssetTemplate struct {
 	downloadURL *template.Template
 }
 
-// AssetList is a list of GitHub releaset asset in a repository.
+// AssetList is a list of GitHub release asset in a repository.
 type AssetList []Asset
 
 // newAsset returns a new GitHub release asset object.
@@ -85,7 +85,7 @@ func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error)
 	return url.Parse(buf.String())
 }
 
-// find a GitHub release asset which has executable binary and whose os/arch are same as supplied value.
+// find a GitHub release asset which has executable binary for specified platform.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
 		return asset.os() == os && asset.arch() == arch && asset.mayHaveExecutableBinary()

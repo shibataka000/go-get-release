@@ -18,6 +18,7 @@ func NewApplicationService(asset *AssetRepository) *ApplicationService {
 	}
 }
 
+// FindAsset returns a GitHub release asset which has executable binary for specified platform.
 func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, os platform.OS, arch platform.Arch) (Asset, error) {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
