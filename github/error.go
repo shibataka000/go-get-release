@@ -1,10 +1,14 @@
 package github
 
-// RepositoryNotFoundError is error raised when no repository was found.
-type RepositoryNotFoundError struct{}
+import "fmt"
 
-func (e *RepositoryNotFoundError) Error() string {
-	return "No repository was found."
+// InvalidRepositoryFullNameFormatError is error raised when repository full name is not 'OWNER/NAME' format.
+type InvalidRepositoryFullNameFormatError struct {
+	fullName string
+}
+
+func (e *InvalidRepositoryFullNameFormatError) Error() string {
+	return fmt.Sprintf("'%s' is not valid repository full name. Its format must be 'OWNER/NAME'.", e.fullName)
 }
 
 // AssetNotFoundError is error raised when no AssetMeta was found.

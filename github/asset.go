@@ -13,6 +13,14 @@ import (
 	"golang.org/x/oauth2"
 )
 
+var externalAssetsDownloadURLs = map[string][]url.Template{
+	"hashicorp/terraform": {
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip",
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip",
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip",
+	},
+}
+
 // Asset represents a GitHub release asset in a repository.
 type Asset struct {
 	downloadURL url.URL
@@ -81,7 +89,18 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 }
 
 func (r *AssetRepository) get(downloadURL url.URL) (Asset, error) {
+	resp, err := http.Get(string(downloadURL))
+	if err != nil {
+		return Asset{}, err
+	}
+	defer resp.Body.Close()
 
+	mime, err := mime.DetectReader(resp.Body)
+	if err != nil {
+		return Asset{}, err
+	}
+
+	return newAsset(downloadURL, mime), nil
 }
 
 // list returns a list of GitHub release asset in a GitHub release.
@@ -107,29 +126,21 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	}
 
 	// Create AssetList from list of GitHub release asset.
-	result := AssetList{}
+	assets := AssetList{}
 	for _, githubAsset := range githubAssets {
 		asset, err := r.get(url.URL(githubAsset.GetBrowserDownloadURL()))
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, asset)
+		assets = append(assets, asset)
 	}
 
-	return result, nil
-}
-
-var externalAssets = map[string][]url.Template{
-	"hashicorp/terraform": {
-		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip",
-		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip",
-		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip",
-	},
+	return assets, nil
 }
 
 // listExternalAssets returns a list of release assets hosted on server out of GitHub.
 func (r *AssetRepository) listExternalAssets(repo Repository, release Release) (AssetList, error) {
-	templates, ok := externalAssets[repo.fullName()]
+	templates, ok := externalAssetsDownloadURLs[repo.fullName()]
 	if !ok {
 		return AssetList{}, nil
 	}

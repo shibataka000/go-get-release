@@ -9,48 +9,32 @@ import (
 // ApplicationService.
 type ApplicationService struct {
 	asset *AssetRepository
-	bin   *ExecutableBinaryRepository
 }
 
-// NewApplicationService return new ApplicationService object.
-func NewApplicationService(asset *AssetRepository, bin *ExecutableBinaryRepository) *ApplicationService {
+// NewApplicationService returns a new ApplicationService object.
+func NewApplicationService(asset *AssetRepository) *ApplicationService {
 	return &ApplicationService{
 		asset: asset,
-		bin:   bin,
 	}
 }
 
-func (a *ApplicationService) FindAssetMeta(ctx context.Context, repoFullName string, tag string, os platform.OS, arch platform.Arch) (Asset, error) {
+func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, os platform.OS, arch platform.Arch) (Asset, error) {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return Asset{}, err
 	}
+
 	release := newRelease(tag)
-	if asset, err := a.findAssetMetaFromBuiltIn(repo, release, os, arch); err == nil {
-		return asset, nil
-	}
-	return a.findAssetMetaFromAPI(ctx, repo, release, os, arch)
-}
 
-func (a *ApplicationService) findAssetMetaFromAPI(ctx context.Context, repo Repository, release Release, os platform.OS, arch platform.Arch) (Asset, error) {
-	assets, err := a.asset.listFromAPI(ctx, repo, release)
+	assets, err := a.asset.list(ctx, repo, release)
 	if err != nil {
 		return Asset{}, err
 	}
-	return assets.find(os, arch)
-}
 
-func (a *ApplicationService) findAssetMetaFromBuiltIn(repo Repository, release Release, os platform.OS, arch platform.Arch) (Asset, error) {
-	assets, err := a.asset.listFromBuiltIn(repo, release)
+	externalAssets, err := a.asset.listExternalAssets(repo, release)
 	if err != nil {
 		return Asset{}, err
 	}
-	return assets.find(os, arch)
-}
 
-func (a *ApplicationService) FindExecutableBinaryMeta(repo Repository, os platform.OS) ExecutableBinary {
-	if bin, err := a.bin.find(repo, os); err == nil {
-		return bin
-	}
-	return newExecutableBinaryMetaFromRepository(repo, os)
+	return append(assets, externalAssets...).find(os, arch)
 }
