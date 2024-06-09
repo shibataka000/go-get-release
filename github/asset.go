@@ -12,15 +12,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// assetDownloadURLTemplatesHostedOnOutside is a list of url template to download asset hosted on server outside of GitHub.
-var assetDownloadURLTemplatesHostedOnOutside = map[string][]url.Template{
-	"hashicorp/terraform": {
-		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip",
-		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip",
-		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip",
-	},
-}
-
 // Asset represents a GitHub release asset in a repository.
 type Asset struct {
 	downloadURL url.URL
@@ -135,9 +126,18 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
+// externalAssetDownloadURLTemplates is a list of url template to download asset hosted on server outside of GitHub.
+var externalAssetDownloadURLTemplates = map[Repository][]url.Template{
+	newRepository("hashicorp", "terraform"): {
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip",
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip",
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip",
+	},
+}
+
 // listExternal returns a list of release assets hosted on server outside of GitHub.
 func (r *AssetRepository) listExternal(repo Repository, release Release) (AssetList, error) {
-	tmpls, ok := assetDownloadURLTemplatesHostedOnOutside[repo.fullName()]
+	tmpls, ok := externalAssetDownloadURLTemplates[repo]
 	if !ok {
 		return AssetList{}, nil
 	}

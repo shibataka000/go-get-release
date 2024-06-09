@@ -28,24 +28,3 @@ func TestNewRepositoryFromFullName(t *testing.T) {
 		})
 	}
 }
-
-func TestRepositoryFullName(t *testing.T) {
-	tests := []struct {
-		name     string
-		fullName string
-		repo     Repository
-	}{
-		{
-			name:     "hashicorp/terraform",
-			fullName: "hashicorp/terraform",
-			repo:     newRepository("hashicorp", "terraform"),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			require.Equal(tt.fullName, tt.repo.fullName())
-		})
-	}
-}
