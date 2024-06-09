@@ -29,7 +29,8 @@ func newRepositoryFromFullName(fullName string) (Repository, error) {
 	return newRepository(s[0], s[1]), nil
 }
 
-// fullName returns a repository full name. It is 'OWNER/REPO' format.
+// fullName returns a repository full name.
+// It is 'OWNER/REPO' format.
 func (r Repository) fullName() string {
 	return fmt.Sprintf("%s/%s", r.owner, r.name)
 }

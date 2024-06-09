@@ -6,14 +6,14 @@ import (
 	"slices"
 
 	"github.com/google/go-github/v48/github"
-	"github.com/shibataka000/go-get-release/file"
 	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
 	"github.com/shibataka000/go-get-release/url"
 	"golang.org/x/oauth2"
 )
 
-var externalAssetsDownloadURLs = map[string][]url.Template{
+// assetDownloadURLTemplatesHostedOnOutside is a list of url template to download asset hosted on server outside of GitHub.
+var assetDownloadURLTemplatesHostedOnOutside = map[string][]url.Template{
 	"hashicorp/terraform": {
 		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip",
 		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip",
@@ -38,20 +38,15 @@ func newAsset(downloadURL url.URL, mime mime.MIME) Asset {
 	}
 }
 
-// name returns an asset file name.
-func (a Asset) name() file.Name {
-	return file.Name(a.downloadURL.Base())
-}
-
-// os returns an os detected by asset file name.
+// os returns an os detected by url to download asset.
 func (a Asset) os() platform.OS {
-	os, _ := platform.Detect(string(a.name()))
+	os, _ := platform.Detect(string(a.downloadURL))
 	return os
 }
 
-// arch returns an arch detected by asset file name.
+// arch returns an arch detected by url to download assetl.
 func (a Asset) arch() platform.Arch {
-	_, arch := platform.Detect(string(a.name()))
+	_, arch := platform.Detect(string(a.downloadURL))
 	return arch
 }
 
@@ -63,7 +58,7 @@ func (a Asset) hasExecutableBinary() bool {
 // find a GitHub release asset which has executable binary and whose os/arch are same as supplied value.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
-		return asset.hasExecutableBinary() && asset.os() == os && asset.arch() == arch
+		return asset.os() == os && asset.arch() == arch && asset.hasExecutableBinary()
 	})
 	if index == -1 {
 		return Asset{}, &AssetNotFoundError{}
@@ -88,6 +83,7 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 }
 
+// get returns a new GitHub release asset object.
 func (r *AssetRepository) get(downloadURL url.URL) (Asset, error) {
 	resp, err := http.Get(string(downloadURL))
 	if err != nil {
@@ -128,7 +124,8 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	// Create AssetList from list of GitHub release asset.
 	assets := AssetList{}
 	for _, githubAsset := range githubAssets {
-		asset, err := r.get(url.URL(githubAsset.GetBrowserDownloadURL()))
+		downloadURL := url.URL(githubAsset.GetBrowserDownloadURL())
+		asset, err := r.get(downloadURL)
 		if err != nil {
 			return nil, err
 		}
@@ -138,14 +135,14 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
-// listExternalAssets returns a list of release assets hosted on server out of GitHub.
-func (r *AssetRepository) listExternalAssets(repo Repository, release Release) (AssetList, error) {
-	templates, ok := externalAssetsDownloadURLs[repo.fullName()]
+// listExternal returns a list of release assets hosted on server outside of GitHub.
+func (r *AssetRepository) listExternal(repo Repository, release Release) (AssetList, error) {
+	tmpls, ok := assetDownloadURLTemplatesHostedOnOutside[repo.fullName()]
 	if !ok {
 		return AssetList{}, nil
 	}
 	assets := AssetList{}
-	for _, tmpl := range templates {
+	for _, tmpl := range tmpls {
 		downloadURL, err := applyDownloadURLTemplateToRelease(tmpl, release)
 		if err != nil {
 			return nil, err
@@ -159,6 +156,7 @@ func (r *AssetRepository) listExternalAssets(repo Repository, release Release) (
 	return assets, nil
 }
 
+// applyDownloadURLTemplateToRelease applies a download url template to the release object, and return it as download url.
 func applyDownloadURLTemplateToRelease(downloadURL url.Template, release Release) (url.URL, error) {
 	data := struct {
 		Tag    string

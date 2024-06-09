@@ -31,7 +31,7 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 		return Asset{}, err
 	}
 
-	externalAssets, err := a.asset.listExternalAssets(repo, release)
+	externalAssets, err := a.asset.listExternal(repo, release)
 	if err != nil {
 		return Asset{}, err
 	}

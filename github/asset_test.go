@@ -96,7 +96,7 @@ func TestListAssetsFromBuiltIn(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
 			repository := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
-			assets, err := repository.listExternalAssets(tt.repo, tt.release)
+			assets, err := repository.listExternal(tt.repo, tt.release)
 			require.NoError(err)
 			require.Equal(tt.assets, assets)
 		})
