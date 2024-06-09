@@ -19,9 +19,9 @@ func newRelease(tag string) Release {
 	}
 }
 
-// semver returns semver formatted release tag.
+// semver returns a release tag which is semver format.
 // For example, if release tag is "v1.2.3", this returns "1.2.3".
-// If release tag is not valid format, this returns empty string.
+// If release tag is not valid format, this returns an empty string.
 func (r Release) semver() string {
 	switch {
 	case semver.IsValid(r.tag):

@@ -14,7 +14,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// external is a map of repository and template of asset on server outside GitHub.
+// external is a map of repository and template of GitHub release asset on server outside GitHub.
 var external = map[Repository][]AssetTemplate{
 	newRepository("hashicorp", "terraform"): {
 		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
@@ -52,25 +52,24 @@ func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
 	}
 }
 
-// os returns an os detected by url to download asset.
+// os returns an os detected by url to download GitHub release asset.
 func (a Asset) os() platform.OS {
 	os, _ := platform.Detect(a.downloadURL.String())
 	return os
 }
 
-// arch returns an arch detected by url to download asset.
+// arch returns an arch detected by url to download GitHub release asset.
 func (a Asset) arch() platform.Arch {
 	_, arch := platform.Detect(a.downloadURL.String())
 	return arch
 }
 
-// mayHaveExecutableBinary returns true if asset may have executable binary.
+// mayHaveExecutableBinary returns true if GitHub release asset may have executable binary.
 func (a Asset) mayHaveExecutableBinary() bool {
 	return a.mime.IsArchived() || a.mime.IsCompressed() || a.mime.IsOctetStream()
 }
 
-// downloadURLWithRelease return a url to download a GitHub release asset.
-// This applies a download url template to the release object, and return it as download url.
+// downloadURLWithRelease applies a download url template to the GitHub release object, and return it as download url.
 func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error) {
 	buf := new(bytes.Buffer)
 	data := struct {
@@ -114,7 +113,7 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 }
 
-// get returns a new GitHub release asset object.
+// get returns a new GitHub release asset.
 func (r *AssetRepository) get(downloadURL *url.URL) (Asset, error) {
 	resp, err := http.Get(downloadURL.String())
 	if err != nil {
@@ -130,7 +129,7 @@ func (r *AssetRepository) get(downloadURL *url.URL) (Asset, error) {
 	return newAsset(downloadURL, mime), nil
 }
 
-// list returns a list of GitHub release asset in a GitHub release.
+// list returns a list of GitHub release asset in GitHub.
 func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
 	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.owner, repo.name, release.tag)
@@ -169,7 +168,7 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
-// listExternal returns a list of release assets hosted on server outside of GitHub.
+// listExternal returns a list of GitHub release asset on server outside GitHub.
 func (r *AssetRepository) listExternal(repo Repository, release Release) (AssetList, error) {
 	tmpls, ok := external[repo]
 	if !ok {
