@@ -14,8 +14,8 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// externals is a map of repository and url template list to download asset on server outside GitHub.
-var externals = map[Repository][]AssetTemplate{
+// external is a map of repository and template of asset on server outside GitHub.
+var external = map[Repository][]AssetTemplate{
 	newRepository("hashicorp", "terraform"): {
 		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
 		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip")),
@@ -69,8 +69,9 @@ func (a Asset) mayHaveExecutableBinary() bool {
 	return a.mime.IsArchived() || a.mime.IsCompressed() || a.mime.IsOctetStream()
 }
 
-// applyDownloadURLTemplateToRelease applies a download url template to the release object, and return it as download url.
-func (a AssetTemplate) getDownloadURL(release Release) (*url.URL, error) {
+// downloadURLWithRelease return a url to download a GitHub release asset.
+// This applies a download url template to the release object, and return it as download url.
+func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error) {
 	buf := new(bytes.Buffer)
 	data := struct {
 		Tag    string
@@ -170,13 +171,13 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 
 // listExternal returns a list of release assets hosted on server outside of GitHub.
 func (r *AssetRepository) listExternal(repo Repository, release Release) (AssetList, error) {
-	tmpls, ok := externals[repo]
+	tmpls, ok := external[repo]
 	if !ok {
 		return AssetList{}, nil
 	}
 	assets := AssetList{}
 	for _, tmpl := range tmpls {
-		downloadURL, err := tmpl.getDownloadURL(release)
+		downloadURL, err := tmpl.downloadURLWithRelease(release)
 		if err != nil {
 			return nil, err
 		}

@@ -31,10 +31,10 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 		return Asset{}, err
 	}
 
-	externalAssets, err := a.asset.listExternal(repo, release)
+	external, err := a.asset.listExternal(repo, release)
 	if err != nil {
 		return Asset{}, err
 	}
 
-	return append(assets, externalAssets...).find(os, arch)
+	return append(assets, external...).find(os, arch)
 }
