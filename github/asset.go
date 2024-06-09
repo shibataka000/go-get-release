@@ -6,6 +6,7 @@ import (
 	"slices"
 
 	"github.com/google/go-github/v48/github"
+	"github.com/shibataka000/go-get-release/file"
 	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
 	"github.com/shibataka000/go-get-release/url"
@@ -14,39 +15,44 @@ import (
 
 // Asset represents a GitHub release asset in a repository.
 type Asset struct {
-	DownloadURL url.URL
-	MIME        mime.MIME
-}
-
-// newAsset returns a new GitHub release asset object.
-func newAsset(downloadURL url.URL, mime mime.MIME) Asset {
-	return Asset{
-		DownloadURL: downloadURL,
-		MIME:        mime,
-	}
-}
-
-// os returns an os detected by asset file name.
-func (a Asset) os() platform.OS {
-	os, _ := platform.Detect(a.DownloadURL.Base())
-	return os
-}
-
-// arch returns an arch detected by asset file name.
-func (a Asset) arch() platform.Arch {
-	_, arch := platform.Detect(a.DownloadURL.Base())
-	return arch
-}
-
-// hasExecutableBinary returns true if asset may have executable binary.
-func (a Asset) hasExecutableBinary() bool {
-	return a.MIME.IsArchived() || a.MIME.IsCompressed() || a.MIME.IsOctetStream()
+	downloadURL url.URL
+	mime        mime.MIME
 }
 
 // AssetList is a list of GitHub releaset asset.
 type AssetList []Asset
 
-// find a GitHub release asset metadata which has executable binary and whose os/arch are same as supplied value.
+// newAsset returns a new GitHub release asset object.
+func newAsset(downloadURL url.URL, mime mime.MIME) Asset {
+	return Asset{
+		downloadURL: downloadURL,
+		mime:        mime,
+	}
+}
+
+// name returns an asset file name.
+func (a Asset) name() file.Name {
+	return file.Name(a.downloadURL.Base())
+}
+
+// os returns an os detected by asset file name.
+func (a Asset) os() platform.OS {
+	os, _ := platform.Detect(string(a.name()))
+	return os
+}
+
+// arch returns an arch detected by asset file name.
+func (a Asset) arch() platform.Arch {
+	_, arch := platform.Detect(string(a.name()))
+	return arch
+}
+
+// hasExecutableBinary returns true if asset may have executable binary.
+func (a Asset) hasExecutableBinary() bool {
+	return a.mime.IsArchived() || a.mime.IsCompressed() || a.mime.IsOctetStream()
+}
+
+// find a GitHub release asset which has executable binary and whose os/arch are same as supplied value.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
 		return asset.hasExecutableBinary() && asset.os() == os && asset.arch() == arch
@@ -74,8 +80,12 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 }
 
-// listFromAPI returns a list of GitHub release asset metadata in a GitHub release using GitHub API.
-func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, release Release) (AssetList, error) {
+func (r *AssetRepository) get(downloadURL url.URL) (Asset, error) {
+
+}
+
+// list returns a list of GitHub release asset in a GitHub release.
+func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
 	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.owner, repo.name, release.tag)
 	if err != nil {
@@ -99,34 +109,52 @@ func (r *AssetRepository) listFromAPI(ctx context.Context, repo Repository, rele
 	// Create AssetList from list of GitHub release asset.
 	result := AssetList{}
 	for _, githubAsset := range githubAssets {
-		downloadURL := url.URL(githubAsset.GetBrowserDownloadURL())
-		result = append(result, newAsset(downloadURL, ""))
+		asset, err := r.get(url.URL(githubAsset.GetBrowserDownloadURL()))
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, asset)
 	}
 
 	return result, nil
 }
 
-// listFromBuiltIn returns a list of GitHub release asset metadata from built-in data.
-func (r *AssetRepository) listFromBuiltIn(repo Repository, release Release) (AssetList, error) {
-	list, err := loadBuiltInData()
-	if err != nil {
-		return nil, err
-	}
+var externalAssets = map[string][]url.Template{
+	"hashicorp/terraform": {
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip",
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip",
+		"https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip",
+	},
+}
 
-	data, err := list.find(repo)
-	if err != nil {
-		return nil, err
+// listExternalAssets returns a list of release assets hosted on server out of GitHub.
+func (r *AssetRepository) listExternalAssets(repo Repository, release Release) (AssetList, error) {
+	templates, ok := externalAssets[repo.fullName()]
+	if !ok {
+		return AssetList{}, nil
 	}
-
 	assets := AssetList{}
-
-	for _, asset := range data.Assets {
-		downloadURL, err := asset.render(release)
+	for _, tmpl := range templates {
+		downloadURL, err := applyDownloadURLTemplateToRelease(tmpl, release)
 		if err != nil {
 			return nil, err
 		}
-		assets = append(assets, newAsset(downloadURL, ""))
+		asset, err := r.get(downloadURL)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, asset)
 	}
-
 	return assets, nil
+}
+
+func applyDownloadURLTemplateToRelease(downloadURL url.Template, release Release) (url.URL, error) {
+	data := struct {
+		Tag    string
+		SemVer string
+	}{
+		Tag:    release.tag,
+		SemVer: release.semver(),
+	}
+	return downloadURL.Execute(data)
 }

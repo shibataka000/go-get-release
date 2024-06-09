@@ -1,11 +1,14 @@
 package github
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 // Repository represents a GitHub repository.
 type Repository struct {
-	owner string `yaml:"owner"`
-	name  string `yaml:"name"`
+	owner string
+	name  string
 }
 
 // newRepository returns a new GitHub repository object.
@@ -24,4 +27,8 @@ func newRepositoryFromFullName(fullName string) (Repository, error) {
 		return Repository{}, nil
 	}
 	return newRepository(s[0], s[1]), nil
+}
+
+func (r Repository) fullName() string {
+	return fmt.Sprintf("%s/%s", r.owner, r.name)
 }
