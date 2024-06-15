@@ -14,12 +14,12 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// external is a map of repository and template of GitHub release asset on server outside GitHub.
-var external = map[Repository][]AssetTemplate{
+// externalAssets is a map of repository and a list of GitHub release asset template on server outside GitHub.
+var externalAssets = map[Repository]AssetTemplateList{
 	newRepository("hashicorp", "terraform"): {
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip")),
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip")),
+		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip"), ""),
+		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip"), ""),
+		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip"), ""),
 	},
 }
 
@@ -29,13 +29,17 @@ type Asset struct {
 	mime        mime.MIME
 }
 
+// AssetList is a list of GitHub release asset in a repository.
+type AssetList []Asset
+
 // AssetTemplate is a template of GitHub release asset in a repository.
 type AssetTemplate struct {
 	downloadURL *template.Template
+	mime        mime.MIME
 }
 
-// AssetList is a list of GitHub release asset in a repository.
-type AssetList []Asset
+// AssetTemplateList is a list of template of Github release asset in a repository.
+type AssetTemplateList []AssetTemplate
 
 // newAsset returns a new GitHub release asset object.
 func newAsset(downloadURL *url.URL, mime mime.MIME) Asset {
@@ -46,9 +50,10 @@ func newAsset(downloadURL *url.URL, mime mime.MIME) Asset {
 }
 
 // newAssetTemplate returns a new GitHub release asset template object.
-func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
+func newAssetTemplate(downloadURL *template.Template, mime mime.MIME) AssetTemplate {
 	return AssetTemplate{
 		downloadURL: downloadURL,
+		mime:        mime,
 	}
 }
 
@@ -69,22 +74,6 @@ func (a Asset) mayHaveExecutableBinary() bool {
 	return a.mime.IsArchived() || a.mime.IsCompressed() || a.mime.IsOctetStream()
 }
 
-// downloadURLWithRelease applies a download url template to the GitHub release object, and return it as download url.
-func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error) {
-	buf := new(bytes.Buffer)
-	data := struct {
-		Tag    string
-		SemVer string
-	}{
-		Tag:    release.tag,
-		SemVer: release.semver(),
-	}
-	if err := a.downloadURL.Execute(buf, data); err != nil {
-		return nil, err
-	}
-	return url.Parse(buf.String())
-}
-
 // find a GitHub release asset which has executable binary for specified platform.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
@@ -94,6 +83,40 @@ func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 		return Asset{}, &AssetNotFoundError{}
 	}
 	return s[index], nil
+}
+
+// execute applies an asset template to the GitHub release object, and returns it as GitHub release asset.
+func (a AssetTemplate) execute(release Release) (Asset, error) {
+	buf := new(bytes.Buffer)
+	data := struct {
+		Tag    string
+		SemVer string
+	}{
+		Tag:    release.tag,
+		SemVer: release.semver(),
+	}
+	err := a.downloadURL.Execute(buf, data)
+	if err != nil {
+		return Asset{}, err
+	}
+	downloadURL, err := url.Parse(buf.String())
+	if err != nil {
+		return Asset{}, err
+	}
+	return newAsset(downloadURL, a.mime), nil
+}
+
+// execute applies a list of asset template to the GitHub release object, and returns them as list of GitHub release asset.
+func (s AssetTemplateList) execute(release Release) (AssetList, error) {
+	assets := AssetList{}
+	for _, a := range s {
+		asset, err := a.execute(release)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, asset)
+	}
+	return assets, nil
 }
 
 // AssetRepository is a repository for a GitHub release asset.
@@ -168,23 +191,23 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
-// listExternal returns a list of GitHub release asset on server outside GitHub.
-func (r *AssetRepository) listExternal(repo Repository, release Release) (AssetList, error) {
-	tmpls, ok := external[repo]
+// ExternalAssetRepository is a repository for a GitHub release asset on server outside GitHub.
+type ExternalAssetRepository struct {
+	assets map[Repository]AssetTemplateList
+}
+
+// NewExternalAssetRepository returns a new ExternalAssetRepository object.
+func NewExternalAssetRepository() *ExternalAssetRepository {
+	return &ExternalAssetRepository{
+		assets: externalAssets,
+	}
+}
+
+// list returns a list of GitHub release asset on server outside GitHub.
+func (r *ExternalAssetRepository) list(repo Repository, release Release) (AssetList, error) {
+	tmpls, ok := r.assets[repo]
 	if !ok {
 		return AssetList{}, nil
 	}
-	assets := AssetList{}
-	for _, tmpl := range tmpls {
-		downloadURL, err := tmpl.downloadURLWithRelease(release)
-		if err != nil {
-			return nil, err
-		}
-		asset, err := r.get(downloadURL)
-		if err != nil {
-			return nil, err
-		}
-		assets = append(assets, asset)
-	}
-	return assets, nil
+	return tmpls.execute(release)
 }
