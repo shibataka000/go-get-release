@@ -17,9 +17,9 @@ import (
 // externalAssets is a map of repository and a list of GitHub release asset template on server outside GitHub.
 var externalAssets = map[Repository]AssetTemplateList{
 	newRepository("hashicorp", "terraform"): {
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip"), ""),
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip"), ""),
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip"), ""),
+		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
+		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip")),
+		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip")),
 	},
 }
 
@@ -35,7 +35,6 @@ type AssetList []Asset
 // AssetTemplate is a template of GitHub release asset in a repository.
 type AssetTemplate struct {
 	downloadURL *template.Template
-	mime        mime.MIME
 }
 
 // AssetTemplateList is a list of template of Github release asset in a repository.
@@ -50,10 +49,9 @@ func newAsset(downloadURL *url.URL, mime mime.MIME) Asset {
 }
 
 // newAssetTemplate returns a new GitHub release asset template object.
-func newAssetTemplate(downloadURL *template.Template, mime mime.MIME) AssetTemplate {
+func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
 	return AssetTemplate{
 		downloadURL: downloadURL,
-		mime:        mime,
 	}
 }
 
@@ -85,8 +83,8 @@ func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	return s[index], nil
 }
 
-// execute applies an asset template to the GitHub release object, and returns it as GitHub release asset.
-func (a AssetTemplate) execute(release Release) (Asset, error) {
+// downloadURLWithRelease applies an asset template to the GitHub release object, and returns it as GitHub release asset.
+func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error) {
 	buf := new(bytes.Buffer)
 	data := struct {
 		Tag    string
@@ -97,31 +95,15 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 	}
 	err := a.downloadURL.Execute(buf, data)
 	if err != nil {
-		return Asset{}, err
+		return nil, err
 	}
-	downloadURL, err := url.Parse(buf.String())
-	if err != nil {
-		return Asset{}, err
-	}
-	return newAsset(downloadURL, a.mime), nil
-}
-
-// execute applies a list of asset template to the GitHub release object, and returns them as list of GitHub release asset.
-func (s AssetTemplateList) execute(release Release) (AssetList, error) {
-	assets := AssetList{}
-	for _, a := range s {
-		asset, err := a.execute(release)
-		if err != nil {
-			return nil, err
-		}
-		assets = append(assets, asset)
-	}
-	return assets, nil
+	return url.Parse(buf.String())
 }
 
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
-	client *github.Client
+	client         *github.Client
+	externalAssets map[Repository]AssetTemplateList
 }
 
 // NewAssetRepository returns a new AssetRepository object.
@@ -132,27 +114,12 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	return &AssetRepository{
-		client: github.NewClient(httpClient),
+		client:         github.NewClient(httpClient),
+		externalAssets: externalAssets,
 	}
 }
 
-// get returns a new GitHub release asset.
-func (r *AssetRepository) get(downloadURL *url.URL) (Asset, error) {
-	resp, err := http.Get(downloadURL.String())
-	if err != nil {
-		return Asset{}, err
-	}
-	defer resp.Body.Close()
-
-	mime, err := mime.DetectReader(resp.Body)
-	if err != nil {
-		return Asset{}, err
-	}
-
-	return newAsset(downloadURL, mime), nil
-}
-
-// list returns a list of GitHub release asset in GitHub.
+// list returns a list of GitHub release asset.
 func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
 	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.owner, repo.name, release.tag)
@@ -174,40 +141,42 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 		page = resp.NextPage
 	}
 
-	// Create AssetList from list of GitHub release asset.
-	assets := AssetList{}
+	downloadURLs := []*url.URL{}
+
+	// List URL to download GitHub release asset.
 	for _, githubAsset := range githubAssets {
 		downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
 		if err != nil {
 			return nil, err
 		}
-		asset, err := r.get(downloadURL)
+		downloadURLs = append(downloadURLs, downloadURL)
+	}
+
+	// List URL to download GitHub release asset on server outside GitHub.
+	if externalAssets, ok := r.externalAssets[repo]; ok {
+		for _, externalAsset := range externalAssets {
+			downloadURL, err := externalAsset.downloadURLWithRelease(release)
+			if err != nil {
+				return nil, err
+			}
+			downloadURLs = append(downloadURLs, downloadURL)
+		}
+	}
+
+	// Detect MIME.
+	assets := AssetList{}
+	for _, downloadURL := range downloadURLs {
+		resp, err := http.Get(downloadURL.String())
 		if err != nil {
 			return nil, err
 		}
-		assets = append(assets, asset)
+		defer resp.Body.Close()
+		mime, err := mime.DetectReader(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, newAsset(downloadURL, mime))
 	}
 
 	return assets, nil
-}
-
-// ExternalAssetRepository is a repository for a GitHub release asset on server outside GitHub.
-type ExternalAssetRepository struct {
-	assets map[Repository]AssetTemplateList
-}
-
-// NewExternalAssetRepository returns a new ExternalAssetRepository object.
-func NewExternalAssetRepository() *ExternalAssetRepository {
-	return &ExternalAssetRepository{
-		assets: externalAssets,
-	}
-}
-
-// list returns a list of GitHub release asset on server outside GitHub.
-func (r *ExternalAssetRepository) list(repo Repository, release Release) (AssetList, error) {
-	tmpls, ok := r.assets[repo]
-	if !ok {
-		return AssetList{}, nil
-	}
-	return tmpls.execute(release)
 }

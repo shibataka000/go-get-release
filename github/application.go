@@ -8,15 +8,13 @@ import (
 
 // ApplicationService.
 type ApplicationService struct {
-	asset         *AssetRepository
-	externalAsset *ExternalAssetRepository
+	asset *AssetRepository
 }
 
 // NewApplicationService returns a new ApplicationService object.
-func NewApplicationService(asset *AssetRepository, externalAsset *ExternalAssetRepository) *ApplicationService {
+func NewApplicationService(asset *AssetRepository) *ApplicationService {
 	return &ApplicationService{
-		asset:         asset,
-		externalAsset: externalAsset,
+		asset: asset,
 	}
 }
 
@@ -34,10 +32,5 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 		return Asset{}, err
 	}
 
-	external, err := a.externalAsset.list(repo, release)
-	if err != nil {
-		return Asset{}, err
-	}
-
-	return append(assets, external...).find(os, arch)
+	return assets.find(os, arch)
 }
