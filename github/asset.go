@@ -32,17 +32,14 @@ type AssetTemplate struct {
 // AssetTemplateList is a list of template of Github release asset in a repository.
 type AssetTemplateList []AssetTemplate
 
+// AssetRepository is a repository for a GitHub release asset.
+type AssetRepository struct {
+	client *github.Client
+}
+
 // newAsset returns a new GitHub release asset object.
 func newAsset(downloadURL *url.URL, mime mime.MIME) Asset {
 	return Asset{
-		downloadURL: downloadURL,
-		mime:        mime,
-	}
-}
-
-// newAssetTemplate returns a new GitHub release asset template object.
-func newAssetTemplate(downloadURL *template.Template, mime mime.MIME) AssetTemplate {
-	return AssetTemplate{
 		downloadURL: downloadURL,
 		mime:        mime,
 	}
@@ -76,6 +73,14 @@ func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	return s[index], nil
 }
 
+// newAssetTemplate returns a new GitHub release asset template object.
+func newAssetTemplate(downloadURL *template.Template, mime mime.MIME) AssetTemplate {
+	return AssetTemplate{
+		downloadURL: downloadURL,
+		mime:        mime,
+	}
+}
+
 // execute applies an asset template to the GitHub release object, and returns it as GitHub release asset.
 func (a AssetTemplate) execute(release Release) (Asset, error) {
 	buf := new(bytes.Buffer)
@@ -95,11 +100,6 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 		return Asset{}, err
 	}
 	return newAsset(downloadURL, a.mime), nil
-}
-
-// AssetRepository is a repository for a GitHub release asset.
-type AssetRepository struct {
-	client *github.Client
 }
 
 // NewAssetRepository returns a new AssetRepository object.
