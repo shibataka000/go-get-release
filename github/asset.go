@@ -3,7 +3,6 @@ package github
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
@@ -126,33 +125,37 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	}
 	releaseID := *githubRelease.ID
 
-	// List GitHub release assets.
-	assets := AssetList{}
+	// List GitHub release assets in GitHub repository.
+	githubAssets := []*github.ReleaseAsset{}
 	for page := 1; page != 0; {
-		githubAssets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
+		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
-		for _, githubAsset := range githubAssets {
-			downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
-			if err != nil {
-				return nil, err
-			}
-			fmt.Println(downloadURL)
-			rc, _, err := r.client.Repositories.DownloadReleaseAsset(ctx, repo.owner, repo.name, githubAsset.GetID(), http.DefaultClient)
-			if err != nil {
-				return nil, err
-			}
-			defer rc.Close()
-			mime, err := mime.DetectReader(rc, r.limit)
-			if err != nil {
-				return nil, err
-			}
-			assets = append(assets, newAsset(downloadURL, mime))
-		}
+		githubAssets = append(githubAssets, assets...)
 		page = resp.NextPage
+	}
+
+	assets := AssetList{}
+
+	// Make GitHub release asset objects.
+	for _, githubAsset := range githubAssets {
+		downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
+		if err != nil {
+			return nil, err
+		}
+		rc, _, err := r.client.Repositories.DownloadReleaseAsset(ctx, repo.owner, repo.name, githubAsset.GetID(), http.DefaultClient)
+		if err != nil {
+			return nil, err
+		}
+		defer rc.Close()
+		mime, err := mime.DetectReader(rc, r.limit)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, newAsset(downloadURL, mime))
 	}
 
 	// List GitHub release assets on server outside GitHub.
