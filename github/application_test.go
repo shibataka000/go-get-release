@@ -480,7 +480,7 @@ func TestApplicationServiceSearch(t *testing.T) {
 			repo:    newRepository("cli", "cli"),
 			release: newRelease("v2.51.0"),
 			os:      "linux",
-			arch:    "arm64",
+			arch:    "arm32",
 			asset:   newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.0/gh_2.51.0_linux_armv6.tar.gz")),
 		},
 		{
@@ -518,64 +518,206 @@ func TestApplicationServiceSearch(t *testing.T) {
 			arch:    "arm64",
 			asset:   newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.0/gh_2.51.0_linux_arm64.zip")),
 		},
-		// // docker/buildx
-		// {
-		// 	query:       "docker/buildx=v0.10.4",
-		// 	platform:    NewPlatform("linux", "amd64"),
-		// 	downloadURL: "https://github.com/docker/buildx/releases/download/v0.10.4/buildx-v0.10.4.linux-amd64",
-		// 	execBinary:  "docker-buildx",
-		// },
-		// {
-		// 	query:       "docker/buildx=v0.10.4",
-		// 	platform:    NewPlatform("darwin", "amd64"),
-		// 	downloadURL: "https://github.com/docker/buildx/releases/download/v0.10.4/buildx-v0.10.4.darwin-amd64",
-		// 	execBinary:  "docker-buildx",
-		// },
-		// {
-		// 	query:       "docker/buildx=v0.10.4",
-		// 	platform:    NewPlatform("windows", "amd64"),
-		// 	downloadURL: "https://github.com/docker/buildx/releases/download/v0.10.4/buildx-v0.10.4.windows-amd64.exe",
-		// 	execBinary:  "docker-buildx.exe",
-		// },
-		// // docker/compose
-		// {
-		// 	query:       "docker/compose=1.25.4",
-		// 	platform:    NewPlatform("linux", "amd64"),
-		// 	downloadURL: "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-Linux-x86_64",
-		// 	execBinary:  "docker-compose",
-		// },
-		// {
-		// 	query:       "docker/compose=1.25.4",
-		// 	platform:    NewPlatform("darwin", "amd64"),
-		// 	downloadURL: "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-Darwin-x86_64",
-		// 	execBinary:  "docker-compose",
-		// },
-		// {
-		// 	query:       "docker/compose=1.25.4",
-		// 	platform:    NewPlatform("windows", "amd64"),
-		// 	downloadURL: "https://github.com/docker/compose/releases/download/1.25.4/docker-compose-Windows-x86_64.exe",
-		// 	execBinary:  "docker-compose.exe",
-		// },
-		// // docker/machine
-		// {
-		// 	query:       "docker/machine=v0.16.2",
-		// 	platform:    NewPlatform("linux", "amd64"),
-		// 	downloadURL: "https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Linux-x86_64",
-		// 	execBinary:  "docker-machine",
-		// },
-		// {
-		// 	query:       "docker/machine=v0.16.2",
-		// 	platform:    NewPlatform("darwin", "amd64"),
-		// 	downloadURL: "https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Darwin-x86_64",
-		// 	execBinary:  "docker-machine",
-		// },
-		// {
-		// 	query:       "docker/machine=v0.16.2",
-		// 	platform:    NewPlatform("windows", "amd64"),
-		// 	downloadURL: "https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Windows-x86_64.exe",
-		// 	execBinary:  "docker-machine.exe",
-		// },
-		// // docker/scan-cli-plugin
+		// docker/buildx
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "darwin",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.darwin-amd64")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "darwin",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.darwin-arm64")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-amd64")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "arm32",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-arm-v6")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "arm32",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-arm-v7")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-arm64")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "ppc64le",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-ppc64le")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "riscv64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-riscv64")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "linux",
+			arch:    "s390x",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.linux-s390x")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "windows",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.windows-amd64.exe")),
+		},
+		{
+			repo:    newRepository("docker", "buildx"),
+			release: newRelease("v0.15.1"),
+			os:      "windows",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/buildx/releases/download/v0.15.1/buildx-v0.15.1.windows-arm64.exe")),
+		},
+		// docker/compose
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "darwin",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-darwin-aarch64")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "darwin",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-darwin-x86_64")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-aarch64")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "arm32",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-armv6")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "arm32",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-armv7")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "ppc64le",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-ppc64le")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "riscv64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-riscv64")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "s390x",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-s390x")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "linux",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-linux-x86_64")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "windows",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-windows-aarch64.exe")),
+		},
+		{
+			repo:    newRepository("docker", "compose"),
+			release: newRelease("v2.28.0"),
+			os:      "windows",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/compose/releases/download/v2.28.0/docker-compose-windows-x86_64.exe")),
+		},
+		// docker/machine
+		{
+			repo:    newRepository("docker", "machine"),
+			release: newRelease("v0.16.2"),
+			os:      "darwin",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Darwin-x86_64")),
+		},
+		{
+			repo:    newRepository("docker", "machine"),
+			release: newRelease("v0.16.2"),
+			os:      "linux",
+			arch:    "arm64",
+			asset:   newAsset(newURL("https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Linux-aarch64")),
+		},
+		{
+			repo:    newRepository("docker", "machine"),
+			release: newRelease("v0.16.2"),
+			os:      "linux",
+			arch:    "arm32",
+			asset:   newAsset(newURL("https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Linux-armhf")),
+		},
+		{
+			repo:    newRepository("docker", "machine"),
+			release: newRelease("v0.16.2"),
+			os:      "linux",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Linux-x86_64")),
+		},
+		{
+			repo:    newRepository("docker", "machine"),
+			release: newRelease("v0.16.2"),
+			os:      "windows",
+			arch:    "amd32",
+			asset:   newAsset(newURL("https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Windows-i386.exe")),
+		},
+		{
+			repo:    newRepository("docker", "machine"),
+			release: newRelease("v0.16.2"),
+			os:      "windows",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/docker/machine/releases/download/v0.16.2/docker-machine-Windows-x86_64.exe")),
+		},
+		// docker/scan-cli-plugin
 		// {
 		// 	query:       "docker/scan-cli-plugin=v0.17.0",
 		// 	platform:    NewPlatform("linux", "amd64"),
@@ -946,7 +1088,8 @@ func TestApplicationServiceSearch(t *testing.T) {
 			app := NewApplicationService(
 				NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN")),
 			)
-			asset, err := app.FindAsset(ctx, fmt.Sprintf("%s/%s", tt.repo.owner, tt.repo.name), tt.release.tag, tt.os, tt.arch)
+			repoFullName := fmt.Sprintf("%s/%s", tt.repo.owner, tt.repo.name)
+			asset, err := app.FindAsset(ctx, repoFullName, tt.release.tag, tt.os, tt.arch)
 			require.NoError(err)
 			require.Equal(tt.asset, asset)
 		})
