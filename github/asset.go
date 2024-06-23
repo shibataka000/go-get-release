@@ -3,6 +3,7 @@ package github
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
@@ -35,6 +36,7 @@ type AssetTemplateList []AssetTemplate
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
 	client *github.Client
+	limit  uint32
 }
 
 // newAsset returns a new GitHub release asset object.
@@ -103,7 +105,7 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 }
 
 // NewAssetRepository returns a new AssetRepository object.
-func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
+func NewAssetRepository(ctx context.Context, token string, limit uint32) *AssetRepository {
 	var httpClient *http.Client
 	if token != "" {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
@@ -111,6 +113,7 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 	return &AssetRepository{
 		client: github.NewClient(httpClient),
+		limit:  limit,
 	}
 }
 
@@ -137,12 +140,13 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 			if err != nil {
 				return nil, err
 			}
+			fmt.Println(downloadURL)
 			rc, _, err := r.client.Repositories.DownloadReleaseAsset(ctx, repo.owner, repo.name, githubAsset.GetID(), http.DefaultClient)
 			if err != nil {
 				return nil, err
 			}
 			defer rc.Close()
-			mime, err := mime.DetectReader(rc)
+			mime, err := mime.DetectReader(rc, r.limit)
 			if err != nil {
 				return nil, err
 			}

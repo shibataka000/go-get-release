@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"runtime"
 
 	"github.com/Songmu/prompter"
 	"github.com/shibataka000/go-get-release/github"
@@ -30,6 +31,10 @@ func NewCommand() *cobra.Command {
 	}
 
 	command.Flags().StringVar(&token, "token", os.Getenv("GITHUB_TOKEN"), "GitHub token. [$GITHUB_TOKEN]")
+	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "Select repository using the OWNER/REPO format")
+	command.Flags().StringVar(&tag, "tag", "", "")
+	command.Flags().StringVar(&pos, "os", runtime.GOOS, "")
+	command.Flags().StringVar(&arch, "arch", runtime.GOARCH, "")
 
 	return command
 }
@@ -37,7 +42,7 @@ func NewCommand() *cobra.Command {
 func run(token string, repoFullName string, tag string, os platform.OS, arch platform.Arch) error {
 	ctx := context.Background()
 	app := github.NewApplicationService(
-		github.NewAssetRepository(ctx, token),
+		github.NewAssetRepository(ctx, token, 0),
 	)
 	asset, err := app.FindAsset(ctx, repoFullName, tag, os, arch)
 	if err != nil {
