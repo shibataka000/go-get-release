@@ -34,8 +34,8 @@ type AssetTemplateList []AssetTemplate
 
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
-	client        *github.Client
-	prefetchBytes uint32
+	client                *github.Client
+	bytesReadToDetectMime uint32
 }
 
 // newAsset returns a new GitHub release asset object.
@@ -104,15 +104,15 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 }
 
 // NewAssetRepository returns a new AssetRepository object.
-func NewAssetRepository(ctx context.Context, token string, limit uint32) *AssetRepository {
+func NewAssetRepository(ctx context.Context, token string, bytesReadToDetectMime uint32) *AssetRepository {
 	var httpClient *http.Client
 	if token != "" {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	return &AssetRepository{
-		client:        github.NewClient(httpClient),
-		prefetchBytes: limit,
+		client:                github.NewClient(httpClient),
+		bytesReadToDetectMime: bytesReadToDetectMime,
 	}
 }
 
@@ -125,7 +125,7 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	}
 	releaseID := *githubRelease.ID
 
-	// List GitHub release assets in GitHub repository.
+	// List GitHub release assets.
 	githubAssets := []*github.ReleaseAsset{}
 	for page := 1; page != 0; {
 		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
@@ -151,14 +151,14 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 			return nil, err
 		}
 		defer rc.Close()
-		mime, err := mime.DetectReader(rc, r.prefetchBytes)
+		mime, err := mime.DetectReader(rc, r.bytesReadToDetectMime)
 		if err != nil {
 			return nil, err
 		}
 		assets = append(assets, newAsset(downloadURL, mime))
 	}
 
-	// List GitHub release assets on server outside GitHub.
+	// List GitHub release assets on external server.
 	if externalAssets, ok := externalAssets[repo]; ok {
 		for _, externalAsset := range externalAssets {
 			asset, err := externalAsset.execute(release)

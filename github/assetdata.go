@@ -6,7 +6,7 @@ import (
 	"github.com/shibataka000/go-get-release/mime"
 )
 
-// externalAssets is a map whose key is repository and whose value is a template list of GitHub release asset on server outside GitHub.
+// externalAssets is a map whose key is repository and whose value is a list of GitHub release asset template on external server.
 var externalAssets = map[Repository]AssetTemplateList{
 	newRepository("hashicorp", "terraform"): {
 		newAssetTemplate(newTemplate("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip"), mime.Zip),
