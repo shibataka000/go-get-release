@@ -8,23 +8,23 @@ import (
 )
 
 const (
-	// Deb
+	// Deb represents MIME for debian binary package file.
 	Deb = "application/vnd.debian.binary-package"
-	// Gz
+	// Gz represents MIME for gzip file.
 	Gz = "application/gzip"
-	// Msi
+	// Msi represents MIME for microsoft installer file.
 	Msi = "application/x-ms-installer"
-	// Rpm
+	// Rpm represents MIME for rpm package file.
 	Rpm = "application/x-rpm"
-	// Tar
+	// Tar represents MIME for tarball.
 	Tar = "application/x-tar"
-	// Txt
+	// Txt represents MIME for text file.
 	Txt = "	text/plain"
-	// Xz
+	// Xz represents MIME for xz file.
 	Xz = "application/x-xz"
-	// Zip
+	// Zip represents MIME for zip file.
 	Zip = "application/zip"
-	// OctedStream
+	// OctedStream represents MIME for binary file.
 	OctedStream = "application/octet-stream"
 )
 
