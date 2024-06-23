@@ -20,7 +20,6 @@ func NewCommand() *cobra.Command {
 		tag          string
 		pos          string
 		arch         string
-		readlimit    uint32
 	)
 
 	command := &cobra.Command{
@@ -29,7 +28,7 @@ func NewCommand() *cobra.Command {
 		RunE: func(_ *cobra.Command, _ []string) error {
 			ctx := context.Background()
 			app := github.NewApplicationService(
-				github.NewAssetRepository(ctx, token, readlimit),
+				github.NewAssetRepository(ctx, token),
 			)
 			asset, err := app.FindAsset(ctx, repoFullName, tag, platform.OS(pos), platform.Arch(arch))
 			if err != nil {
@@ -48,7 +47,8 @@ func NewCommand() *cobra.Command {
 	command.Flags().StringVar(&tag, "tag", "", "")
 	command.Flags().StringVar(&pos, "os", runtime.GOOS, "")
 	command.Flags().StringVar(&arch, "arch", runtime.GOARCH, "")
-	command.Flags().Uint32Var(&readlimit, "readlimit", 3072, "The maximum number of bytes read from the input used when detecting MIME.")
+	command.MarkFlagRequired("repo")
+	command.MarkFlagRequired("tag")
 
 	return command
 }

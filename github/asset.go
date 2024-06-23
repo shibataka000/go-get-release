@@ -8,7 +8,7 @@ import (
 	"slices"
 	"text/template"
 
-	"github.com/google/go-github/v48/github"
+	"github.com/google/go-github/v62/github"
 	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
 	"golang.org/x/oauth2"
@@ -16,7 +16,7 @@ import (
 
 // Asset represents a GitHub release asset in a repository.
 type Asset struct {
-	downloadURL *url.URL
+	DownloadURL *url.URL
 }
 
 // AssetList is a list of GitHub release asset in a repository.
@@ -38,19 +38,19 @@ type AssetRepository struct {
 // newAsset returns a new GitHub release asset object.
 func newAsset(downloadURL *url.URL) Asset {
 	return Asset{
-		downloadURL: downloadURL,
+		DownloadURL: downloadURL,
 	}
 }
 
 // os returns an os detected by url to download GitHub release asset.
 func (a Asset) os() platform.OS {
-	os, _ := platform.Detect(a.downloadURL.String())
+	os, _ := platform.Detect(a.DownloadURL.String())
 	return os
 }
 
 // arch returns an arch detected by url to download GitHub release asset.
 func (a Asset) arch() platform.Arch {
-	_, arch := platform.Detect(a.downloadURL.String())
+	_, arch := platform.Detect(a.DownloadURL.String())
 	return arch
 }
 

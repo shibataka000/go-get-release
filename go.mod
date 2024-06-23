@@ -7,6 +7,7 @@ require (
 	github.com/cheggaaa/pb/v3 v3.1.5
 	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/go-github/v48 v48.2.0
+	github.com/google/go-github/v62 v62.0.0
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	github.com/ulikunitz/xz v0.5.12
