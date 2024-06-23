@@ -34,8 +34,8 @@ type AssetTemplateList []AssetTemplate
 
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
-	client *github.Client
-	limit  uint32
+	client        *github.Client
+	prefetchBytes uint32
 }
 
 // newAsset returns a new GitHub release asset object.
@@ -111,8 +111,8 @@ func NewAssetRepository(ctx context.Context, token string, limit uint32) *AssetR
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	return &AssetRepository{
-		client: github.NewClient(httpClient),
-		limit:  limit,
+		client:        github.NewClient(httpClient),
+		prefetchBytes: limit,
 	}
 }
 
@@ -151,7 +151,7 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 			return nil, err
 		}
 		defer rc.Close()
-		mime, err := mime.DetectReader(rc, r.limit)
+		mime, err := mime.DetectReader(rc, r.prefetchBytes)
 		if err != nil {
 			return nil, err
 		}

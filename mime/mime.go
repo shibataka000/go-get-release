@@ -19,7 +19,7 @@ const (
 	// Tar represents MIME for tarball.
 	Tar = "application/x-tar"
 	// Txt represents MIME for text file.
-	Txt = "	text/plain"
+	Txt = "text/plain; charset=utf-8"
 	// Xz represents MIME for xz file.
 	Xz = "application/x-xz"
 	// Zip represents MIME for zip file.
