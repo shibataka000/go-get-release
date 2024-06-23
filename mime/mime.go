@@ -2,13 +2,29 @@ package mime
 
 import (
 	"io"
+	"slices"
 
 	"github.com/gabriel-vasile/mimetype"
 )
 
+const (
+	Deb         = "application/vnd.debian.binary-package"
+	Gz          = "application/gzip"
+	Msi         = "application/x-ms-installer"
+	Rpm         = "application/x-rpm"
+	Tar         = "application/x-tar"
+	Txt         = "	text/plain"
+	Xz          = "application/x-xz"
+	Zip         = "application/zip"
+	OctedStream = "application/octet-stream"
+)
+
+// MIME.
 type MIME string
 
-func DetectReader(r io.Reader) (MIME, error) {
+// DetectReader returns the MIME type of the provided reader.
+func DetectReader(r io.Reader, limit uint32) (MIME, error) {
+	mimetype.SetLimit(limit)
 	mime, err := mimetype.DetectReader(r)
 	if err != nil {
 		return "", err
@@ -16,14 +32,17 @@ func DetectReader(r io.Reader) (MIME, error) {
 	return MIME(mime.String()), nil
 }
 
+// IsArchived returns true if file is archived.
 func (m MIME) IsArchived() bool {
-	return true
+	return slices.Contains([]MIME{Tar, Zip}, m)
 }
 
+// IsCompressed returns true if file is compressed.
 func (m MIME) IsCompressed() bool {
-	return true
+	return slices.Contains([]MIME{Gz, Zip, Xz}, m)
 }
 
+// IsOctedStream returns true if file is binary.
 func (m MIME) IsOctetStream() bool {
-	return true
+	return m == OctedStream
 }
