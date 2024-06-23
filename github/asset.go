@@ -3,11 +3,13 @@ package github
 import (
 	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"net/url"
 	"slices"
 	"text/template"
 
+	"github.com/cheggaaa/pb/v3"
 	"github.com/google/go-github/v48/github"
 	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
@@ -34,8 +36,9 @@ type AssetTemplateList []AssetTemplate
 
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
-	client                *github.Client
-	bytesReadToDetectMime uint32
+	client            *github.Client
+	readlimit         uint32
+	progressBarWriter io.Writer
 }
 
 // newAsset returns a new GitHub release asset object.
@@ -104,15 +107,15 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 }
 
 // NewAssetRepository returns a new AssetRepository object.
-func NewAssetRepository(ctx context.Context, token string, bytesReadToDetectMime uint32) *AssetRepository {
+func NewAssetRepository(ctx context.Context, token string, readlimit uint32) *AssetRepository {
 	var httpClient *http.Client
 	if token != "" {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	return &AssetRepository{
-		client:                github.NewClient(httpClient),
-		bytesReadToDetectMime: bytesReadToDetectMime,
+		client:    github.NewClient(httpClient),
+		readlimit: readlimit,
 	}
 }
 
@@ -138,9 +141,14 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 		page = resp.NextPage
 	}
 
+	// Initialize a list of GitHub release asset.
 	assets := AssetList{}
 
+	// Make progress bar.
+	bar := pb.Full.Start(0).SetWriter(r.progressBarWriter)
+
 	// Make GitHub release asset objects.
+	bar.AddTotal(int64(len(githubAssets)))
 	for _, githubAsset := range githubAssets {
 		downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
 		if err != nil {
@@ -151,23 +159,27 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 			return nil, err
 		}
 		defer rc.Close()
-		mime, err := mime.DetectReader(rc, r.bytesReadToDetectMime)
+		mime, err := mime.DetectReader(rc, r.readlimit)
 		if err != nil {
 			return nil, err
 		}
 		assets = append(assets, newAsset(downloadURL, mime))
+		bar.Increment()
 	}
 
 	// List GitHub release assets on external server.
 	if externalAssets, ok := externalAssets[repo]; ok {
+		bar.AddTotal(int64(len(externalAssets)))
 		for _, externalAsset := range externalAssets {
 			asset, err := externalAsset.execute(release)
 			if err != nil {
 				return nil, err
 			}
 			assets = append(assets, asset)
+			bar.Increment()
 		}
 	}
 
+	bar.Finish()
 	return assets, nil
 }

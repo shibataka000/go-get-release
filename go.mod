@@ -4,6 +4,7 @@ go 1.22
 
 require (
 	github.com/Songmu/prompter v0.5.1
+	github.com/cheggaaa/pb v1.0.29
 	github.com/cheggaaa/pb/v3 v3.1.4
 	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/go-github/v48 v48.2.0
