@@ -3,13 +3,11 @@ package github
 import (
 	"bytes"
 	"context"
-	"io"
 	"net/http"
 	"net/url"
 	"slices"
 	"text/template"
 
-	"github.com/cheggaaa/pb/v3"
 	"github.com/google/go-github/v48/github"
 	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
@@ -19,7 +17,6 @@ import (
 // Asset represents a GitHub release asset in a repository.
 type Asset struct {
 	downloadURL *url.URL
-	mime        mime.MIME
 }
 
 // AssetList is a list of GitHub release asset in a repository.
@@ -28,7 +25,6 @@ type AssetList []Asset
 // AssetTemplate is a template of GitHub release asset in a repository.
 type AssetTemplate struct {
 	downloadURL *template.Template
-	mime        mime.MIME
 }
 
 // AssetTemplateList is a list of template of Github release asset in a repository.
@@ -36,16 +32,13 @@ type AssetTemplateList []AssetTemplate
 
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
-	client            *github.Client
-	readlimit         uint32
-	progressBarWriter io.Writer
+	client *github.Client
 }
 
 // newAsset returns a new GitHub release asset object.
-func newAsset(downloadURL *url.URL, mime mime.MIME) Asset {
+func newAsset(downloadURL *url.URL) Asset {
 	return Asset{
 		downloadURL: downloadURL,
-		mime:        mime,
 	}
 }
 
@@ -61,15 +54,20 @@ func (a Asset) arch() platform.Arch {
 	return arch
 }
 
-// hasExecutableBinary returns true if GitHub release asset may have executable binary.
-func (a Asset) hasExecutableBinary() bool {
-	return a.mime.IsArchived() || a.mime.IsCompressed() || a.mime.IsOctetStream()
+// mime returns a mime type.
+func (a Asset) mime() mime.MIME {
+	return ""
+}
+
+// hasExecBinary returns true if GitHub release asset may have executable binary.
+func (a Asset) hasExecBinary() bool {
+	return a.mime().IsArchived() || a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
 // find a GitHub release asset which has executable binary for specified platform.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
-		return asset.os() == os && asset.arch() == arch && asset.hasExecutableBinary()
+		return asset.os() == os && asset.arch() == arch && asset.hasExecBinary()
 	})
 	if index == -1 {
 		return Asset{}, &AssetNotFoundError{}
@@ -78,10 +76,9 @@ func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 }
 
 // newAssetTemplate returns a new GitHub release asset template object.
-func newAssetTemplate(downloadURL *template.Template, mime mime.MIME) AssetTemplate {
+func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
 	return AssetTemplate{
 		downloadURL: downloadURL,
-		mime:        mime,
 	}
 }
 
@@ -103,19 +100,18 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 	if err != nil {
 		return Asset{}, err
 	}
-	return newAsset(downloadURL, a.mime), nil
+	return newAsset(downloadURL), nil
 }
 
 // NewAssetRepository returns a new AssetRepository object.
-func NewAssetRepository(ctx context.Context, token string, readlimit uint32) *AssetRepository {
+func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	var httpClient *http.Client
 	if token != "" {
 		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	return &AssetRepository{
-		client:    github.NewClient(httpClient),
-		readlimit: readlimit,
+		client: github.NewClient(httpClient),
 	}
 }
 
@@ -128,58 +124,36 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	}
 	releaseID := *githubRelease.ID
 
+	assets := AssetList{}
+
 	// List GitHub release assets.
-	githubAssets := []*github.ReleaseAsset{}
 	for page := 1; page != 0; {
-		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
+		githubAssets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
-		githubAssets = append(githubAssets, assets...)
+		for _, githubAsset := range githubAssets {
+			downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
+			if err != nil {
+				return nil, err
+			}
+			assets = append(assets, newAsset(downloadURL))
+		}
 		page = resp.NextPage
-	}
-
-	// Initialize a list of GitHub release asset.
-	assets := AssetList{}
-
-	// Make progress bar.
-	bar := pb.Full.Start(0).SetWriter(r.progressBarWriter)
-
-	// Make GitHub release asset objects.
-	bar.AddTotal(int64(len(githubAssets)))
-	for _, githubAsset := range githubAssets {
-		downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
-		if err != nil {
-			return nil, err
-		}
-		rc, _, err := r.client.Repositories.DownloadReleaseAsset(ctx, repo.owner, repo.name, githubAsset.GetID(), http.DefaultClient)
-		if err != nil {
-			return nil, err
-		}
-		defer rc.Close()
-		mime, err := mime.DetectReader(rc, r.readlimit)
-		if err != nil {
-			return nil, err
-		}
-		assets = append(assets, newAsset(downloadURL, mime))
-		bar.Increment()
 	}
 
 	// List GitHub release assets on external server.
 	if externalAssets, ok := externalAssets[repo]; ok {
-		bar.AddTotal(int64(len(externalAssets)))
 		for _, externalAsset := range externalAssets {
 			asset, err := externalAsset.execute(release)
 			if err != nil {
 				return nil, err
 			}
 			assets = append(assets, asset)
-			bar.Increment()
 		}
 	}
 
-	bar.Finish()
 	return assets, nil
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
 	"github.com/stretchr/testify/require"
 )
@@ -23,55 +22,75 @@ func TestApplicationServiceSearch(t *testing.T) {
 			release: newRelease("v1.1.5"),
 			os:      "linux",
 			arch:    "amd64",
-			asset:   newAsset(newURL("https://github.com/aquasecurity/tfsec/releases/download/v1.1.5/tfsec-linux-amd64"), mime.OctedStream),
+			asset:   newAsset(newURL("https://github.com/aquasecurity/tfsec/releases/download/v1.1.5/tfsec-linux-amd64")),
 		},
 		{
 			repo:    newRepository("aquasecurity", "tfsec"),
 			release: newRelease("v1.1.5"),
 			os:      "darwin",
 			arch:    "amd64",
-			asset:   newAsset(newURL("https://github.com/aquasecurity/tfsec/releases/download/v1.1.5/tfsec-darwin-amd64"), mime.OctedStream),
+			asset:   newAsset(newURL("https://github.com/aquasecurity/tfsec/releases/download/v1.1.5/tfsec-darwin-amd64")),
 		},
 		{
 			repo:    newRepository("aquasecurity", "tfsec"),
 			release: newRelease("v1.1.5"),
 			os:      "windows",
 			arch:    "amd64",
-			asset:   newAsset(newURL("https://github.com/aquasecurity/tfsec/releases/download/v1.1.5/tfsec-windows-amd64.exe"), mime.OctedStream),
+			asset:   newAsset(newURL("https://github.com/aquasecurity/tfsec/releases/download/v1.1.5/tfsec-windows-amd64.exe")),
 		},
 		// aquasecurity/trivy
 		{
-			query:       "aquasecurity/trivy=v0.17.2",
-			platform:    NewPlatform("linux", "amd64"),
-			downloadURL: "https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_Linux-64bit.tar.gz",
-			execBinary:  "trivy",
+			repo:    newRepository("aquasecurity", "trivy"),
+			release: newRelease("v0.17.2"),
+			os:      "linux",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_Linux-64bit.tar.gz")),
 		},
 		{
-			query:       "aquasecurity/trivy=v0.17.2",
-			platform:    NewPlatform("darwin", "amd64"),
-			downloadURL: "https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_macOS-64bit.tar.gz",
-			execBinary:  "trivy",
+			repo:    newRepository("aquasecurity", "trivy"),
+			release: newRelease("v0.17.2"),
+			os:      "darwin",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/aquasecurity/trivy/releases/download/v0.17.2/trivy_0.17.2_macOS-64bit.tar.gz")),
 		},
 		// argoproj/argo-cd
 		{
-			query:       "argoproj/argo-cd=v2.6.7",
-			platform:    NewPlatform("linux", "amd64"),
-			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-linux-amd64",
-			execBinary:  "argocd",
+			repo:    newRepository("argoproj", "argocd"),
+			release: newRelease("v2.6.7"),
+			os:      "linux",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-linux-amd64")),
 		},
 		{
-			query:       "argoproj/argo-cd=v2.6.7",
-			platform:    NewPlatform("darwin", "amd64"),
-			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-darwin-amd64",
-			execBinary:  "argocd",
+			repo:    newRepository("argoproj", "argocd"),
+			release: newRelease("v2.6.7"),
+			os:      "darwin",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-darwin-amd64")),
 		},
 		{
-			query:       "argoproj/argo-cd=v2.6.7",
-			platform:    NewPlatform("windows", "amd64"),
-			downloadURL: "https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-windows-amd64.exe",
-			execBinary:  "argocd.exe",
+			repo:    newRepository("argoproj", "argocd"),
+			release: newRelease("v2.6.7"),
+			os:      "windows",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/argoproj/argo-cd/releases/download/v2.6.7/argocd-windows-amd64.exe")),
 		},
 		// argoproj/argo-rollouts
+		{
+			repo:    newRepository("argoproj", "argo-rollouts"),
+			release: newRelease("v0.9.0"),
+			os:      "linux",
+			arch:    "amd64",
+			asset:   newAsset(newURL("https://github.com/argoproj/argo-rollouts/releases/download/v0.9.0/kubectl-argo-rollouts-linux-amd64")),
+		},
+		{
+			repo:    newRepository("argoproj", "argo-rollouts"),
+			release: newRelease("v0.9.0"),
+			os:      "linux",
+			arch:    "darwin",
+			asset:   newAsset(newURL("https://github.com/argoproj/argo-rollouts/releases/download/v0.9.0/kubectl-argo-rollouts-darwin-amd64")),
+		},
+
 		{
 			query:       "argoproj/argo-rollouts=v0.9.0",
 			platform:    NewPlatform("linux", "amd64"),
