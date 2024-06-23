@@ -27,6 +27,7 @@ var osKeywords = map[OS][]string{
 	"openbsd":   {"openbsd"},
 	"plan9":     {"plan9"},
 	"solaris":   {"solaris"},
+	"wasip1":    {"wasip1"},
 	"windows":   {"windows", "win", ".exe"},
 }
 
@@ -35,10 +36,10 @@ var osKeywords = map[OS][]string{
 // `go tool dist list | sed -r "s/(\w+)\/(\w+)/\2/g" | sort | uniq`
 var archKeywords = map[Arch][]string{
 	"386":      {"386", "x86_32", "32bit", "win32"},
-	"686":      {"686"},
 	"amd64":    {"amd64", "x86_64", "64bit", "win64"},
 	"arm":      {"arm"},
 	"arm64":    {"arm64", "aarch64", "aarch_64"},
+	"loong64":  {"loong64"},
 	"mips":     {"mips"},
 	"mips64":   {"mips64"},
 	"mips64le": {"mips64le"},

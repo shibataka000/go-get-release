@@ -117,14 +117,14 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 
 // list returns a list of GitHub release asset.
 func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
+	assets := AssetList{}
+
 	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.owner, repo.name, release.tag)
 	if err != nil {
 		return nil, err
 	}
 	releaseID := *githubRelease.ID
-
-	assets := AssetList{}
 
 	// List GitHub release assets.
 	for page := 1; page != 0; {
