@@ -4,7 +4,6 @@ go 1.22
 
 require (
 	github.com/Songmu/prompter v0.5.1
-	github.com/cheggaaa/pb v1.0.29
 	github.com/cheggaaa/pb/v3 v3.1.5
 	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/go-github/v48 v48.2.0
@@ -21,7 +20,6 @@ require (
 	github.com/VividCortex/ewma v1.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fatih/color v1.17.0 // indirect
-	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
@@ -34,6 +32,4 @@ require (
 	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
-	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/protobuf v1.34.2 // indirect
 )
