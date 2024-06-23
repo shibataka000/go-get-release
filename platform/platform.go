@@ -61,8 +61,8 @@ func Detect(name string) (OS, Arch) {
 // findKeyWhichHasLongestMatchValue returns key in map which has longest matched value with target.
 // If no value was matched with target, this returns defaultKey.
 func findKeyWhichHasLongestMatchValue[E ~string](m map[E][]string, target string, defaultKey E) E {
-	var matchKey E = ""
-	var matchValue string = ""
+	var matchKey E
+	var matchValue string
 	for key, values := range m {
 		for _, value := range values {
 			if strings.Contains(target, value) && len(matchValue) < len(value) {

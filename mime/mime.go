@@ -8,14 +8,23 @@ import (
 )
 
 const (
-	Deb         = "application/vnd.debian.binary-package"
-	Gz          = "application/gzip"
-	Msi         = "application/x-ms-installer"
-	Rpm         = "application/x-rpm"
-	Tar         = "application/x-tar"
-	Txt         = "	text/plain"
-	Xz          = "application/x-xz"
-	Zip         = "application/zip"
+	// Deb
+	Deb = "application/vnd.debian.binary-package"
+	// Gz
+	Gz = "application/gzip"
+	// Msi
+	Msi = "application/x-ms-installer"
+	// Rpm
+	Rpm = "application/x-rpm"
+	// Tar
+	Tar = "application/x-tar"
+	// Txt
+	Txt = "	text/plain"
+	// Xz
+	Xz = "application/x-xz"
+	// Zip
+	Zip = "application/zip"
+	// OctedStream
 	OctedStream = "application/octet-stream"
 )
 
