@@ -14,15 +14,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// externalAssets is a map of repository and a list of GitHub release asset template on server outside GitHub.
-var externalAssets = map[Repository]AssetTemplateList{
-	newRepository("hashicorp", "terraform"): {
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_darwin_amd64.zip")),
-		newAssetTemplate(newTemplate("", "https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_windows_amd64.zip")),
-	},
-}
-
 // Asset represents a GitHub release asset in a repository.
 type Asset struct {
 	downloadURL *url.URL
@@ -35,6 +26,7 @@ type AssetList []Asset
 // AssetTemplate is a template of GitHub release asset in a repository.
 type AssetTemplate struct {
 	downloadURL *template.Template
+	mime        mime.MIME
 }
 
 // AssetTemplateList is a list of template of Github release asset in a repository.
@@ -49,9 +41,10 @@ func newAsset(downloadURL *url.URL, mime mime.MIME) Asset {
 }
 
 // newAssetTemplate returns a new GitHub release asset template object.
-func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
+func newAssetTemplate(downloadURL *template.Template, mime mime.MIME) AssetTemplate {
 	return AssetTemplate{
 		downloadURL: downloadURL,
+		mime:        mime,
 	}
 }
 
@@ -67,15 +60,15 @@ func (a Asset) arch() platform.Arch {
 	return arch
 }
 
-// mayHaveExecutableBinary returns true if GitHub release asset may have executable binary.
-func (a Asset) mayHaveExecutableBinary() bool {
+// hasExecutableBinary returns true if GitHub release asset may have executable binary.
+func (a Asset) hasExecutableBinary() bool {
 	return a.mime.IsArchived() || a.mime.IsCompressed() || a.mime.IsOctetStream()
 }
 
 // find a GitHub release asset which has executable binary for specified platform.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
-		return asset.os() == os && asset.arch() == arch && asset.mayHaveExecutableBinary()
+		return asset.os() == os && asset.arch() == arch && asset.hasExecutableBinary()
 	})
 	if index == -1 {
 		return Asset{}, &AssetNotFoundError{}
@@ -83,8 +76,8 @@ func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	return s[index], nil
 }
 
-// downloadURLWithRelease applies an asset template to the GitHub release object, and returns it as GitHub release asset.
-func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error) {
+// execute applies an asset template to the GitHub release object, and returns it as GitHub release asset.
+func (a AssetTemplate) execute(release Release) (Asset, error) {
 	buf := new(bytes.Buffer)
 	data := struct {
 		Tag    string
@@ -95,15 +88,18 @@ func (a AssetTemplate) downloadURLWithRelease(release Release) (*url.URL, error)
 	}
 	err := a.downloadURL.Execute(buf, data)
 	if err != nil {
-		return nil, err
+		return Asset{}, err
 	}
-	return url.Parse(buf.String())
+	downloadURL, err := url.Parse(buf.String())
+	if err != nil {
+		return Asset{}, err
+	}
+	return newAsset(downloadURL, a.mime), nil
 }
 
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
-	client         *github.Client
-	externalAssets map[Repository]AssetTemplateList
+	client *github.Client
 }
 
 // NewAssetRepository returns a new AssetRepository object.
@@ -114,8 +110,7 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 		httpClient = oauth2.NewClient(ctx, tokenSource)
 	}
 	return &AssetRepository{
-		client:         github.NewClient(httpClient),
-		externalAssets: externalAssets,
+		client: github.NewClient(httpClient),
 	}
 }
 
@@ -129,53 +124,42 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	releaseID := *githubRelease.ID
 
 	// List GitHub release assets.
-	githubAssets := []*github.ReleaseAsset{}
+	assets := AssetList{}
 	for page := 1; page != 0; {
-		assets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
+		githubAssets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
-		githubAssets = append(githubAssets, assets...)
-		page = resp.NextPage
-	}
-
-	downloadURLs := []*url.URL{}
-
-	// List URL to download GitHub release asset.
-	for _, githubAsset := range githubAssets {
-		downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
-		if err != nil {
-			return nil, err
-		}
-		downloadURLs = append(downloadURLs, downloadURL)
-	}
-
-	// List URL to download GitHub release asset on server outside GitHub.
-	if externalAssets, ok := r.externalAssets[repo]; ok {
-		for _, externalAsset := range externalAssets {
-			downloadURL, err := externalAsset.downloadURLWithRelease(release)
+		for _, githubAsset := range githubAssets {
+			downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
 			if err != nil {
 				return nil, err
 			}
-			downloadURLs = append(downloadURLs, downloadURL)
+			rc, _, err := r.client.Repositories.DownloadReleaseAsset(ctx, repo.owner, repo.name, githubAsset.GetID(), http.DefaultClient)
+			if err != nil {
+				return nil, err
+			}
+			defer rc.Close()
+			mime, err := mime.DetectReader(rc)
+			if err != nil {
+				return nil, err
+			}
+			assets = append(assets, newAsset(downloadURL, mime))
 		}
+		page = resp.NextPage
 	}
 
-	// Detect MIME.
-	assets := AssetList{}
-	for _, downloadURL := range downloadURLs {
-		resp, err := http.Get(downloadURL.String())
-		if err != nil {
-			return nil, err
+	// List GitHub release assets on server outside GitHub.
+	if externalAssets, ok := externalAssets[repo]; ok {
+		for _, externalAsset := range externalAssets {
+			asset, err := externalAsset.execute(release)
+			if err != nil {
+				return nil, err
+			}
+			assets = append(assets, asset)
 		}
-		defer resp.Body.Close()
-		mime, err := mime.DetectReader(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		assets = append(assets, newAsset(downloadURL, mime))
 	}
 
 	return assets, nil
