@@ -1,6 +1,6 @@
 module github.com/shibataka000/go-get-release
 
-go 1.20
+go 1.22
 
 require (
 	github.com/Songmu/prompter v0.5.1
