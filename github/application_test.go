@@ -22,7 +22,7 @@ func TestApplicationServiceSearch(t *testing.T) {
 
 	for _, tt := range tests {
 		name := tt.asset.DownloadURL.String()
-		t.Run(name, func(t *testing.T) {
+		t.Run(name, func(_ *testing.T) {
 			repoFullName := fmt.Sprintf("%s/%s", tt.repo.owner, tt.repo.name)
 			asset, err := app.FindAsset(ctx, repoFullName, tt.release.tag, tt.os, tt.arch)
 			require.NoError(err)
