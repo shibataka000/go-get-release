@@ -51,6 +51,9 @@ func (a Asset) os() platform.OS {
 // arch returns an arch detected by url to download GitHub release asset.
 func (a Asset) arch() platform.Arch {
 	_, arch := platform.Detect(a.DownloadURL.String())
+	if arch == "" {
+		return "amd64"
+	}
 	return arch
 }
 

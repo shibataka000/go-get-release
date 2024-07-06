@@ -12,7 +12,7 @@ type Arch string
 
 // osKeywords is a map whose key is os and whose values are its keywords.
 // These are listed by following command.
-// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\1/g" | sort | uniq`
+// `go tool dist list -json | jq -r .[].GOOS | sort | uniq`
 var osKeywords = map[OS][]string{
 	"aix":       {"aix"},
 	"android":   {"android"},
@@ -22,7 +22,7 @@ var osKeywords = map[OS][]string{
 	"illumos":   {"illumos"},
 	"ios":       {"ios"},
 	"js":        {"js"},
-	"linux":     {"linux"},
+	"linux":     {"linux", "alpine"},
 	"netbsd":    {"netbsd"},
 	"openbsd":   {"openbsd"},
 	"plan9":     {"plan9"},
@@ -33,9 +33,9 @@ var osKeywords = map[OS][]string{
 
 // archKeywords is a map whose key is arch and whose values are its keywords.
 // These are listed by following command.
-// `go tool dist list | sed -r "s/(\w+)\/(\w+)/\2/g" | sort | uniq`
+// `go tool dist list -json | jq -r .[].GOARCH | sort | uniq`
 var archKeywords = map[Arch][]string{
-	"386":      {"386", "x86_32", "32bit", "win32"},
+	"386":      {"386", "x86_32", "32bit", "win32", "i686"},
 	"amd64":    {"amd64", "x86_64", "64bit", "win64"},
 	"arm":      {"arm"},
 	"arm64":    {"arm64", "aarch64", "aarch_64"},
@@ -54,6 +54,7 @@ var archKeywords = map[Arch][]string{
 // Detect os/arch from name.
 // If os/arch can't be detected, this returns empty string.
 func Detect(name string) (OS, Arch) {
+	name = strings.ToLower(name)
 	os := findKeyWhichHasLongestMatchValue(osKeywords, name, "")
 	arch := findKeyWhichHasLongestMatchValue(archKeywords, name, "")
 	return os, arch

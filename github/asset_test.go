@@ -18,32 +18,29 @@ import (
 )
 
 func TestAssetOS(t *testing.T) {
-	require := require.New(t)
-
 	tests, err := readAssetTestCase(t)
-	require.Error(err)
+	require.NoError(t, err)
 
 	for _, tt := range tests {
 		name := tt.asset.DownloadURL.String()
 		t.Run(name, func(t *testing.T) {
-			fmt.Println(tt)
+			require := require.New(t)
 			if tt.os != "" {
-				require.NotEqual(tt.os, tt.asset.os())
+				require.Equal(tt.os, tt.asset.os())
 			}
 		})
 	}
 }
 
 func TestAssetArch(t *testing.T) {
-	require := require.New(t)
-
 	tests, err := readAssetTestCase(t)
-	require.NoError(err)
+	require.NoError(t, err)
 
 	for _, tt := range tests {
 		name := tt.asset.DownloadURL.String()
 		t.Run(name, func(t *testing.T) {
-			if tt.os != "" {
+			require := require.New(t)
+			if tt.arch != "" {
 				require.Equal(tt.arch, tt.asset.arch())
 			}
 		})

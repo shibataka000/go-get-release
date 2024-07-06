@@ -305,8 +305,8 @@ istio,istio,v1.22.2,https://github.com/istio/istio/releases/download/1.22.2/isti
 istio,istio,v1.22.2,https://github.com/istio/istio/releases/download/1.22.2/istioctl-1.22.2-win.zip,windows,amd64,,TRUE
 istio,istio,v1.22.2,https://github.com/istio/istio/releases/download/1.22.2/istioctl-1.22.2-win.zip.sha256,,,,FALSE
 kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/darwin/arm64/kubectl,darwin,arm64,,TRUE
-kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/darwin/arm64/kubectl,darwin,amd64,,TRUE
-kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/linux/amd64/kubectl,linux,arm64,,TRUE
+kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/darwin/amd64/kubectl,darwin,amd64,,TRUE
+kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/linux/arm64/kubectl,linux,arm64,,TRUE
 kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/linux/amd64/kubectl,linux,amd64,,TRUE
 kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/windows/amd64/kubectl.exe,windows,amd64,,TRUE
 viaduct-ai,kustomize-sops,v4.3.2,https://github.com/viaduct-ai/kustomize-sops/releases/download/v4.3.2/checksums.txt,,,,FALSE
@@ -471,8 +471,8 @@ hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraf
 hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_freebsd_arm.zip,freebsd,arm,,TRUE
 hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_386.zip,linux,386,,TRUE
 hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_amd64.zip,linux,amd64,,TRUE
-hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_arm.zip,linux,arm64,,TRUE
-hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_arm64.zip,linux,arm,,TRUE
+hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_arm.zip,linux,arm,,TRUE
+hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_linux_arm64.zip,linux,arm64,,TRUE
 hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_openbsd_386.zip,openbsd,386,,TRUE
 hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_openbsd_amd64.zip,openbsd,amd64,,TRUE
 hashicorp,terraform,v1.9.1,https://releases.hashicorp.com/terraform/1.9.1/terraform_1.9.1_solaris_amd64.zip,solaris,amd64,,TRUE
