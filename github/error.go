@@ -4,11 +4,11 @@ import "fmt"
 
 // InvalidRepositoryFullNameFormatError is error raised when repository full name is not 'OWNER/NAME' format.
 type InvalidRepositoryFullNameFormatError struct {
-	fullName string
+	name string
 }
 
 func (e *InvalidRepositoryFullNameFormatError) Error() string {
-	return fmt.Sprintf("'%s' is not valid repository full name. Its format must be 'OWNER/NAME'.", e.fullName)
+	return fmt.Sprintf("Acceptable repository full name format is 'OWNER/NAME', but given name was '%s'.", e.name)
 }
 
 // AssetNotFoundError is error raised when GitHub release asset was not found.
