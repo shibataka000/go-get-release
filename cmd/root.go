@@ -18,8 +18,8 @@ func NewCommand() *cobra.Command {
 		token        string
 		repoFullName string
 		tag          string
-		pos          string
-		arch         string
+		goos         string
+		goarch       string
 	)
 
 	command := &cobra.Command{
@@ -30,7 +30,7 @@ func NewCommand() *cobra.Command {
 			app := github.NewApplicationService(
 				github.NewAssetRepository(ctx, token),
 			)
-			asset, err := app.FindAsset(ctx, repoFullName, tag, platform.OS(pos), platform.Arch(arch))
+			asset, err := app.FindAsset(ctx, repoFullName, tag, platform.OS(goos), platform.Arch(goarch))
 			if err != nil {
 				return err
 			}
@@ -45,10 +45,10 @@ func NewCommand() *cobra.Command {
 	command.Flags().StringVar(&token, "token", os.Getenv("GITHUB_TOKEN"), "GitHub token. [$GITHUB_TOKEN]")
 	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "Select repository using the OWNER/REPO format")
 	command.Flags().StringVar(&tag, "tag", "", "")
-	command.Flags().StringVar(&pos, "os", runtime.GOOS, "")
-	command.Flags().StringVar(&arch, "arch", runtime.GOARCH, "")
-	command.MarkFlagRequired("repo")
-	command.MarkFlagRequired("tag")
+	command.Flags().StringVar(&goos, "os", runtime.GOOS, "")
+	command.Flags().StringVar(&goarch, "arch", runtime.GOARCH, "")
+	command.MarkFlagRequired("repo") //nolint:errcheck
+	command.MarkFlagRequired("tag")  //nolint:errcheck
 
 	return command
 }

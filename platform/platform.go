@@ -55,16 +55,18 @@ var archKeywords = map[Arch][]string{
 // If os/arch can't be detected, this returns empty string.
 func Detect(name string) (OS, Arch) {
 	name = strings.ToLower(name)
-	os := findKeyWhichHasLongestMatchValue(osKeywords, name, "")
-	arch := findKeyWhichHasLongestMatchValue(archKeywords, name, "")
+	os := findKeyWhichHasLongestMatchValue(osKeywords, name)
+	arch := findKeyWhichHasLongestMatchValue(archKeywords, name)
 	return os, arch
 }
 
 // findKeyWhichHasLongestMatchValue returns key in map which has longest matched value with target.
 // If no value was matched with target, this returns defaultKey.
-func findKeyWhichHasLongestMatchValue[E ~string](m map[E][]string, target string, defaultKey E) E {
-	var matchKey E
-	var matchValue string
+func findKeyWhichHasLongestMatchValue[E ~string](m map[E][]string, target string) E {
+	var (
+		matchKey   E
+		matchValue string
+	)
 	for key, values := range m {
 		for _, value := range values {
 			if strings.Contains(target, value) && len(matchValue) < len(value) {
@@ -72,9 +74,6 @@ func findKeyWhichHasLongestMatchValue[E ~string](m map[E][]string, target string
 				matchValue = value
 			}
 		}
-	}
-	if matchKey == "" {
-		return defaultKey
 	}
 	return matchKey
 }
