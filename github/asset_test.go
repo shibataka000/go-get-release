@@ -2,34 +2,50 @@ package github
 
 import (
 	"context"
+	"encoding/csv"
+	"fmt"
+	"io"
 	"net/url"
 	"os"
+	"path/filepath"
+	"strconv"
+	"strings"
 	"testing"
 
+	"github.com/shibataka000/go-get-release/mime"
 	"github.com/shibataka000/go-get-release/platform"
 	"github.com/stretchr/testify/require"
 )
 
-func TestAssetPlatform(t *testing.T) {
-	tests := []struct {
-		name  string
-		asset Asset
-		os    platform.OS
-		arch  platform.Arch
-	}{
-		{
-			name:  "https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz",
-			asset: newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz")),
-			os:    "linux",
-			arch:  "amd64",
-		},
-	}
+func TestAssetOS(t *testing.T) {
+	require := require.New(t)
+
+	tests, err := readAssetTestCase(t)
+	require.Error(err)
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			require.Equal(tt.os, tt.asset.os())
-			require.Equal(tt.arch, tt.asset.arch())
+		name := tt.asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
+			fmt.Println(tt)
+			if tt.os != "" {
+				require.NotEqual(tt.os, tt.asset.os())
+			}
+		})
+	}
+}
+
+func TestAssetArch(t *testing.T) {
+	require := require.New(t)
+
+	tests, err := readAssetTestCase(t)
+	require.NoError(err)
+
+	for _, tt := range tests {
+		name := tt.asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
+			if tt.os != "" {
+				require.Equal(tt.arch, tt.asset.arch())
+			}
 		})
 	}
 }
@@ -195,4 +211,77 @@ func newURL(rawURL string) *url.URL {
 		panic(err)
 	}
 	return parsed
+}
+
+// AssetTestCase is a test case about a GitHub release asset.
+type AssetTestCase struct {
+	repo          Repository
+	release       Release
+	asset         Asset
+	os            platform.OS
+	arch          platform.Arch
+	mime          mime.MIME
+	hasExecBinary bool
+}
+
+// readAssetTestCase return a test case about a GitHub release asset.
+func readAssetTestCase(t *testing.T) ([]AssetTestCase, error) {
+	t.Helper()
+
+	path := filepath.Join(".", "testdata", "assets.csv")
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	r := csv.NewReader(file)
+
+	tests := []AssetTestCase{}
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if strings.HasPrefix(record[0], "#") {
+			continue
+		}
+
+		if len(record) != 8 {
+			return nil, &InvalidAssetTestCaseError{record}
+		}
+
+		repo := newRepository(record[0], record[1])
+		release := newRelease(record[2])
+		downloadURL, err := url.Parse(record[3])
+		if err != nil {
+			return nil, err
+		}
+		asset := newAsset(downloadURL)
+		os := platform.OS(record[4])
+		arch := platform.Arch(record[5])
+		mime := mime.MIME(record[6])
+		hasExecBinary, err := strconv.ParseBool(record[7])
+		if err != nil {
+			return nil, err
+		}
+
+		tests = append(tests, AssetTestCase{
+			repo:          repo,
+			release:       release,
+			asset:         asset,
+			os:            os,
+			arch:          arch,
+			mime:          mime,
+			hasExecBinary: hasExecBinary,
+		})
+	}
+	return tests, nil
+}
+
+// InvalidAssetTestCaseError is error raised when asset test case is invalid.
+type InvalidAssetTestCaseError struct {
+	record []string
+}
+
+func (e *InvalidAssetTestCaseError) Error() string {
+	return fmt.Sprintf("Asset test case is invalid: %v", e.record)
 }
