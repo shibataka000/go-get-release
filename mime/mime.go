@@ -1,25 +1,16 @@
 package mime
 
 import (
-	"io"
+	"mime"
+	"path/filepath"
 	"slices"
-
-	"github.com/gabriel-vasile/mimetype"
 )
 
 const (
-	// Deb represents MIME for debian binary package file.
-	Deb = "application/vnd.debian.binary-package"
 	// Gz represents MIME for gzip file.
 	Gz = "application/gzip"
-	// Msi represents MIME for microsoft installer file.
-	Msi = "application/x-ms-installer"
-	// Rpm represents MIME for rpm package file.
-	Rpm = "application/x-rpm"
 	// Tar represents MIME for tarball.
 	Tar = "application/x-tar"
-	// Txt represents MIME for text file.
-	Txt = "text/plain; charset=utf-8"
 	// Xz represents MIME for xz file.
 	Xz = "application/x-xz"
 	// Zip represents MIME for zip file.
@@ -31,14 +22,9 @@ const (
 // MIME.
 type MIME string
 
-// DetectReader returns the MIME type of the provided reader.
-func DetectReader(r io.Reader, limit uint32) (MIME, error) {
-	mimetype.SetLimit(limit)
-	mime, err := mimetype.DetectReader(r)
-	if err != nil {
-		return "", err
-	}
-	return MIME(mime.String()), nil
+// Detect mime from name.
+func Detect(name string) MIME {
+	return MIME(mime.TypeByExtension(filepath.Ext(name)))
 }
 
 // IsArchived returns true if file is archived.

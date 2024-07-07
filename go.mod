@@ -5,7 +5,6 @@ go 1.22
 require (
 	github.com/Songmu/prompter v0.5.1
 	github.com/cheggaaa/pb/v3 v3.1.5
-	github.com/gabriel-vasile/mimetype v1.4.4
 	github.com/google/go-github/v48 v48.2.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/spf13/cobra v1.8.1
@@ -30,7 +29,6 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	golang.org/x/crypto v0.24.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
 	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
 )
