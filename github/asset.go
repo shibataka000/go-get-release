@@ -64,7 +64,7 @@ func (a Asset) mime() mime.MIME {
 
 // hasExecBinary returns true if GitHub release asset may have executable binary.
 func (a Asset) hasExecBinary() bool {
-	return a.mime().IsArchived() || a.mime().IsCompressed() || a.mime().IsOctetStream()
+	return a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
 // find a GitHub release asset which has executable binary for specified platform.
