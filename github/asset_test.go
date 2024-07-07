@@ -76,45 +76,25 @@ func TestAssetHasExecBinary(t *testing.T) {
 }
 
 func TestAssetListFind(t *testing.T) {
-	tests := []struct {
-		name   string
-		assets AssetList
-		os     platform.OS
-		arch   platform.Arch
-		asset  Asset
-	}{
-		{
-			name: "https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz",
-			assets: AssetList{
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_checksums.txt")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_arm64.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_arm64.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_arm64.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_armv6.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_armv6.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_armv6.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_macOS_amd64.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_386.zip")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_amd64.msi")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_amd64.zip")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_arm64.zip")),
-			},
-			os:    "linux",
-			arch:  "amd64",
-			asset: newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz")),
-		},
-	}
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		if !tt.hasExecBinary {
+			continue
+		}
+
+		assets := AssetList{}
+		for _, ttt := range tests {
+			if tt.repo == ttt.repo && tt.release == ttt.release {
+				assets = append(assets, ttt.asset)
+			}
+		}
+
+		name := tt.asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-			asset, err := tt.assets.find(tt.os, tt.arch)
+			asset, err := assets.find(tt.os, tt.arch)
 			require.NoError(err)
 			require.Equal(tt.asset, asset)
 		})
