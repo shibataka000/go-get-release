@@ -101,6 +101,19 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 // AssetTemplateList is a list of template of Github release asset in a repository.
 type AssetTemplateList []AssetTemplate
 
+// execute applies a list of asset template to the GitHub release object, and returns it as a list of GitHub release asset.
+func (s AssetTemplateList) execute(release Release) (AssetList, error) {
+	assets := AssetList{}
+	for _, tmpl := range s {
+		asset, err := tmpl.execute(release)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, asset)
+	}
+	return assets, nil
+}
+
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
 	client *github.Client
@@ -148,14 +161,12 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	}
 
 	// List GitHub release assets on external server.
-	if externalAssets, ok := externalAssets[repo]; ok {
-		for _, externalAsset := range externalAssets {
-			asset, err := externalAsset.execute(release)
-			if err != nil {
-				return nil, err
-			}
-			assets = append(assets, asset)
+	if tmpls, ok := externalAssets[repo]; ok {
+		applied, err := tmpls.execute(release)
+		if err != nil {
+			return nil, err
 		}
+		assets = append(assets, applied...)
 	}
 
 	return assets, nil
