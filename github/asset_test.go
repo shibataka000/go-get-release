@@ -203,7 +203,7 @@ type AssetTestCase struct {
 	hasExecBinary bool
 }
 
-// readAssetTestCase return a test case about a GitHub release asset.
+// readAssetTestCase return a list of test case about a GitHub release asset.
 func readAssetTestCase(t *testing.T) ([]AssetTestCase, error) {
 	t.Helper()
 
@@ -261,6 +261,7 @@ type InvalidAssetTestCaseError struct {
 	record []string
 }
 
+// Error returns an error message.
 func (e *InvalidAssetTestCaseError) Error() string {
 	return fmt.Sprintf("Asset test case is invalid: %v", e.record)
 }
