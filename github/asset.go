@@ -19,22 +19,6 @@ type Asset struct {
 	DownloadURL *url.URL
 }
 
-// AssetList is a list of GitHub release asset in a repository.
-type AssetList []Asset
-
-// AssetTemplate is a template of GitHub release asset in a repository.
-type AssetTemplate struct {
-	downloadURL *template.Template
-}
-
-// AssetTemplateList is a list of template of Github release asset in a repository.
-type AssetTemplateList []AssetTemplate
-
-// AssetRepository is a repository for a GitHub release asset.
-type AssetRepository struct {
-	client *github.Client
-}
-
 // newAsset returns a new GitHub release asset object.
 func newAsset(downloadURL *url.URL) Asset {
 	return Asset{
@@ -67,6 +51,9 @@ func (a Asset) hasExecBinary() bool {
 	return a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
+// AssetList is a list of GitHub release asset in a repository.
+type AssetList []Asset
+
 // find a GitHub release asset which has executable binary for specified platform.
 func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
@@ -76,6 +63,11 @@ func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
 		return Asset{}, &AssetNotFoundError{}
 	}
 	return s[index], nil
+}
+
+// AssetTemplate is a template of GitHub release asset in a repository.
+type AssetTemplate struct {
+	downloadURL *template.Template
 }
 
 // newAssetTemplate returns a new GitHub release asset template object.
@@ -104,6 +96,14 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 		return Asset{}, err
 	}
 	return newAsset(downloadURL), nil
+}
+
+// AssetTemplateList is a list of template of Github release asset in a repository.
+type AssetTemplateList []AssetTemplate
+
+// AssetRepository is a repository for a GitHub release asset.
+type AssetRepository struct {
+	client *github.Client
 }
 
 // NewAssetRepository returns a new AssetRepository object.
