@@ -59,7 +59,7 @@ func (a Asset) arch() platform.Arch {
 
 // mime returns a mime type.
 func (a Asset) mime() mime.MIME {
-	return ""
+	return mime.Detect(a.DownloadURL.String())
 }
 
 // hasExecBinary returns true if GitHub release asset may have executable binary.

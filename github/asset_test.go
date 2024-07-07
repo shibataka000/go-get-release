@@ -47,26 +47,28 @@ func TestAssetArch(t *testing.T) {
 	}
 }
 
-func TestAssetHasExecBinary(t *testing.T) {
-	tests := []struct {
-		name          string
-		asset         Asset
-		hasExecBinary bool
-	}{
-		{
-			name:          "https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz",
-			asset:         newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz")),
-			hasExecBinary: true,
-		},
-		{
-			name:          "https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.deb",
-			asset:         newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.deb")),
-			hasExecBinary: false,
-		},
-	}
+func TestAssetMIME(t *testing.T) {
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		name := tt.asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+			if tt.mime != "" {
+				require.Equal(tt.mime, tt.asset.mime())
+			}
+		})
+	}
+}
+
+func TestAssetHasExecBinary(t *testing.T) {
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
+
+	for _, tt := range tests {
+		name := tt.asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
 			require.Equal(tt.hasExecBinary, tt.asset.hasExecBinary())
 		})
