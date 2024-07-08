@@ -12,7 +12,7 @@ import (
 func TestApplicationServiceSearch(t *testing.T) {
 	require := require.New(t)
 
-	tests, err := readAssetTestCase(t)
+	tests, err := readAssetTestData(t)
 	require.NoError(err)
 
 	ctx := context.Background()

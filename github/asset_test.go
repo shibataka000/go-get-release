@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"testing"
@@ -18,7 +19,7 @@ import (
 )
 
 func TestAssetOS(t *testing.T) {
-	tests, err := readAssetTestCase(t)
+	tests, err := readAssetTestData(t)
 	require.NoError(t, err)
 
 	for _, tt := range tests {
@@ -33,7 +34,7 @@ func TestAssetOS(t *testing.T) {
 }
 
 func TestAssetArch(t *testing.T) {
-	tests, err := readAssetTestCase(t)
+	tests, err := readAssetTestData(t)
 	require.NoError(t, err)
 
 	for _, tt := range tests {
@@ -48,7 +49,7 @@ func TestAssetArch(t *testing.T) {
 }
 
 func TestAssetMIME(t *testing.T) {
-	tests, err := readAssetTestCase(t)
+	tests, err := readAssetTestData(t)
 	require.NoError(t, err)
 
 	for _, tt := range tests {
@@ -63,7 +64,7 @@ func TestAssetMIME(t *testing.T) {
 }
 
 func TestAssetHasExecBinary(t *testing.T) {
-	tests, err := readAssetTestCase(t)
+	tests, err := readAssetTestData(t)
 	require.NoError(t, err)
 
 	for _, tt := range tests {
@@ -76,7 +77,7 @@ func TestAssetHasExecBinary(t *testing.T) {
 }
 
 func TestAssetListFind(t *testing.T) {
-	tests, err := readAssetTestCase(t)
+	tests, err := readAssetTestData(t)
 	require.NoError(t, err)
 
 	for _, tt := range tests {
@@ -84,12 +85,7 @@ func TestAssetListFind(t *testing.T) {
 			continue
 		}
 
-		assets := AssetList{}
-		for _, ttt := range tests {
-			if tt.repo == ttt.repo && tt.release == ttt.release {
-				assets = append(assets, ttt.asset)
-			}
-		}
+		assets := tests.assets(tt.repo, tt.release)
 
 		name := tt.asset.DownloadURL.String()
 		t.Run(name, func(t *testing.T) {
@@ -192,8 +188,8 @@ func newURL(rawURL string) *url.URL {
 	return parsed
 }
 
-// AssetTestCase is a test case about a GitHub release asset.
-type AssetTestCase struct {
+// AssetTestCaseEntry is a test data about a GitHub release asset.
+type AssetTestCaseEntry struct {
 	repo          Repository
 	release       Release
 	asset         Asset
@@ -203,8 +199,40 @@ type AssetTestCase struct {
 	hasExecBinary bool
 }
 
-// readAssetTestCase return a list of test case about a GitHub release asset.
-func readAssetTestCase(t *testing.T) ([]AssetTestCase, error) {
+type AssetTestCaseTable []AssetTestCaseEntry
+
+func (table AssetTestCaseTable) listRepositories() []Repository {
+	repos := []Repository{}
+	for _, t := range table {
+		if !slices.Contains(repos, t.repo) {
+			repos = append(repos, t.repo)
+		}
+	}
+	return repos
+}
+
+func (table AssetTestCaseTable) releases(repo Repository) []Release {
+	releases := []Release{}
+	for _, t := range table {
+		if t.repo == repo && !slices.Contains(releases, t.release) {
+			releases = append(releases, t.release)
+		}
+	}
+	return releases
+}
+
+func (table AssetTestCaseTable) assets(repo Repository, release Release) AssetList {
+	assets := AssetList{}
+	for _, t := range table {
+		if t.repo == repo && t.release == release && !slices.Contains(assets, t.asset) {
+			assets = append(assets, t.asset)
+		}
+	}
+	return assets
+}
+
+// readAssetTestData return a list of test data about a GitHub release asset.
+func readAssetTestData(t *testing.T) (AssetTestCaseTable, error) {
 	t.Helper()
 
 	path := filepath.Join(".", "testdata", "assets.csv")
@@ -212,9 +240,10 @@ func readAssetTestCase(t *testing.T) ([]AssetTestCase, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer file.Close()
 	r := csv.NewReader(file)
 
-	tests := []AssetTestCase{}
+	tests := []AssetTestCaseEntry{}
 	for {
 		record, err := r.Read()
 		if err == io.EOF {
@@ -243,7 +272,7 @@ func readAssetTestCase(t *testing.T) ([]AssetTestCase, error) {
 			return nil, err
 		}
 
-		tests = append(tests, AssetTestCase{
+		tests = append(tests, AssetTestCaseEntry{
 			repo:          repo,
 			release:       release,
 			asset:         asset,
