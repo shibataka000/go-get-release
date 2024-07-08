@@ -16,7 +16,7 @@ import (
 	"github.com/shibataka000/go-get-release/platform"
 )
 
-// AssetTestCaseEntry is a test data about a GitHub release asset.
+// AssetTestCaseEntry is a test case about a GitHub release asset.
 type AssetTestCaseEntry struct {
 	repo          Repository
 	release       Release

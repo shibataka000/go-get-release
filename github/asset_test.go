@@ -76,11 +76,10 @@ func TestAssetListFind(t *testing.T) {
 			continue
 		}
 
-		assets := tests.assets(tt.repo, tt.release)
-
 		name := tt.asset.DownloadURL.String()
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
+			assets := tests.assets(tt.repo, tt.release)
 			asset, err := assets.find(tt.os, tt.arch)
 			require.NoError(err)
 			require.Equal(tt.asset, asset)
@@ -114,58 +113,22 @@ func TestAssetTemplateExecute(t *testing.T) {
 }
 
 func TestListAssets(t *testing.T) {
-	tests := []struct {
-		name    string
-		repo    Repository
-		release Release
-		assets  AssetList
-	}{
-		{
-			name:    "cli/cli",
-			repo:    newRepository("cli", "cli"),
-			release: newRelease("v2.51.1"),
-			assets: AssetList{
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_checksums.txt")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_386.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_amd64.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_arm64.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_arm64.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_arm64.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_armv6.deb")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_armv6.rpm")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_linux_armv6.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_macOS_amd64.tar.gz")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_386.zip")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_amd64.msi")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_amd64.zip")),
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.51.1/gh_2.51.1_windows_arm64.zip")),
-			},
-		},
-		{
-			name:    "hashicorp/terraform",
-			repo:    newRepository("hashicorp", "terraform"),
-			release: newRelease("v1.8.5"),
-			assets: AssetList{
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_darwin_amd64.zip")),
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_windows_amd64.zip")),
-			},
-		},
-	}
+	tests, err := readAssetTestData(t)
+	require.NoError(t, err)
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			ctx := context.Background()
-			r := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
-			assets, err := r.list(ctx, tt.repo, tt.release)
-			require.NoError(err)
-			require.Equal(tt.assets, assets)
-		})
+	for _, repo := range tests.repositories() {
+		for _, release := range tests.releases(repo) {
+			name := ""
+			t.Run(name, func(t *testing.T) {
+				require := require.New(t)
+				ctx := context.Background()
+				r := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+				assets, err := r.list(ctx, repo, release)
+				require.NoError(err)
+				require.Equal(tests.assets(repo, release), assets)
+
+			})
+		}
 	}
 }
 
