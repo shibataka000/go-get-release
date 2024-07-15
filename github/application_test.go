@@ -1,27 +1,39 @@
 package github
 
 import (
+	"context"
+	"fmt"
+	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestApplicationServiceSearch(t *testing.T) {
-	// require := require.New(t)
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
 
-	// tests, err := readAssetTestCase(t)
-	// require.NoError(err)
+	ctx := context.Background()
+	app := NewApplicationService(
+		NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN")),
+	)
 
-	// ctx := context.Background()
-	// app := NewApplicationService(
-	// 	NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN")),
-	// )
+	for _, tt := range tests {
+		if !tt.HasExecBinary {
+			continue
+		}
+		name := tt.AssetDownloadURL
+		t.Run(name, func(_ *testing.T) {
+			require := require.New(t)
 
-	// for _, tt := range tests {
-	// 	name := tt.asset.DownloadURL.String()
-	// 	t.Run(name, func(_ *testing.T) {
-	// 		repoFullName := fmt.Sprintf("%s/%s", tt.repo.owner, tt.repo.name)
-	// 		asset, err := app.FindAsset(ctx, repoFullName, tt.release.tag, tt.os, tt.arch)
-	// 		require.NoError(err)
-	// 		require.Equal(tt.asset, asset)
-	// 	})
-	// }
+			except, err := tt.asset()
+			require.NoError(err)
+
+			repoFullName := fmt.Sprintf("%s/%s", tt.Owner, tt.Repo)
+			actual, err := app.FindAsset(ctx, repoFullName, tt.Tag, tt.OS, tt.Arch)
+			require.NoError(err)
+
+			require.Equal(except, actual)
+		})
+	}
 }

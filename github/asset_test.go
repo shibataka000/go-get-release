@@ -1,6 +1,7 @@
 package github
 
 import (
+	"context"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -23,9 +24,8 @@ func TestAssetOS(t *testing.T) {
 		name := tt.AssetDownloadURL
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			asset, err := tt.asset()
 			require.NoError(err)
-			asset := newAsset(downloadURL)
 			require.Equal(tt.OS, asset.os())
 		})
 	}
@@ -42,9 +42,8 @@ func TestAssetArch(t *testing.T) {
 		name := tt.AssetDownloadURL
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			asset, err := tt.asset()
 			require.NoError(err)
-			asset := newAsset(downloadURL)
 			require.Equal(tt.Arch, asset.arch())
 		})
 	}
@@ -61,9 +60,8 @@ func TestAssetMIME(t *testing.T) {
 		name := tt.AssetDownloadURL
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			asset, err := tt.asset()
 			require.NoError(err)
-			asset := newAsset(downloadURL)
 			require.Equal(tt.MIME, asset.mime())
 		})
 	}
@@ -77,9 +75,8 @@ func TestAssetHasExecBinary(t *testing.T) {
 		name := tt.AssetDownloadURL
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			asset, err := tt.asset()
 			require.NoError(err)
-			asset := newAsset(downloadURL)
 			require.Equal(tt.HasExecBinary, asset.hasExecBinary())
 		})
 	}
@@ -101,14 +98,8 @@ func TestAssetListFind(t *testing.T) {
 			require.NoError(err)
 			except := newAsset(downloadURL)
 
-			assets := AssetList{}
-			for _, x := range tests {
-				if x.Owner == tt.Owner && x.Repo == tt.Repo && x.Tag == tt.Tag {
-					downloadURL, err := url.Parse(tt.AssetDownloadURL)
-					require.NoError(err)
-					assets = append(assets, newAsset(downloadURL))
-				}
-			}
+			assets, err := tests.assets(tt.repository(), tt.release())
+			require.NoError(err)
 			actual, err := assets.find(tt.OS, tt.Arch)
 			require.NoError(err)
 
@@ -172,23 +163,26 @@ func TestAssetTemplateListExecute(t *testing.T) {
 }
 
 func TestListAssets(t *testing.T) {
-	// tests, err := readAssetTestData(t)
-	// require.NoError(t, err)
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
 
-	// for _, repo := range tests.repositories() {
-	// 	for _, release := range tests.releases(repo) {
-	// 		name := ""
-	// 		t.Run(name, func(t *testing.T) {
-	// 			require := require.New(t)
-	// 			ctx := context.Background()
-	// 			r := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
-	// 			assets, err := r.list(ctx, repo, release)
-	// 			require.NoError(err)
-	// 			require.Equal(tests.assets(repo, release), assets)
+	ctx := context.Background()
+	r := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
 
-	// 		})
-	// 	}
-	// }
+	for _, tt := range tests {
+		name := tt.AssetDownloadURL
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+
+			except, err := tests.assets(tt.repository(), tt.release())
+			require.NoError(err)
+
+			actual, err := r.list(ctx, tt.repository(), tt.release())
+			require.NoError(err)
+
+			require.Equal(except, actual)
+		})
+	}
 }
 
 // AssetTestCase is a test case about a GitHub release asset.
@@ -204,7 +198,7 @@ type AssetTestCase struct {
 }
 
 // readAssetTestCase return a list of test case about a GitHub release asset.
-func readAssetTestCase(t *testing.T) ([]*AssetTestCase, error) {
+func readAssetTestCase(t *testing.T) (AssetTestCaseList, error) {
 	t.Helper()
 
 	path := filepath.Join(".", "testdata", "assets.csv")
@@ -214,12 +208,43 @@ func readAssetTestCase(t *testing.T) ([]*AssetTestCase, error) {
 	}
 	defer file.Close()
 
-	tests := []*AssetTestCase{}
-
+	tests := AssetTestCaseList{}
 	if err := gocsv.UnmarshalFile(file, &tests); err != nil {
 		return nil, err
 	}
 	return tests, nil
+}
+
+func (c AssetTestCase) repository() Repository {
+	return newRepository(c.Owner, c.Repo)
+}
+
+func (c AssetTestCase) release() Release {
+	return newRelease(c.Tag)
+}
+
+func (c AssetTestCase) asset() (Asset, error) {
+	url, err := url.Parse(c.AssetDownloadURL)
+	if err != nil {
+		return Asset{}, err
+	}
+	return newAsset(url), nil
+}
+
+type AssetTestCaseList []AssetTestCase
+
+func (s AssetTestCaseList) assets(repo Repository, release Release) (AssetList, error) {
+	assets := AssetList{}
+	for _, t := range s {
+		if t.repository() == repo && t.release() == release {
+			asset, err := t.asset()
+			if err != nil {
+				return nil, err
+			}
+			assets = append(assets, asset)
+		}
+	}
+	return assets, nil
 }
 
 // newURL parses a raw url into a URL structure.
