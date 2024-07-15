@@ -1,10 +1,13 @@
 package github
 
 import (
+	"cmp"
 	"context"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/gocarina/gocsv"
@@ -98,7 +101,7 @@ func TestAssetListFind(t *testing.T) {
 			require.NoError(err)
 			except := newAsset(downloadURL)
 
-			assets, err := tests.assetsByRelease(tt.repository(), tt.release())
+			assets, err := tests.assets(tt.repository(), tt.release())
 			require.NoError(err)
 			actual, err := assets.find(tt.OS, tt.Arch)
 			require.NoError(err)
@@ -319,19 +322,27 @@ func TestListAssets(t *testing.T) {
 	ctx := context.Background()
 	r := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
 
-	for _, tt := range tests {
-		name := tt.AssetDownloadURL
-		t.Run(name, func(t *testing.T) {
-			require := require.New(t)
+	for _, repo := range tests.repositories() {
+		for _, release := range tests.releases(repo) {
+			name := fmt.Sprintf("%s/%s/%s", repo.owner, repo.name, release.tag)
+			t.Run(name, func(t *testing.T) {
+				require := require.New(t)
 
-			except, err := tests.assetsByRelease(tt.repository(), tt.release())
-			require.NoError(err)
+				except, err := tests.assets(repo, release)
+				require.NoError(err)
+				slices.SortFunc(except, func(a, b Asset) int {
+					return cmp.Compare(a.DownloadURL.String(), b.DownloadURL.String())
+				})
 
-			actual, err := r.list(ctx, tt.repository(), tt.release())
-			require.NoError(err)
+				actual, err := r.list(ctx, repo, release)
+				require.NoError(err)
+				slices.SortFunc(actual, func(a, b Asset) int {
+					return cmp.Compare(a.DownloadURL.String(), b.DownloadURL.String())
+				})
 
-			require.Equal(except, actual)
-		})
+				require.Equal(except, actual)
+			})
+		}
 	}
 }
 
@@ -387,15 +398,35 @@ func (c AssetTestCase) asset() (Asset, error) {
 // AssetTestCaseList is a list of test case about a GitHub release asset.
 type AssetTestCaseList []AssetTestCase
 
-// assetsByRelease returns a list of GitHub release asset which is contained by given release.
-func (s AssetTestCaseList) assetsByRelease(repo Repository, release Release) (AssetList, error) {
+func (s AssetTestCaseList) repositories() []Repository {
+	repos := []Repository{}
+	for _, t := range s {
+		if !slices.Contains(repos, t.repository()) {
+			repos = append(repos, t.repository())
+		}
+	}
+	return repos
+}
+
+func (s AssetTestCaseList) releases(repo Repository) []Release {
+	releases := []Release{}
+	for _, t := range s {
+		if !slices.Contains(releases, t.release()) && t.repository() == repo {
+			releases = append(releases, t.release())
+		}
+	}
+	return releases
+}
+
+// assets returns a list of GitHub release asset which is contained by given release.
+func (s AssetTestCaseList) assets(repo Repository, release Release) (AssetList, error) {
 	assets := AssetList{}
 	for _, t := range s {
-		if t.repository() == repo && t.release() == release {
-			asset, err := t.asset()
-			if err != nil {
-				return nil, err
-			}
+		asset, err := t.asset()
+		if err != nil {
+			return nil, err
+		}
+		if !slices.Contains(assets, asset) && t.repository() == repo && t.release() == release {
 			assets = append(assets, asset)
 		}
 	}
