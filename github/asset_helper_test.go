@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
+	dist "github.com/shibataka000/go-get-release/distribution"
 	"github.com/shibataka000/go-get-release/mime"
-	"github.com/shibataka000/go-get-release/platform"
 )
 
 // AssetTestCaseEntry is a test case about a GitHub release asset.
@@ -21,8 +21,8 @@ type AssetTestCaseEntry struct {
 	repo          Repository
 	release       Release
 	asset         Asset
-	os            platform.OS
-	arch          platform.Arch
+	os            dist.OS
+	arch          dist.Arch
 	mime          mime.Type
 	hasExecBinary bool
 }
@@ -92,8 +92,8 @@ func readAssetTestData(t *testing.T) (AssetTestCaseTable, error) {
 			return nil, err
 		}
 		asset := newAsset(downloadURL)
-		os := platform.OS(record[4])
-		arch := platform.Arch(record[5])
+		os := dist.OS(record[4])
+		arch := dist.Arch(record[5])
 		mime := mime.Type(record[6])
 		hasExecBinary, err := strconv.ParseBool(record[7])
 		if err != nil {

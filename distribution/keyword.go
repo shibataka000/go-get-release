@@ -1,4 +1,4 @@
-package platform
+package distribution
 
 // osKeywords is a map whose key is os and whose values are its keywords.
 // These are listed by following command.

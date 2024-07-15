@@ -9,8 +9,8 @@ import (
 	"text/template"
 
 	"github.com/google/go-github/v62/github"
+	dist "github.com/shibataka000/go-get-release/distribution"
 	"github.com/shibataka000/go-get-release/mime"
-	"github.com/shibataka000/go-get-release/platform"
 	"golang.org/x/oauth2"
 )
 
@@ -27,14 +27,14 @@ func newAsset(downloadURL *url.URL) Asset {
 }
 
 // os returns an os detected by url to download GitHub release asset.
-func (a Asset) os() platform.OS {
-	os, _ := platform.Detect(a.DownloadURL.String())
+func (a Asset) os() dist.OS {
+	os, _ := dist.Detect(a.DownloadURL.String())
 	return os
 }
 
 // arch returns an arch detected by url to download GitHub release asset.
-func (a Asset) arch() platform.Arch {
-	_, arch := platform.Detect(a.DownloadURL.String())
+func (a Asset) arch() dist.Arch {
+	_, arch := dist.Detect(a.DownloadURL.String())
 	if arch == "" {
 		return "amd64"
 	}
@@ -54,8 +54,8 @@ func (a Asset) hasExecBinary() bool {
 // AssetList is a list of GitHub release asset in a repository.
 type AssetList []Asset
 
-// find a GitHub release asset which has executable binary for specified platform.
-func (s AssetList) find(os platform.OS, arch platform.Arch) (Asset, error) {
+// find a GitHub release asset which has executable binary for specified os and arch.
+func (s AssetList) find(os dist.OS, arch dist.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
 		return asset.os() == os && asset.arch() == arch && asset.hasExecBinary()
 	})
