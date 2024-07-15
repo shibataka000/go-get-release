@@ -1,6 +1,9 @@
 package github
 
 import (
+	"cmp"
+	"context"
+	"fmt"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -85,10 +88,8 @@ func TestAssetListFind(t *testing.T) {
 		name := tt.Asset.DownloadURL.String()
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-
-			asset, err := tests.assets(tt.Repository, tt.Release).find(tt.OS, tt.Arch)
+			asset, err := tests.listAssetsByRelease(tt.Repository, tt.Release).find(tt.OS, tt.Arch)
 			require.NoError(err)
-
 			require.Equal(tt.Asset, asset)
 		})
 	}
@@ -299,34 +300,37 @@ func TestAssetCacheSet(t *testing.T) {
 }
 
 func TestListAssets(t *testing.T) {
-	// tests, err := readAssetTestCase(t)
-	// require.NoError(t, err)
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
 
-	// ctx := context.Background()
-	// r := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
+	ctx := context.Background()
+	repository := NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN"))
 
-	// for _, repo := range tests.repositories() {
-	// 	for _, release := range tests.releases(repo) {
-	// 		name := fmt.Sprintf("%s/%s/%s", repo.owner, repo.name, release.tag)
-	// 		t.Run(name, func(t *testing.T) {
-	// 			require := require.New(t)
+	done := []string{}
 
-	// 			except, err := tests.assets(repo, release)
-	// 			require.NoError(err)
-	// 			slices.SortFunc(except, func(a, b Asset) int {
-	// 				return cmp.Compare(a.DownloadURL.String(), b.DownloadURL.String())
-	// 			})
+	for _, tt := range tests {
+		name := fmt.Sprintf("%s/%s/%s", tt.Repository.owner, tt.Repository.name, tt.Release.tag)
+		if slices.Contains(done, name) {
+			continue
+		}
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
 
-	// 			actual, err := r.list(ctx, repo, release)
-	// 			require.NoError(err)
-	// 			slices.SortFunc(actual, func(a, b Asset) int {
-	// 				return cmp.Compare(a.DownloadURL.String(), b.DownloadURL.String())
-	// 			})
+			except := tests.listAssetsByRelease(tt.Repository, tt.Release)
+			slices.SortFunc(except, func(a, b Asset) int {
+				return cmp.Compare(a.DownloadURL.String(), b.DownloadURL.String())
+			})
 
-	// 			require.Equal(except, actual)
-	// 		})
-	// 	}
-	// }
+			actual, err := repository.list(ctx, tt.Repository, tt.Release)
+			require.NoError(err)
+			slices.SortFunc(actual, func(a, b Asset) int {
+				return cmp.Compare(a.DownloadURL.String(), b.DownloadURL.String())
+			})
+
+			require.Equal(except, actual)
+		})
+		done = append(done, name)
+	}
 }
 
 // AssetTestCase is a test case about a GitHub release asset.
@@ -340,6 +344,7 @@ type AssetTestCase struct {
 	HasExecBinary bool       `csv:"has_exec_binary"`
 }
 
+// UnmarshalCSV converts the CSV string as GitHub repository.
 func (r *Repository) UnmarshalCSV(csv string) error {
 	repo, err := newRepositoryFromFullName(csv)
 	if err != nil {
@@ -349,12 +354,14 @@ func (r *Repository) UnmarshalCSV(csv string) error {
 	return nil
 }
 
+// UnmarshalCSV converts the CSV string as GitHub release.
 func (r *Release) UnmarshalCSV(csv string) error {
 	release := newRelease(csv)
 	r.tag = release.tag
 	return nil
 }
 
+// UnmarshalCSV converts the CSV string as GitHub release asset.
 func (a *Asset) UnmarshalCSV(csv string) error {
 	url, err := url.Parse(csv)
 	if err != nil {
@@ -362,6 +369,20 @@ func (a *Asset) UnmarshalCSV(csv string) error {
 	}
 	a.DownloadURL = url
 	return nil
+}
+
+// AssetTestCaseList is a list of test case about a GitHub release asset.
+type AssetTestCaseList []AssetTestCase
+
+// listAssetsByRelease returns a list of GitHub release asset which is contained by given release in GitHub repository.
+func (s AssetTestCaseList) listAssetsByRelease(repo Repository, release Release) AssetList {
+	assets := AssetList{}
+	for _, t := range s {
+		if t.Repository == repo && t.Release == release && !slices.Contains(assets, t.Asset) {
+			assets = append(assets, t.Asset)
+		}
+	}
+	return assets
 }
 
 // readAssetTestCase return a list of test case about a GitHub release asset.
@@ -380,20 +401,6 @@ func readAssetTestCase(t *testing.T) (AssetTestCaseList, error) {
 		return nil, err
 	}
 	return tests, nil
-}
-
-// AssetTestCaseList is a list of test case about a GitHub release asset.
-type AssetTestCaseList []AssetTestCase
-
-// assets returns a list of GitHub release asset which is contained by given release.
-func (s AssetTestCaseList) assets(repo Repository, release Release) AssetList {
-	assets := AssetList{}
-	for _, t := range s {
-		if !slices.Contains(assets, t.Asset) && t.Repository == repo && t.Release == release {
-			assets = append(assets, t.Asset)
-		}
-	}
-	return assets
 }
 
 // newURL parses a raw url into a URL structure.
