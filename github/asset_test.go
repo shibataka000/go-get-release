@@ -17,16 +17,17 @@ func TestAssetOS(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, tt := range tests {
-		if tt.OS != "" {
-			name := tt.AssetDownloadURL
-			t.Run(name, func(t *testing.T) {
-				require := require.New(t)
-				downloadURL, err := url.Parse(tt.AssetDownloadURL)
-				require.NoError(err)
-				asset := newAsset(downloadURL)
-				require.Equal(tt.OS, asset.os())
-			})
+		if tt.OS == "" {
+			continue
 		}
+		name := tt.AssetDownloadURL
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			require.NoError(err)
+			asset := newAsset(downloadURL)
+			require.Equal(tt.OS, asset.os())
+		})
 	}
 }
 
@@ -35,16 +36,17 @@ func TestAssetArch(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, tt := range tests {
-		if tt.Arch != "" {
-			name := tt.AssetDownloadURL
-			t.Run(name, func(t *testing.T) {
-				require := require.New(t)
-				downloadURL, err := url.Parse(tt.AssetDownloadURL)
-				require.NoError(err)
-				asset := newAsset(downloadURL)
-				require.Equal(tt.Arch, asset.arch())
-			})
+		if tt.Arch == "" {
+			continue
 		}
+		name := tt.AssetDownloadURL
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			require.NoError(err)
+			asset := newAsset(downloadURL)
+			require.Equal(tt.Arch, asset.arch())
+		})
 	}
 }
 
@@ -53,16 +55,17 @@ func TestAssetMIME(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, tt := range tests {
-		if tt.MIME != "" {
-			name := tt.AssetDownloadURL
-			t.Run(name, func(t *testing.T) {
-				require := require.New(t)
-				downloadURL, err := url.Parse(tt.AssetDownloadURL)
-				require.NoError(err)
-				asset := newAsset(downloadURL)
-				require.Equal(tt.MIME, asset.mime())
-			})
+		if tt.MIME == "" {
+			continue
 		}
+		name := tt.AssetDownloadURL
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			require.NoError(err)
+			asset := newAsset(downloadURL)
+			require.Equal(tt.MIME, asset.mime())
+		})
 	}
 }
 
@@ -83,23 +86,35 @@ func TestAssetHasExecBinary(t *testing.T) {
 }
 
 func TestAssetListFind(t *testing.T) {
-	// tests, err := readAssetTestData(t)
-	// require.NoError(t, err)
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
 
-	// for _, tt := range tests {
-	// 	if !tt.hasExecBinary {
-	// 		continue
-	// 	}
+	for _, tt := range tests {
+		if !tt.HasExecBinary {
+			continue
+		}
+		name := tt.AssetDownloadURL
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
 
-	// 	name := tt.asset.DownloadURL.String()
-	// 	t.Run(name, func(t *testing.T) {
-	// 		require := require.New(t)
-	// 		assets := tests.assets(tt.repo, tt.release)
-	// 		asset, err := assets.find(tt.os, tt.arch)
-	// 		require.NoError(err)
-	// 		require.Equal(tt.asset, asset)
-	// 	})
-	// }
+			downloadURL, err := url.Parse(tt.AssetDownloadURL)
+			require.NoError(err)
+			except := newAsset(downloadURL)
+
+			assets := AssetList{}
+			for _, x := range tests {
+				if x.Owner == tt.Owner && x.Repo == tt.Repo && x.Tag == tt.Tag {
+					downloadURL, err := url.Parse(tt.AssetDownloadURL)
+					require.NoError(err)
+					assets = append(assets, newAsset(downloadURL))
+				}
+			}
+			actual, err := assets.find(tt.OS, tt.Arch)
+			require.NoError(err)
+
+			require.Equal(except, actual)
+		})
+	}
 }
 
 func TestAssetTemplateExecute(t *testing.T) {
@@ -123,6 +138,35 @@ func TestAssetTemplateExecute(t *testing.T) {
 			asset, err := tt.template.execute(tt.release)
 			require.NoError(err)
 			require.Equal(tt.asset, asset)
+		})
+	}
+}
+
+func TestAssetTemplateListExecute(t *testing.T) {
+	tests := []struct {
+		name      string
+		templates AssetTemplateList
+		release   Release
+		assets    AssetList
+	}{
+		{
+			name:      "https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip",
+			templates: externalAssets[newRepository("hashicorp", "terraform")],
+			release:   newRelease("v1.8.5"),
+			assets: AssetList{
+				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_darwin_amd64.zip")),
+				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_windows_amd64.zip")),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			assets, err := tt.templates.execute(tt.release)
+			require.NoError(err)
+			require.Equal(tt.assets, assets)
 		})
 	}
 }
