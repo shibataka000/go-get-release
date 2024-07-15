@@ -7,8 +7,8 @@ import (
 	"runtime"
 
 	"github.com/Songmu/prompter"
+	dist "github.com/shibataka000/go-get-release/distribution"
 	"github.com/shibataka000/go-get-release/github"
-	"github.com/shibataka000/go-get-release/platform"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ func NewCommand() *cobra.Command {
 			app := github.NewApplicationService(
 				github.NewAssetRepository(ctx, token),
 			)
-			asset, err := app.FindAsset(ctx, repoFullName, tag, platform.OS(goos), platform.Arch(goarch))
+			asset, err := app.FindAsset(ctx, repoFullName, tag, dist.OS(goos), dist.Arch(goarch))
 			if err != nil {
 				return err
 			}
