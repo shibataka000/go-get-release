@@ -162,6 +162,156 @@ func TestAssetTemplateListExecute(t *testing.T) {
 	}
 }
 
+func TestAssetCacheGet(t *testing.T) {
+	tests := []struct {
+		name    string
+		cache   AssetCache
+		repo    Repository
+		release Release
+		v       AssetList
+		ok      bool
+	}{
+		{
+			name:    "not hit",
+			cache:   AssetCache{},
+			repo:    newRepository("hashicorp", "terraform"),
+			release: newRelease("v1.8.5"),
+			v:       AssetList{},
+			ok:      false,
+		},
+		{
+			name: "hit",
+			cache: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.5"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+					},
+				},
+			},
+			repo:    newRepository("hashicorp", "terraform"),
+			release: newRelease("v1.8.5"),
+			v: AssetList{
+				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+			},
+			ok: true,
+		},
+		{
+			name: "not hit",
+			cache: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.5"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+					},
+				},
+			},
+			repo:    newRepository("hashicorp", "terraform"),
+			release: newRelease("v1.8.6"),
+			v:       AssetList{},
+			ok:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			v, ok := tt.cache.get(tt.repo, tt.release)
+			require.Equal(tt.ok, ok)
+			if ok {
+				require.Equal(tt.v, v)
+			}
+		})
+	}
+}
+
+func TestAssetCacheSet(t *testing.T) {
+	tests := []struct {
+		name    string
+		before  AssetCache
+		after   AssetCache
+		repo    Repository
+		release Release
+		assets  AssetList
+	}{
+		{
+			name:   "Set assets whose repository and release are new",
+			before: AssetCache{},
+			after: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.5"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+					},
+				},
+			},
+			repo:    newRepository("hashicorp", "terraform"),
+			release: newRelease("v1.8.5"),
+			assets: AssetList{
+				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+			},
+		},
+		{
+			name: "Set assets whose release is new",
+			before: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.4"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.4_linux_amd64.zip")),
+					},
+				},
+			},
+			after: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.4"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.4_linux_amd64.zip")),
+					},
+					newRelease("v1.8.5"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+					},
+				},
+			},
+			repo:    newRepository("hashicorp", "terraform"),
+			release: newRelease("v1.8.5"),
+			assets: AssetList{
+				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+			},
+		},
+		{
+			name: "Set assets whose repository is new",
+			before: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.5"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+					},
+				},
+			},
+			after: AssetCache{
+				newRepository("hashicorp", "terraform"): {
+					newRelease("v1.8.5"): AssetList{
+						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+					},
+				},
+				newRepository("cli", "cli"): {
+					newRelease("v2.52.0"): AssetList{
+						newAsset(newURL("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+					},
+				},
+			},
+			repo:    newRepository("cli", "cli"),
+			release: newRelease("v2.52.0"),
+			assets: AssetList{
+				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			cache := tt.before
+			cache.set(tt.repo, tt.release, tt.assets)
+			require.Equal(tt.after, cache)
+		})
+	}
+}
+
 func TestListAssets(t *testing.T) {
 	tests, err := readAssetTestCase(t)
 	require.NoError(t, err)

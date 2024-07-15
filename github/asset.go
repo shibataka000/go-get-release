@@ -114,13 +114,15 @@ func (s AssetTemplateList) execute(release Release) (AssetList, error) {
 	return assets, nil
 }
 
-// AssetCache is cache for
+// AssetCache is a cache for GitHub release asset.
 type AssetCache map[Repository]map[Release]AssetList
 
+// newAssetCache returns a new cache object for GitHub release asset.
 func newAssetCache() AssetCache {
 	return AssetCache{}
 }
 
+// set stores cache with a list of GitHub release asset.
 func (c AssetCache) set(repo Repository, release Release, assets AssetList) {
 	if _, ok := c[repo]; !ok {
 		c[repo] = map[Release]AssetList{}
@@ -128,6 +130,7 @@ func (c AssetCache) set(repo Repository, release Release, assets AssetList) {
 	c[repo][release] = assets
 }
 
+// get returns a list GitHub release asset value in cache.
 func (c AssetCache) get(repo Repository, release Release) (AssetList, bool) {
 	if _, ok := c[repo]; ok {
 		if v, ok := c[repo][release]; ok {
