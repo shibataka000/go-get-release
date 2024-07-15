@@ -215,14 +215,17 @@ func readAssetTestCase(t *testing.T) (AssetTestCaseList, error) {
 	return tests, nil
 }
 
+// repository returns a GitHub repository.
 func (c AssetTestCase) repository() Repository {
 	return newRepository(c.Owner, c.Repo)
 }
 
+// repository returns a GitHub release.
 func (c AssetTestCase) release() Release {
 	return newRelease(c.Tag)
 }
 
+// asset returns a GitHub release asset.
 func (c AssetTestCase) asset() (Asset, error) {
 	url, err := url.Parse(c.AssetDownloadURL)
 	if err != nil {
@@ -231,8 +234,10 @@ func (c AssetTestCase) asset() (Asset, error) {
 	return newAsset(url), nil
 }
 
+// AssetTestCaseList is a list of test case about a GitHub release asset.
 type AssetTestCaseList []AssetTestCase
 
+// assets returns a list of GitHub release asset whose repository and release are same to given.
 func (s AssetTestCaseList) assets(repo Repository, release Release) (AssetList, error) {
 	assets := AssetList{}
 	for _, t := range s {

@@ -14,7 +14,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
-// Asset represents a GitHub release asset in a repository.
+// Asset represents a GitHub release asset.
 type Asset struct {
 	DownloadURL *url.URL
 }
@@ -51,7 +51,7 @@ func (a Asset) hasExecBinary() bool {
 	return a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
-// AssetList is a list of GitHub release asset in a repository.
+// AssetList is a list of GitHub release asset.
 type AssetList []Asset
 
 // find a GitHub release asset which has executable binary for specified os and arch.
@@ -65,7 +65,7 @@ func (s AssetList) find(os dist.OS, arch dist.Arch) (Asset, error) {
 	return s[index], nil
 }
 
-// AssetTemplate is a template of GitHub release asset in a repository.
+// AssetTemplate is a template of GitHub release asset.
 type AssetTemplate struct {
 	downloadURL *template.Template
 }
@@ -98,7 +98,7 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 	return newAsset(downloadURL), nil
 }
 
-// AssetTemplateList is a list of template of Github release asset in a repository.
+// AssetTemplateList is a list of template of Github release asset.
 type AssetTemplateList []AssetTemplate
 
 // execute applies a list of asset template to the GitHub release object, and returns it as a list of GitHub release asset.
