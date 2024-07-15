@@ -23,7 +23,7 @@ type AssetTestCaseEntry struct {
 	asset         Asset
 	os            platform.OS
 	arch          platform.Arch
-	mime          mime.MIME
+	mime          mime.Type
 	hasExecBinary bool
 }
 
@@ -94,7 +94,7 @@ func readAssetTestData(t *testing.T) (AssetTestCaseTable, error) {
 		asset := newAsset(downloadURL)
 		os := platform.OS(record[4])
 		arch := platform.Arch(record[5])
-		mime := mime.MIME(record[6])
+		mime := mime.Type(record[6])
 		hasExecBinary, err := strconv.ParseBool(record[7])
 		if err != nil {
 			return nil, err

@@ -42,7 +42,7 @@ func (a Asset) arch() platform.Arch {
 }
 
 // mime returns a mime type.
-func (a Asset) mime() mime.MIME {
+func (a Asset) mime() mime.Type {
 	return mime.Detect(a.DownloadURL.String())
 }
 

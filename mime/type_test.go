@@ -6,86 +6,86 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMimeDetect(t *testing.T) {
+func TestDetect(t *testing.T) {
 	tests := []struct {
-		name string
-		mime MIME
+		name     string
+		mimetype Type
 	}{
 		{
-			name: "a.gz",
-			mime: Gzip,
+			name:     "a.gz",
+			mimetype: Gzip,
 		},
 		{
-			name: "a.tar.gz",
-			mime: Gzip,
+			name:     "a.tar.gz",
+			mimetype: Gzip,
 		},
 		{
-			name: "a.tgz",
-			mime: CompressedTar,
+			name:     "a.tgz",
+			mimetype: CompressedTar,
 		},
 		{
-			name: "a",
-			mime: OctedStream,
+			name:     "a",
+			mimetype: OctedStream,
 		},
 		{
-			name: "a.linux-amd64",
-			mime: OctedStream,
+			name:     "a.linux-amd64",
+			mimetype: OctedStream,
 		},
 		{
-			name: "a.tar",
-			mime: Tar,
+			name:     "a.tar",
+			mimetype: Tar,
 		},
 		{
-			name: "a.xz",
-			mime: Xz,
+			name:     "a.xz",
+			mimetype: Xz,
 		},
 		{
-			name: "a.tar.xz",
-			mime: Xz,
+			name:     "a.tar.xz",
+			mimetype: Xz,
 		},
 		{
-			name: "a.zip",
-			mime: Zip,
+			name:     "a.zip",
+			mimetype: Zip,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			require.Equal(tt.mime, Detect(tt.name))
+			require.Equal(tt.mimetype, Detect(tt.name))
 		})
 	}
 }
 
-func TestMimeIsCompressed(t *testing.T) {
+func TestTypeIsCompressed(t *testing.T) {
 	tests := []struct {
 		name         string
-		mime         MIME
+		mimetype     Type
 		isCompressed bool
 	}{
 		{
 			name:         string(Gzip),
-			mime:         Gzip,
+			mimetype:     Gzip,
 			isCompressed: true,
 		},
 		{
 			name:         string(OctedStream),
-			mime:         OctedStream,
+			mimetype:     OctedStream,
 			isCompressed: false,
 		},
 		{
 			name:         string(Tar),
-			mime:         Tar,
+			mimetype:     Tar,
 			isCompressed: false,
 		},
 		{
 			name:         string(Xz),
-			mime:         Xz,
+			mimetype:     Xz,
 			isCompressed: true,
 		},
 		{
 			name:         string(Zip),
-			mime:         Zip,
+			mimetype:     Zip,
 			isCompressed: true,
 		},
 	}
@@ -93,25 +93,25 @@ func TestMimeIsCompressed(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			require.Equal(tt.isCompressed, tt.mime.IsCompressed())
+			require.Equal(tt.isCompressed, tt.mimetype.IsCompressed())
 		})
 	}
 }
 
-func TestMimeIsOctedStream(t *testing.T) {
+func TestTypeIsOctedStream(t *testing.T) {
 	tests := []struct {
 		name          string
-		mime          MIME
+		mimetype      Type
 		isOctedStream bool
 	}{
 		{
 			name:          string(OctedStream),
-			mime:          OctedStream,
+			mimetype:      OctedStream,
 			isOctedStream: true,
 		},
 		{
 			name:          string(Gzip),
-			mime:          Gzip,
+			mimetype:      Gzip,
 			isOctedStream: false,
 		},
 	}
@@ -119,7 +119,7 @@ func TestMimeIsOctedStream(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
-			require.Equal(tt.isOctedStream, tt.mime.IsOctetStream())
+			require.Equal(tt.isOctedStream, tt.mimetype.IsOctetStream())
 		})
 	}
 }
