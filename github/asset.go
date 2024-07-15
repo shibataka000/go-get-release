@@ -114,9 +114,33 @@ func (s AssetTemplateList) execute(release Release) (AssetList, error) {
 	return assets, nil
 }
 
+// AssetCache is cache for
+type AssetCache map[Repository]map[Release]AssetList
+
+func newAssetCache() AssetCache {
+	return AssetCache{}
+}
+
+func (c AssetCache) set(repo Repository, release Release, assets AssetList) {
+	if _, ok := c[repo]; !ok {
+		c[repo] = map[Release]AssetList{}
+	}
+	c[repo][release] = assets
+}
+
+func (c AssetCache) get(repo Repository, release Release) (AssetList, bool) {
+	if _, ok := c[repo]; ok {
+		if v, ok := c[repo][release]; ok {
+			return v, true
+		}
+	}
+	return nil, false
+}
+
 // AssetRepository is a repository for a GitHub release asset.
 type AssetRepository struct {
 	client *github.Client
+	cache  AssetCache
 }
 
 // NewAssetRepository returns a new AssetRepository object.
@@ -128,11 +152,17 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 	return &AssetRepository{
 		client: github.NewClient(httpClient),
+		cache:  newAssetCache(),
 	}
 }
 
 // list returns a list of GitHub release asset.
 func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
+	// Return GitHub release assets in cache if exists.
+	if v, ok := r.cache.get(repo, release); ok {
+		return v, nil
+	}
+
 	assets := AssetList{}
 
 	// Get GitHub release ID.
@@ -168,6 +198,9 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 		}
 		assets = append(assets, applied...)
 	}
+
+	// Store cache with results.
+	r.cache.set(repo, release, assets)
 
 	return assets, nil
 }

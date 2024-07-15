@@ -98,7 +98,7 @@ func TestAssetListFind(t *testing.T) {
 			require.NoError(err)
 			except := newAsset(downloadURL)
 
-			assets, err := tests.assets(tt.repository(), tt.release())
+			assets, err := tests.assetsByRelease(tt.repository(), tt.release())
 			require.NoError(err)
 			actual, err := assets.find(tt.OS, tt.Arch)
 			require.NoError(err)
@@ -174,7 +174,7 @@ func TestListAssets(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
 
-			except, err := tests.assets(tt.repository(), tt.release())
+			except, err := tests.assetsByRelease(tt.repository(), tt.release())
 			require.NoError(err)
 
 			actual, err := r.list(ctx, tt.repository(), tt.release())
@@ -237,8 +237,8 @@ func (c AssetTestCase) asset() (Asset, error) {
 // AssetTestCaseList is a list of test case about a GitHub release asset.
 type AssetTestCaseList []AssetTestCase
 
-// assets returns a list of GitHub release asset whose repository and release are same to given.
-func (s AssetTestCaseList) assets(repo Repository, release Release) (AssetList, error) {
+// assetsByRelease returns a list of GitHub release asset which is contained by given release.
+func (s AssetTestCaseList) assetsByRelease(repo Repository, release Release) (AssetList, error) {
 	assets := AssetList{}
 	for _, t := range s {
 		if t.repository() == repo && t.release() == release {
