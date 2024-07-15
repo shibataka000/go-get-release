@@ -1,4 +1,4 @@
-# owner,repo,tag,download_url,os,arch,mime,has_exec_binary
+owner,repo,tag,asset_download_url,os,arch,mime,has_exec_binary
 kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/darwin/amd64/kubectl,darwin,amd64,,TRUE
 kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/darwin/arm64/kubectl,darwin,arm64,,TRUE
 kubernetes,kubernetes,v1.30.2,https://dl.k8s.io/release/v1.30.2/bin/linux/amd64/kubectl,linux,amd64,,TRUE

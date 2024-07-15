@@ -5,6 +5,7 @@ go 1.22
 require (
 	github.com/Songmu/prompter v0.5.1
 	github.com/cheggaaa/pb/v3 v3.1.5
+	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
 	github.com/google/go-github/v48 v48.2.0
 	github.com/google/go-github/v62 v62.0.0
 	github.com/spf13/cobra v1.8.1
