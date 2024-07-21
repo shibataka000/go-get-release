@@ -344,23 +344,6 @@ type AssetTestCase struct {
 	HasExecBinary bool       `csv:"has_exec_binary"`
 }
 
-// UnmarshalCSV converts the CSV string as GitHub repository.
-func (r *Repository) UnmarshalCSV(value string) error {
-	repo, err := newRepositoryFromFullName(value)
-	if err != nil {
-		return err
-	}
-	r.owner, r.name = repo.owner, repo.name
-	return nil
-}
-
-// UnmarshalCSV converts the CSV string as GitHub release.
-func (r *Release) UnmarshalCSV(value string) error {
-	release := newRelease(value)
-	r.tag = release.tag
-	return nil
-}
-
 // UnmarshalCSV converts the CSV string as GitHub release asset.
 func (a *Asset) UnmarshalCSV(value string) error {
 	url, err := url.Parse(value)
