@@ -1,5 +1,7 @@
 package github
 
+import "regexp"
+
 // externalAssets is a map whose key is repository and whose value is a list of GitHub release asset template on external server.
 var externalAssets = map[Repository]AssetTemplateList{
 	newRepository("hashicorp", "terraform"): {
@@ -30,4 +32,8 @@ var externalAssets = map[Repository]AssetTemplateList{
 		newAssetTemplate(newTemplate("https://get.helm.sh/helm-v3.15.2-linux-s390x.tar.gz")),
 		newAssetTemplate(newTemplate("https://get.helm.sh/helm-v3.15.2-windows-amd64.zip")),
 	},
+}
+
+var ignoredAssets = AssetRegexpList{
+	newAssetRegexp(regexp.MustCompile("")),
 }

@@ -5,6 +5,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"regexp"
 	"slices"
 	"text/template"
 
@@ -51,13 +52,18 @@ func (a Asset) hasExecBinary() bool {
 	return a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
+// ignored returns true if this GitHub release asset should be ignored.
+func (a Asset) ignored() bool {
+	return ignoredAssets.matchAny(a)
+}
+
 // AssetList is a list of GitHub release asset.
 type AssetList []Asset
 
 // find a GitHub release asset which has executable binary for specified os and arch.
 func (s AssetList) find(os dist.OS, arch dist.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
-		return asset.os() == os && asset.arch() == arch && asset.hasExecBinary()
+		return asset.os() == os && asset.arch() == arch && asset.hasExecBinary() && !asset.ignored()
 	})
 	if index == -1 {
 		return Asset{}, &AssetNotFoundError{}
@@ -112,6 +118,33 @@ func (s AssetTemplateList) execute(release Release) (AssetList, error) {
 		assets = append(assets, asset)
 	}
 	return assets, nil
+}
+
+// AssetRegexp is a regular expression about GitHub release asset.
+type AssetRegexp struct {
+	downloadURL *regexp.Regexp
+}
+
+// newAssetRegexp returns a new regular expression object about GitHub release asset.
+func newAssetRegexp(downloadURL *regexp.Regexp) AssetRegexp {
+	return AssetRegexp{
+		downloadURL: downloadURL,
+	}
+}
+
+// match returns true if a GitHub release asset download URL contains any match of the regular expression.
+func (a AssetRegexp) match(asset Asset) bool {
+	return a.downloadURL.MatchString(asset.DownloadURL.String())
+}
+
+// AssetRegexpList is a list of regular expression about GitHub release asset.
+type AssetRegexpList []AssetRegexp
+
+// matchAny returns true if any of GitHub release asset contains any match of the regular expression.
+func (s AssetRegexpList) matchAny(asset Asset) bool {
+	return slices.IndexFunc(s, func(a AssetRegexp) bool {
+		return a.match(asset)
+	}) != -1
 }
 
 // AssetCache is a cache for GitHub release asset.
