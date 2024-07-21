@@ -77,6 +77,19 @@ func TestAssetHasExecBinary(t *testing.T) {
 	}
 }
 
+func TestAssetIgnored(t *testing.T) {
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
+
+	for _, tt := range tests {
+		name := tt.Asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+			require.Equal(tt.Ignored, tt.Asset.ignored())
+		})
+	}
+}
+
 func TestAssetListFind(t *testing.T) {
 	tests, err := readAssetTestCase(t)
 	require.NoError(t, err)
@@ -333,15 +346,27 @@ func TestListAssets(t *testing.T) {
 	}
 }
 
-// AssetTestCase is a test case about a GitHub release asset.
-type AssetTestCase struct {
-	Repository    Repository `csv:"repository"`
-	Release       Release    `csv:"release"`
-	Asset         Asset      `csv:"asset"`
-	OS            dist.OS    `csv:"os"`
-	Arch          dist.Arch  `csv:"arch"`
-	MIME          mime.Type  `csv:"mime"`
-	HasExecBinary bool       `csv:"has_exec_binary"`
+func TestAssetUnmarshalCSV(t *testing.T) {
+	tests := []struct {
+		name  string
+		value string
+		asset Asset
+	}{
+		{
+			name:  "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz",
+			value: "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz",
+			asset: newAsset(newURL("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			asset := Asset{}
+			asset.UnmarshalCSV(tt.value)
+			require.Equal(tt.asset, asset)
+		})
+	}
 }
 
 // UnmarshalCSV converts the CSV string as GitHub release asset.
@@ -352,6 +377,19 @@ func (a *Asset) UnmarshalCSV(value string) error {
 	}
 	a.DownloadURL = url
 	return nil
+}
+
+// AssetTestCase is a test case about a GitHub release asset.
+type AssetTestCase struct {
+	Repository    Repository `csv:"repository"`
+	Release       Release    `csv:"release"`
+	Asset         Asset      `csv:"asset"`
+	OS            dist.OS    `csv:"os"`
+	Arch          dist.Arch  `csv:"arch"`
+	MIME          mime.Type  `csv:"mime"`
+	HasExecBinary bool       `csv:"has_exec_binary"`
+	Ignored       bool       `csv:"ignored"`
+	ExecBinary    ExecBinary `csv:"exec_binary"`
 }
 
 // AssetTestCaseList is a list of test case about a GitHub release asset.

@@ -35,5 +35,5 @@ var externalAssets = map[Repository]AssetTemplateList{
 }
 
 var ignoredAssets = AssetRegexpList{
-	newAssetRegexp(regexp.MustCompile("")),
+	newAssetRegexp(regexp.MustCompile("abcd")),
 }
