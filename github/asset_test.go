@@ -345,8 +345,8 @@ type AssetTestCase struct {
 }
 
 // UnmarshalCSV converts the CSV string as GitHub repository.
-func (r *Repository) UnmarshalCSV(csv string) error {
-	repo, err := newRepositoryFromFullName(csv)
+func (r *Repository) UnmarshalCSV(value string) error {
+	repo, err := newRepositoryFromFullName(value)
 	if err != nil {
 		return err
 	}
@@ -355,15 +355,15 @@ func (r *Repository) UnmarshalCSV(csv string) error {
 }
 
 // UnmarshalCSV converts the CSV string as GitHub release.
-func (r *Release) UnmarshalCSV(csv string) error {
-	release := newRelease(csv)
+func (r *Release) UnmarshalCSV(value string) error {
+	release := newRelease(value)
 	r.tag = release.tag
 	return nil
 }
 
 // UnmarshalCSV converts the CSV string as GitHub release asset.
-func (a *Asset) UnmarshalCSV(csv string) error {
-	url, err := url.Parse(csv)
+func (a *Asset) UnmarshalCSV(value string) error {
+	url, err := url.Parse(value)
 	if err != nil {
 		return err
 	}
