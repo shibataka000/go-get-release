@@ -90,6 +90,19 @@ func TestAssetIsIgnored(t *testing.T) {
 	}
 }
 
+func TestAssetExecBinary(t *testing.T) {
+	tests, err := readAssetTestCase(t)
+	require.NoError(t, err)
+
+	for _, tt := range tests {
+		name := tt.Asset.DownloadURL.String()
+		t.Run(name, func(t *testing.T) {
+			require := require.New(t)
+			require.Equal(tt.ExecBinary, tt.Asset.execBinary())
+		})
+	}
+}
+
 func TestAssetListFind(t *testing.T) {
 	tests, err := readAssetTestCase(t)
 	require.NoError(t, err)
@@ -161,6 +174,10 @@ func TestAssetTemplateListExecute(t *testing.T) {
 		})
 	}
 }
+
+func TestAssetRegexpMatch(t *testing.T) {}
+
+func TestAssetRegexpListMatchAny(t *testing.T) {}
 
 func TestAssetCacheGet(t *testing.T) {
 	tests := []struct {
