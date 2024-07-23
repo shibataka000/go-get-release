@@ -73,7 +73,7 @@ func (a Asset) hasExecBinary() bool {
 	return a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
-// isIgnored returns true if this GitHub release asset should be isIgnored.
+// isIgnored returns true if this GitHub release asset should be ignored.
 func (a Asset) isIgnored() bool {
 	return ignoredAssets.matchAny(a)
 }
