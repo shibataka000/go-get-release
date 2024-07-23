@@ -8,21 +8,20 @@ import (
 
 type ExecBinary struct {
 	name string
-	os   dist.OS
 }
 
-func newExecBinary(name string, os dist.OS) ExecBinary {
+func newExecBinary(name string) ExecBinary {
 	return ExecBinary{
 		name: name,
-		os:   os,
 	}
 }
 
-func (b ExecBinary) Name() string {
-	if b.os == "windows" {
-		return fmt.Sprintf("%s.exe", b.name)
+func newExecBinaryWithOS(name string, os dist.OS) ExecBinary {
+	if os == "windows" {
+		n := fmt.Sprintf("%s.exe", name)
+		return newExecBinary(n)
 	}
-	return b.name
+	return newExecBinary(name)
 }
 
 type ExecBinaryTemplate struct {
@@ -36,5 +35,5 @@ func newExecBinaryTemplate(name string) ExecBinaryTemplate {
 }
 
 func (b ExecBinaryTemplate) execute(os dist.OS) ExecBinary {
-	return newExecBinary(b.name, os)
+	return newExecBinaryWithOS(b.name, os)
 }

@@ -15,7 +15,7 @@ func TestExecBinaryUnmarshalCSV(t *testing.T) {
 		{
 			name:       "terraform",
 			value:      "terraform",
-			execBinary: newExecBinary("terraform", "linux"),
+			execBinary: newExecBinary("terraform"),
 		},
 	}
 

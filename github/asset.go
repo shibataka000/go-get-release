@@ -79,7 +79,7 @@ func (a Asset) isIgnored() bool {
 }
 
 func (a Asset) execBinary() ExecBinary {
-	return newExecBinary("", "")
+	return newExecBinaryWithOS("", a.os())
 }
 
 // AssetList is a list of GitHub release asset.
