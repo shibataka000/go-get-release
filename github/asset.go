@@ -27,6 +27,27 @@ func newAsset(downloadURL *url.URL) Asset {
 	}
 }
 
+// newAssetFromString returns a new GitHub release asset object.
+// Given download URL must be able to be parsed as URL.
+func newAssetFromString(downloadURL string) (Asset, error) {
+	url, err := url.Parse(downloadURL)
+	if err != nil {
+		return Asset{}, err
+	}
+	return newAsset(url), nil
+}
+
+// mustNewAssetFromString returns a new GitHub release asset object.
+// Given download URL must be able to be parsed as URL.
+// This gets into a panic if the error is non-nil.
+func mustNewAssetFromString(downloadURL string) Asset {
+	asset, err := newAssetFromString(downloadURL)
+	if err != nil {
+		panic(err)
+	}
+	return asset
+}
+
 // os returns an os detected by url to download GitHub release asset.
 func (a Asset) os() dist.OS {
 	os, _ := dist.Detect(a.DownloadURL.String())
@@ -83,6 +104,27 @@ func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
 	}
 }
 
+// newAssetTemplate returns a new GitHub release asset template object.
+// Given download URL must be able to parsed as template.
+func newAssetTemplateFromString(downloadURL string) (AssetTemplate, error) {
+	tmpl, err := template.New("").Parse(downloadURL)
+	if err != nil {
+		return AssetTemplate{}, err
+	}
+	return newAssetTemplate(tmpl), nil
+}
+
+// newAssetTemplate returns a new GitHub release asset template object.
+// Given download URL must be able to parsed as template.
+// This gets into a panic if the error is non-nil.
+func mustNewAssetTemplateFromString(downloadURL string) AssetTemplate {
+	asset, err := newAssetTemplateFromString(downloadURL)
+	if err != nil {
+		panic(err)
+	}
+	return asset
+}
+
 // execute applies an asset template to the GitHub release object, and returns it as GitHub release asset.
 func (a AssetTemplate) execute(release Release) (Asset, error) {
 	buf := new(bytes.Buffer)
@@ -97,11 +139,7 @@ func (a AssetTemplate) execute(release Release) (Asset, error) {
 	if err != nil {
 		return Asset{}, err
 	}
-	downloadURL, err := url.Parse(buf.String())
-	if err != nil {
-		return Asset{}, err
-	}
-	return newAsset(downloadURL), nil
+	return newAssetFromString(buf.String())
 }
 
 // AssetTemplateList is a list of template of Github release asset.
@@ -217,11 +255,12 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 			return nil, err
 		}
 		for _, githubAsset := range githubAssets {
-			downloadURL, err := url.Parse(githubAsset.GetBrowserDownloadURL())
+			downloadURL := githubAsset.GetBrowserDownloadURL()
+			asset, err := newAssetFromString(downloadURL)
 			if err != nil {
 				return nil, err
 			}
-			assets = append(assets, newAsset(downloadURL))
+			assets = append(assets, asset)
 		}
 		page = resp.NextPage
 	}

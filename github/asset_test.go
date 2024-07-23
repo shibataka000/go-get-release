@@ -117,9 +117,9 @@ func TestAssetTemplateExecute(t *testing.T) {
 	}{
 		{
 			name:     "https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip",
-			template: newAssetTemplate(newTemplate("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
+			template: mustNewAssetTemplateFromString("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip"),
 			release:  newRelease("v1.8.5"),
-			asset:    newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+			asset:    mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 		},
 	}
 
@@ -145,9 +145,9 @@ func TestAssetTemplateListExecute(t *testing.T) {
 			templates: externalAssets[newRepository("hashicorp", "terraform")],
 			release:   newRelease("v1.8.5"),
 			assets: AssetList{
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_darwin_amd64.zip")),
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_windows_amd64.zip")),
+				mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
+				mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_darwin_amd64.zip"),
+				mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_windows_amd64.zip"),
 			},
 		},
 	}
@@ -184,14 +184,14 @@ func TestAssetCacheGet(t *testing.T) {
 			cache: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.5"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 					},
 				},
 			},
 			repo:    newRepository("hashicorp", "terraform"),
 			release: newRelease("v1.8.5"),
 			v: AssetList{
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+				mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 			},
 			ok: true,
 		},
@@ -200,7 +200,7 @@ func TestAssetCacheGet(t *testing.T) {
 			cache: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.5"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 					},
 				},
 			},
@@ -238,14 +238,14 @@ func TestAssetCacheSet(t *testing.T) {
 			after: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.5"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 					},
 				},
 			},
 			repo:    newRepository("hashicorp", "terraform"),
 			release: newRelease("v1.8.5"),
 			assets: AssetList{
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+				mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 			},
 		},
 		{
@@ -253,24 +253,24 @@ func TestAssetCacheSet(t *testing.T) {
 			before: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.4"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.4_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.4_linux_amd64.zip"),
 					},
 				},
 			},
 			after: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.4"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.4_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.4_linux_amd64.zip"),
 					},
 					newRelease("v1.8.5"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 					},
 				},
 			},
 			repo:    newRepository("hashicorp", "terraform"),
 			release: newRelease("v1.8.5"),
 			assets: AssetList{
-				newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+				mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 			},
 		},
 		{
@@ -278,26 +278,26 @@ func TestAssetCacheSet(t *testing.T) {
 			before: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.5"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 					},
 				},
 			},
 			after: AssetCache{
 				newRepository("hashicorp", "terraform"): {
 					newRelease("v1.8.5"): AssetList{
-						newAsset(newURL("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip")),
+						mustNewAssetFromString("https://releases.hashicorp.com/terraform/1.8.5/terraform_1.8.5_linux_amd64.zip"),
 					},
 				},
 				newRepository("cli", "cli"): {
 					newRelease("v2.52.0"): AssetList{
-						newAsset(newURL("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+						mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz"),
 					},
 				},
 			},
 			repo:    newRepository("cli", "cli"),
 			release: newRelease("v2.52.0"),
 			assets: AssetList{
-				newAsset(newURL("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+				mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz"),
 			},
 		},
 	}
@@ -355,7 +355,7 @@ func TestAssetUnmarshalCSV(t *testing.T) {
 		{
 			name:  "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz",
 			value: "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz",
-			asset: newAsset(newURL("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+			asset: mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz"),
 		},
 	}
 
@@ -422,14 +422,4 @@ func readAssetTestCase(t *testing.T) (AssetTestCaseList, error) {
 		return nil, err
 	}
 	return tests, nil
-}
-
-// newURL parses a raw url into a URL structure.
-// This gets into a panic if the error is non-nil.
-func newURL(rawURL string) *url.URL {
-	parsed, err := url.Parse(rawURL)
-	if err != nil {
-		panic(err)
-	}
-	return parsed
 }
