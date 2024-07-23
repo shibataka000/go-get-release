@@ -3,7 +3,6 @@ package github
 import (
 	"bytes"
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -79,17 +78,8 @@ func (a Asset) isIgnored() bool {
 	return ignoredAssets.matchAny(a)
 }
 
-func (a Asset) execBinaryWithoutExt() ExecBinary {
-	return newExecBinary("")
-}
-
 func (a Asset) execBinary() ExecBinary {
-	execBinary := a.execBinaryWithoutExt()
-	if a.os() == "windows" {
-		name := fmt.Sprintf("%s.exe", execBinary.name)
-		return newExecBinary(name)
-	}
-	return execBinary
+	return newExecBinary("", "")
 }
 
 // AssetList is a list of GitHub release asset.
