@@ -77,7 +77,7 @@ func TestAssetHasExecBinary(t *testing.T) {
 	}
 }
 
-func TestAssetIgnored(t *testing.T) {
+func TestAssetIsIgnored(t *testing.T) {
 	tests, err := readAssetTestCase(t)
 	require.NoError(t, err)
 
@@ -85,7 +85,7 @@ func TestAssetIgnored(t *testing.T) {
 		name := tt.Asset.DownloadURL.String()
 		t.Run(name, func(t *testing.T) {
 			require := require.New(t)
-			require.Equal(tt.Ignored, tt.Asset.ignored())
+			require.Equal(tt.IsIgnored, tt.Asset.isIgnored())
 		})
 	}
 }
@@ -388,7 +388,7 @@ type AssetTestCase struct {
 	Arch          dist.Arch  `csv:"arch"`
 	MIME          mime.Type  `csv:"mime"`
 	HasExecBinary bool       `csv:"has_exec_binary"`
-	Ignored       bool       `csv:"ignored"`
+	IsIgnored     bool       `csv:"is_ignored"`
 	ExecBinary    ExecBinary `csv:"exec_binary"`
 }
 

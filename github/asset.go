@@ -73,8 +73,8 @@ func (a Asset) hasExecBinary() bool {
 	return a.mime().IsCompressed() || a.mime().IsOctetStream()
 }
 
-// ignored returns true if this GitHub release asset should be ignored.
-func (a Asset) ignored() bool {
+// isIgnored returns true if this GitHub release asset should be isIgnored.
+func (a Asset) isIgnored() bool {
 	return ignoredAssets.matchAny(a)
 }
 
@@ -84,7 +84,7 @@ type AssetList []Asset
 // find a GitHub release asset which has executable binary for specified os and arch.
 func (s AssetList) find(os dist.OS, arch dist.Arch) (Asset, error) {
 	index := slices.IndexFunc(s, func(asset Asset) bool {
-		return asset.os() == os && asset.arch() == arch && asset.hasExecBinary() && !asset.ignored()
+		return asset.os() == os && asset.arch() == arch && asset.hasExecBinary() && !asset.isIgnored()
 	})
 	if index == -1 {
 		return Asset{}, &AssetNotFoundError{}
