@@ -104,7 +104,7 @@ func newAssetTemplate(downloadURL *template.Template) AssetTemplate {
 	}
 }
 
-// newAssetTemplate returns a new GitHub release asset template object.
+// newAssetTemplateFromString returns a new GitHub release asset template object.
 // Given download URL must be able to parsed as template.
 func newAssetTemplateFromString(downloadURL string) (AssetTemplate, error) {
 	tmpl, err := template.New("").Parse(downloadURL)
@@ -114,7 +114,7 @@ func newAssetTemplateFromString(downloadURL string) (AssetTemplate, error) {
 	return newAssetTemplate(tmpl), nil
 }
 
-// newAssetTemplate returns a new GitHub release asset template object.
+// mustNewAssetTemplateFromString returns a new GitHub release asset template object.
 // Given download URL must be able to parsed as template.
 // This gets into a panic if the error is non-nil.
 func mustNewAssetTemplateFromString(downloadURL string) AssetTemplate {
@@ -168,6 +168,27 @@ func newAssetRegexp(downloadURL *regexp.Regexp) AssetRegexp {
 	return AssetRegexp{
 		downloadURL: downloadURL,
 	}
+}
+
+// newAssetRegexpFromString returns a new regular expression object about GitHub release asset.
+// Given download URL must be able to be compiled as regular expression.
+func newAssetRegexpFromString(downloadURL string) (AssetRegexp, error) {
+	re, err := regexp.Compile(downloadURL)
+	if err != nil {
+		return AssetRegexp{}, err
+	}
+	return newAssetRegexp(re), nil
+}
+
+// mustNewAssetRegexpFromString returns a new regular expression object about GitHub release asset.
+// Given download URL must be able to be compiled as regular expression.
+// This gets into a panic if the error is non-nil.
+func mustNewAssetRegexpFromString(downloadURL string) AssetRegexp {
+	asset, err := newAssetRegexpFromString(downloadURL)
+	if err != nil {
+		panic(err)
+	}
+	return asset
 }
 
 // match returns true if a GitHub release asset download URL contains any match of the regular expression.
