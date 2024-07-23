@@ -31,6 +31,6 @@ func TestExecBinaryUnmarshalCSV(t *testing.T) {
 
 // UnmarshalCSV converts the CSV string as executable binary.
 func (b *ExecBinary) UnmarshalCSV(value string) error {
-	b.Name = value
+	b.name = value
 	return nil
 }

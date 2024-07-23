@@ -1,11 +1,11 @@
 package github
 
 type ExecBinary struct {
-	Name string
+	name string
 }
 
 func newExecBinary(name string) ExecBinary {
 	return ExecBinary{
-		Name: name,
+		name: name,
 	}
 }
