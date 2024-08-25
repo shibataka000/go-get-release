@@ -1,12 +1,15 @@
 package github
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"net/http"
 	"net/url"
 	"path"
 	"regexp"
 
+	"github.com/cheggaaa/pb/v3"
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/oauth2"
 )
@@ -32,7 +35,6 @@ func (a Asset) name() string {
 type AssetList []Asset
 
 // find a GitHub release asset which matches any of given patterns.
-// If one or more assets match patterns, this returns first one.
 func (al AssetList) find(patterns []*regexp.Regexp) (Asset, error) {
 	found := AssetList{}
 	for _, a := range al {
@@ -97,4 +99,23 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	}
 
 	return assets, nil
+}
+
+type AssetContent []byte
+
+func (r *AssetRepository) download(asset Asset, progressBar io.Writer) (AssetContent, error) {
+	resp, err := http.Get(asset.DownloadURL.String())
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	src := pb.Full.Start64(resp.ContentLength).SetWriter(progressBar).NewProxyReader(resp.Body)
+	dst := new(bytes.Buffer)
+
+	if _, err = io.Copy(dst, src); err != nil {
+		return nil, err
+	}
+
+	return AssetContent(dst.Bytes()), nil
 }
