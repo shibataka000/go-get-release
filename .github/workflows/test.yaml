@@ -13,6 +13,4 @@ jobs:
       - name: Run tests
         run: make test
         env:
-          GOOS: linux
-          GOARCH: amd64
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

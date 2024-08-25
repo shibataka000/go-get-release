@@ -4,11 +4,9 @@ go 1.22
 
 require (
 	github.com/Songmu/prompter v0.5.1
-	github.com/gocarina/gocsv v0.0.0-20240520201108-78e41c74b4b1
 	github.com/google/go-github/v62 v62.0.0
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
-	golang.org/x/mod v0.19.0
 	golang.org/x/oauth2 v0.21.0
 )
 

@@ -2,8 +2,7 @@ package github
 
 import (
 	"context"
-
-	dist "github.com/shibataka000/go-get-release/distribution"
+	"regexp"
 )
 
 // ApplicationService.
@@ -19,7 +18,7 @@ func NewApplicationService(asset *AssetRepository) *ApplicationService {
 }
 
 // FindAsset returns a GitHub release asset which has executable binary for specified platform.
-func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, os dist.OS, arch dist.Arch) (Asset, error) {
+func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, patterns []*regexp.Regexp) (Asset, error) {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return Asset{}, err
@@ -32,5 +31,5 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 		return Asset{}, err
 	}
 
-	return assets.find(os, arch)
+	return assets.find(patterns)
 }

@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"runtime"
+	"regexp"
 
 	"github.com/Songmu/prompter"
-	dist "github.com/shibataka000/go-get-release/distribution"
 	"github.com/shibataka000/go-get-release/github"
 	"github.com/spf13/cobra"
 )
@@ -15,11 +14,10 @@ import (
 // NewCommand returns cobra command
 func NewCommand() *cobra.Command {
 	var (
-		token        string
 		repoFullName string
 		tag          string
-		goos         string
-		goarch       string
+		rawPatterns  []string
+		token        string
 	)
 
 	command := &cobra.Command{
@@ -30,7 +28,11 @@ func NewCommand() *cobra.Command {
 			app := github.NewApplicationService(
 				github.NewAssetRepository(ctx, token),
 			)
-			asset, err := app.FindAsset(ctx, repoFullName, tag, dist.OS(goos), dist.Arch(goarch))
+			patterns, err := compilePatterns(rawPatterns)
+			if err != nil {
+				return err
+			}
+			asset, err := app.FindAsset(ctx, repoFullName, tag, patterns)
 			if err != nil {
 				return err
 			}
@@ -42,13 +44,24 @@ func NewCommand() *cobra.Command {
 		},
 	}
 
-	command.Flags().StringVar(&token, "token", os.Getenv("GITHUB_TOKEN"), "GitHub token. [$GITHUB_TOKEN]")
-	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "Select repository using the OWNER/REPO format")
+	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "Select GitHub repository using the OWNER/REPO format")
 	command.Flags().StringVar(&tag, "tag", "", "")
-	command.Flags().StringVar(&goos, "os", runtime.GOOS, "")
-	command.Flags().StringVar(&goarch, "arch", runtime.GOARCH, "")
+	command.Flags().StringArrayVarP(&rawPatterns, "pattern", "p", []string{".*"}, "Select GitHub release asset using a regexp pattern")
+	command.Flags().StringVar(&token, "token", os.Getenv("GH_TOKEN"), "GitHub token. [$GH_TOKEN]")
 	command.MarkFlagRequired("repo") //nolint:errcheck
 	command.MarkFlagRequired("tag")  //nolint:errcheck
 
 	return command
+}
+
+func compilePatterns(exprs []string) ([]*regexp.Regexp, error) {
+	res := []*regexp.Regexp{}
+	for _, expr := range exprs {
+		re, err := regexp.Compile(expr)
+		if err != nil {
+			return nil, err
+		}
+		res = append(res, re)
+	}
+	return res, nil
 }
