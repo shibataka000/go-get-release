@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"path"
 	"regexp"
-	"slices"
 
 	"github.com/google/go-github/v62/github"
 	"golang.org/x/oauth2"
@@ -35,15 +34,19 @@ type AssetList []Asset
 // find a GitHub release asset which matches any of given patterns.
 // If one or more assets match patterns, this returns first one.
 func (al AssetList) find(patterns []*regexp.Regexp) (Asset, error) {
-	index := slices.IndexFunc(al, func(a Asset) bool {
-		return slices.ContainsFunc(patterns, func(p *regexp.Regexp) bool {
-			return p.Match([]byte(a.name()))
-		})
-	})
-	if index == -1 {
-		return Asset{}, &AssetNotFoundError{}
+	found := AssetList{}
+	for _, a := range al {
+		for _, p := range patterns {
+			if p.Match([]byte(a.name())) {
+				found = append(found, a)
+				break
+			}
+		}
 	}
-	return al[index], nil
+	if len(found) != 1 {
+		return Asset{}, &FindingAssetFailureError{found}
+	}
+	return found[0], nil
 }
 
 // AssetRepository is a repository for a GitHub release asset.

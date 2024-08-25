@@ -9,13 +9,20 @@ type InvalidRepositoryFullNameFormatError struct {
 
 // Error returns an error message.
 func (e *InvalidRepositoryFullNameFormatError) Error() string {
-	return fmt.Sprintf("Acceptable repository full name format is 'OWNER/NAME', but given name was '%s'.", e.name)
+	return fmt.Sprintf("acceptable repository full name format is 'OWNER/NAME', but given name was '%s'", e.name)
 }
 
-// AssetNotFoundError is error raised when GitHub release asset was not found.
-type AssetNotFoundError struct{}
+// FindingAssetFailureError is error raised when finding asset was failed, especially zero or two or more assets was found.
+type FindingAssetFailureError struct {
+	assets AssetList
+}
 
 // Error returns an error message.
-func (e *AssetNotFoundError) Error() string {
-	return "No asset was found."
+func (e *FindingAssetFailureError) Error() string {
+	switch len(e.assets) {
+	case 0:
+		return "no asset was found"
+	default:
+		return fmt.Sprintf("too many assets was found: %v", e.assets)
+	}
 }
