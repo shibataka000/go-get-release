@@ -26,6 +26,14 @@ func newAsset(downloadURL *url.URL) Asset {
 	}
 }
 
+func newAssetFromString(downloadURL string) (Asset, error) {
+	url, err := url.Parse(downloadURL)
+	if err != nil {
+		return Asset{}, err
+	}
+	return newAsset(url), nil
+}
+
 // name returns a name of GitHub release asset.
 func (a Asset) name() string {
 	return path.Base(a.DownloadURL.String())
@@ -89,11 +97,11 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 		}
 		for _, githubAsset := range githubAssets {
 			downloadURL := githubAsset.GetBrowserDownloadURL()
-			url, err := url.Parse(downloadURL)
+			asset, err := newAssetFromString(downloadURL)
 			if err != nil {
 				return nil, err
 			}
-			assets = append(assets, newAsset(url))
+			assets = append(assets, asset)
 		}
 		page = resp.NextPage
 	}
