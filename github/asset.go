@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"path"
-	"regexp"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/google/go-github/v62/github"
@@ -26,6 +25,7 @@ func newAsset(downloadURL *url.URL) Asset {
 	}
 }
 
+// newAssetFromString returns a new GitHub release asset object.
 func newAssetFromString(downloadURL string) (Asset, error) {
 	url, err := url.Parse(downloadURL)
 	if err != nil {
@@ -43,20 +43,15 @@ func (a Asset) name() string {
 type AssetList []Asset
 
 // find a GitHub release asset which matches any of given patterns.
-func (al AssetList) find(patterns []*regexp.Regexp) (Asset, error) {
-	found := AssetList{}
-	for _, a := range al {
-		for _, p := range patterns {
-			if p.Match([]byte(a.name())) {
-				found = append(found, a)
-				break
+func (al AssetList) find(patterns PatternList) (Asset, error) {
+	for _, p := range patterns {
+		for _, a := range al {
+			if p.match(a) {
+				return a, nil
 			}
 		}
 	}
-	if len(found) != 1 {
-		return Asset{}, &FindingAssetFailureError{found}
-	}
-	return found[0], nil
+	return Asset{}, &FindingAssetFailureError{}
 }
 
 // AssetRepository is a repository for a GitHub release asset.

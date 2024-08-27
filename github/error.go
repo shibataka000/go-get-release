@@ -2,14 +2,23 @@ package github
 
 import "fmt"
 
-// InvalidRepositoryFullNameFormatError is error raised when repository full name is not 'OWNER/NAME' format.
-type InvalidRepositoryFullNameFormatError struct {
+// InvalidRepositoryFullNameError is error raised when repository full name is invalid.
+type InvalidRepositoryFullNameError struct {
 	name string
 }
 
 // Error returns an error message.
-func (e *InvalidRepositoryFullNameFormatError) Error() string {
-	return fmt.Sprintf("acceptable repository full name format is 'OWNER/NAME', but given name was '%s'", e.name)
+func (e *InvalidRepositoryFullNameError) Error() string {
+	return fmt.Sprintf("acceptable repository full name is 'OWNER/NAME' format, but given was '%s'", e.name)
+}
+
+type InvalidPatternError struct {
+	pattern string
+}
+
+// Error returns an error message.
+func (e *InvalidPatternError) Error() string {
+	return fmt.Sprintf("acceptable pattern is 'ASSET_NAME_PATTERN=EXEC_BINARY_NAME_PATTERN' format, but given was '%s'", e.pattern)
 }
 
 // FindingAssetFailureError is error raised when finding asset was failed, especially zero or two or more assets was found.
@@ -26,3 +35,5 @@ func (e *FindingAssetFailureError) Error() string {
 		return fmt.Sprintf("too many assets was found: %v", e.assets)
 	}
 }
+
+// gh release install --asset (p<name>.*)linux --exec-binary
