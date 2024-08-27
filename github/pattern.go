@@ -14,8 +14,16 @@ func newPattern(asset, execBinary *regexp.Regexp) Pattern {
 	}
 }
 
-func newPatternFromString(rawPattern string) (Pattern, error) {
-	return Pattern{}, nil
+func newPatternFromString(rawAsset, rawExecBinary string) (Pattern, error) {
+	asset, err := regexp.Compile(rawAsset)
+	if err != nil {
+		return Pattern{}, err
+	}
+	execBinary, err := regexp.Compile(rawExecBinary)
+	if err != nil {
+		return Pattern{}, err
+	}
+	return newPattern(asset, execBinary), nil
 }
 
 func (p Pattern) match(asset Asset) bool {
@@ -24,10 +32,14 @@ func (p Pattern) match(asset Asset) bool {
 
 type PatternList []Pattern
 
-func newPatternListFromStringSlice(rawPatterns []string) (PatternList, error) {
+func newPatternListFromStringSlice(rawAssets, rawExecBinary []string) (PatternList, error) {
+	if len(rawAssets) != len(rawExecBinary) {
+		return nil, nil
+	}
+
 	patterns := PatternList{}
-	for _, rawPattern := range rawPatterns {
-		pattern, err := newPatternFromString(rawPattern)
+	for i := range rawAssets {
+		pattern, err := newPatternFromString(rawAssets[i], rawExecBinary[i])
 		if err != nil {
 			return nil, err
 		}

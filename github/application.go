@@ -17,7 +17,7 @@ func NewApplicationService(asset *AssetRepository) *ApplicationService {
 }
 
 // FindAsset returns a GitHub release asset which matches given pattern.
-func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, rawPatterns []string) (Asset, error) {
+func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, assetPatterns []string, execBinaryPatterns []string) (Asset, error) {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return Asset{}, err
@@ -25,7 +25,7 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 
 	release := newRelease(tag)
 
-	patterns, err := newPatternListFromStringSlice(rawPatterns)
+	patterns, err := newPatternListFromStringSlice(assetPatterns, execBinaryPatterns)
 	if err != nil {
 		return Asset{}, err
 	}

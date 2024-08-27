@@ -4,36 +4,27 @@ import "fmt"
 
 // InvalidRepositoryFullNameError is error raised when repository full name is invalid.
 type InvalidRepositoryFullNameError struct {
-	name string
+	fullName string
 }
 
 // Error returns an error message.
 func (e *InvalidRepositoryFullNameError) Error() string {
-	return fmt.Sprintf("acceptable repository full name is 'OWNER/NAME' format, but given was '%s'", e.name)
+	return fmt.Sprintf("acceptable repository full name is 'OWNER/NAME' format, but given name was '%s'", e.fullName)
 }
 
-type InvalidPatternError struct {
-	pattern string
-}
-
-// Error returns an error message.
-func (e *InvalidPatternError) Error() string {
-	return fmt.Sprintf("acceptable pattern is 'ASSET_NAME_PATTERN=EXEC_BINARY_NAME_PATTERN' format, but given was '%s'", e.pattern)
-}
-
-// FindingAssetFailureError is error raised when finding asset was failed, especially zero or two or more assets was found.
-type FindingAssetFailureError struct {
-	assets AssetList
-}
-
-// Error returns an error message.
-func (e *FindingAssetFailureError) Error() string {
-	switch len(e.assets) {
-	case 0:
-		return "no asset was found"
-	default:
-		return fmt.Sprintf("too many assets was found: %v", e.assets)
+func newInvalidRepositoryFullNameError(fullName string) *InvalidRepositoryFullNameError {
+	return &InvalidRepositoryFullNameError{
+		fullName: fullName,
 	}
 }
 
-// gh release install --asset (p<name>.*)linux --exec-binary
+type AssetNotFoundError struct{}
+
+// Error returns an error message.
+func (e *AssetNotFoundError) Error() string {
+	return "no asset was found"
+}
+
+func newAssetNotFoundError() *AssetNotFoundError {
+	return &AssetNotFoundError{}
+}

@@ -51,7 +51,7 @@ func (al AssetList) find(patterns PatternList) (Asset, error) {
 			}
 		}
 	}
-	return Asset{}, &FindingAssetFailureError{}
+	return Asset{}, newAssetNotFoundError()
 }
 
 // AssetRepository is a repository for a GitHub release asset.
