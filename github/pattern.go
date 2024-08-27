@@ -1,6 +1,9 @@
 package github
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 type Pattern struct {
 	asset      *regexp.Regexp
@@ -14,16 +17,16 @@ func newPattern(asset, execBinary *regexp.Regexp) Pattern {
 	}
 }
 
-func newPatternFromString(rawAsset, rawExecBinary string) (Pattern, error) {
-	asset, err := regexp.Compile(rawAsset)
+func newPatternFromString(asset, execBinary string) (Pattern, error) {
+	assetRegexp, err := regexp.Compile(asset)
 	if err != nil {
 		return Pattern{}, err
 	}
-	execBinary, err := regexp.Compile(rawExecBinary)
+	execBinaryRegexp, err := regexp.Compile(execBinary)
 	if err != nil {
 		return Pattern{}, err
 	}
-	return newPattern(asset, execBinary), nil
+	return newPattern(assetRegexp, execBinaryRegexp), nil
 }
 
 func (p Pattern) match(asset Asset) bool {
@@ -32,14 +35,14 @@ func (p Pattern) match(asset Asset) bool {
 
 type PatternList []Pattern
 
-func newPatternListFromStringSlice(rawAssets, rawExecBinary []string) (PatternList, error) {
-	if len(rawAssets) != len(rawExecBinary) {
-		return nil, nil
+func newPatternListFromStringSlice(assets, execBinary []string) (PatternList, error) {
+	if len(assets) != len(execBinary) {
+		return nil, fmt.Errorf("number of asset patterns and exec binary patterns are not same")
 	}
 
 	patterns := PatternList{}
-	for i := range rawAssets {
-		pattern, err := newPatternFromString(rawAssets[i], rawExecBinary[i])
+	for i := range assets {
+		pattern, err := newPatternFromString(assets[i], execBinary[i])
 		if err != nil {
 			return nil, err
 		}

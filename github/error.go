@@ -28,3 +28,7 @@ func (e *AssetNotFoundError) Error() string {
 func newAssetNotFoundError() *AssetNotFoundError {
 	return &AssetNotFoundError{}
 }
+
+///number of asset patterns and exec binary patterns are not same
+
+type NumberOfAssetPatternsAndExecBinaryPatternsAreNotSameError struct{}

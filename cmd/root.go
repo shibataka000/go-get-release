@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"regexp"
 
 	"github.com/Songmu/prompter"
 	"github.com/shibataka000/go-get-release/github"
@@ -16,7 +15,8 @@ func NewCommand() *cobra.Command {
 	var (
 		repoFullName string
 		tag          string
-		rawPatterns  []string
+		assets       []string
+		execBinart   []string
 		token        string
 	)
 
@@ -28,11 +28,7 @@ func NewCommand() *cobra.Command {
 			app := github.NewApplicationService(
 				github.NewAssetRepository(ctx, token),
 			)
-			patterns, err := compilePatterns(rawPatterns)
-			if err != nil {
-				return err
-			}
-			asset, err := app.FindAsset(ctx, repoFullName, tag, patterns)
+			asset, err := app.FindAsset(ctx, repoFullName, tag, assets, execBinart)
 			if err != nil {
 				return err
 			}
@@ -46,22 +42,13 @@ func NewCommand() *cobra.Command {
 
 	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "Select GitHub repository using the OWNER/REPO format")
 	command.Flags().StringVar(&tag, "tag", "", "")
-	command.Flags().StringArrayVarP(&rawPatterns, "pattern", "p", []string{".*"}, "Select GitHub release asset using a regexp pattern")
+	command.Flags().StringArrayVar(&assets, "asset", []string{}, "")
+	command.Flags().StringArrayVar(&execBinart, "exec-binary", []string{}, "")
 	command.Flags().StringVar(&token, "token", os.Getenv("GH_TOKEN"), "GitHub token. [$GH_TOKEN]")
-	command.MarkFlagRequired("repo") //nolint:errcheck
-	command.MarkFlagRequired("tag")  //nolint:errcheck
+	command.MarkFlagRequired("repo")        //nolint:errcheck
+	command.MarkFlagRequired("tag")         //nolint:errcheck
+	command.MarkFlagRequired("asset")       //nolint:errcheck
+	command.MarkFlagRequired("exec-binary") //nolint:errcheck
 
 	return command
-}
-
-func compilePatterns(exprs []string) ([]*regexp.Regexp, error) {
-	res := []*regexp.Regexp{}
-	for _, expr := range exprs {
-		re, err := regexp.Compile(expr)
-		if err != nil {
-			return nil, err
-		}
-		res = append(res, re)
-	}
-	return res, nil
 }

@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"os"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -32,7 +31,7 @@ func TestAssetListFind(t *testing.T) {
 	tests := []struct {
 		name     string
 		assets   AssetList
-		patterns []*regexp.Regexp
+		patterns PatternList
 		asset    Asset
 	}{
 		{
@@ -60,10 +59,8 @@ func TestAssetListFind(t *testing.T) {
 				mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_windows_amd64.zip"),
 				mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_windows_arm64.zip"),
 			},
-			patterns: []*regexp.Regexp{
-				regexp.MustCompile(`gh_.+_linux_amd64.tar.gz`),
-			},
-			asset: mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz"),
+			patterns: nil,
+			asset:    mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz"),
 		},
 	}
 
