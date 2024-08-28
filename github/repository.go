@@ -23,7 +23,7 @@ func newRepository(owner string, name string) Repository {
 func newRepositoryFromFullName(fullName string) (Repository, error) {
 	s := strings.Split(fullName, "/")
 	if len(s) != 2 {
-		return Repository{}, newInvalidRepositoryError(fullName)
+		return Repository{}, newInvalidRepositoryError("repository full name was not 'OWNER/REPO' format: %s", fullName)
 	}
 	return newRepository(s[0], s[1]), nil
 }

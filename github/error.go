@@ -6,30 +6,42 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 )
 
-// InvalidRepositoryError is error raised when repository full name is invalid.
+// InvalidRepositoryError is error raised when repository is invalid.
 type InvalidRepositoryError struct {
-	fullName string
+	format string
+	a      []any
 }
 
-func newInvalidRepositoryError(fullName string) *InvalidRepositoryError {
+// newInvalidRepositoryError returns a new InvalidRepositoryError object.
+func newInvalidRepositoryError(format string, a ...any) *InvalidRepositoryError {
 	return &InvalidRepositoryError{
-		fullName: fullName,
+		format: format,
+		a:      a,
 	}
 }
 
 // Error returns an error message.
 func (e *InvalidRepositoryError) Error() string {
-	return fmt.Sprintf("acceptable repository full name is 'OWNER/NAME' format, but given name was '%s'", e.fullName)
+	return fmt.Sprintf("repository was invalid: %s", fmt.Sprintf(e.format, e.a...))
 }
 
-type InvalidPatternError struct{}
-
-func newInvalidPatternError() *InvalidPatternError {
-	return &InvalidPatternError{}
+// InvalidPatternError is error raised when pattern is invalid.
+type InvalidPatternError struct {
+	format string
+	a      []any
 }
 
+// newInvalidPatternError returns a new InvalidPatternError object.
+func newInvalidPatternError(format string, a ...any) *InvalidPatternError {
+	return &InvalidPatternError{
+		format: format,
+		a:      a,
+	}
+}
+
+// Error returns an error message.
 func (e *InvalidPatternError) Error() string {
-	return ""
+	return fmt.Sprintf("pattern was invalid: %s", fmt.Sprintf(e.format, e.a...))
 }
 
 type AssetNotFoundError struct{}
