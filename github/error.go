@@ -1,6 +1,10 @@
 package github
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/gabriel-vasile/mimetype"
+)
 
 // InvalidRepositoryError is error raised when repository full name is invalid.
 type InvalidRepositoryError struct {
@@ -36,4 +40,16 @@ func newAssetNotFoundError() *AssetNotFoundError {
 
 func (e *AssetNotFoundError) Error() string {
 	return "no asset was found"
+}
+
+type UnsupportedFileFormatError struct {
+	mime *mimetype.MIME
+}
+
+func newUnsupportedMIMEError(mime *mimetype.MIME) *UnsupportedFileFormatError {
+	return &UnsupportedFileFormatError{mime}
+}
+
+func (e *UnsupportedFileFormatError) Error() string {
+	return ""
 }

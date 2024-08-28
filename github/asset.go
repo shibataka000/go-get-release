@@ -2,6 +2,7 @@ package github
 
 import (
 	"bytes"
+	"compress/gzip"
 	"context"
 	"io"
 	"net/http"
@@ -9,19 +10,21 @@ import (
 	"path"
 
 	"github.com/cheggaaa/pb/v3"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/go-github/v62/github"
+	"github.com/ulikunitz/xz"
 	"golang.org/x/oauth2"
 )
 
 // Asset represents a GitHub release asset.
 type Asset struct {
-	DownloadURL *url.URL
+	downloadURL *url.URL
 }
 
 // newAsset returns a new GitHub release asset object.
 func newAsset(downloadURL *url.URL) Asset {
 	return Asset{
-		DownloadURL: downloadURL,
+		downloadURL: downloadURL,
 	}
 }
 
@@ -36,7 +39,7 @@ func newAssetFromString(downloadURL string) (Asset, error) {
 
 // name returns a name of GitHub release asset.
 func (a Asset) name() string {
-	return path.Base(a.DownloadURL.String())
+	return path.Base(a.downloadURL.String())
 }
 
 // AssetList represents a list of GitHub release assets.
@@ -52,6 +55,38 @@ func (al AssetList) find(patterns PatternList) (Asset, error) {
 		}
 	}
 	return Asset{}, newAssetNotFoundError()
+}
+
+type AssetContent []byte
+
+func (a AssetContent) execBinary() (ExecBinaryContent, error) {
+	for b := []byte(a); ; {
+		var r io.Reader = bytes.NewReader(b)
+		var err error
+
+		mime := mimetype.Detect(b)
+
+		switch mime.String() {
+		case "application/octet-stream":
+			return ExecBinaryContent(b), nil
+		case "application/x-tar":
+		case "application/zip":
+		case "application/gzip":
+			r, err = gzip.NewReader(r)
+		case "application/x-xz":
+			r, err = xz.NewReader(r)
+		default:
+			return nil, newUnsupportedMIMEError(mime)
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		b, err = io.ReadAll(r)
+		if err != nil {
+			return nil, err
+		}
+	}
 }
 
 // AssetRepository is a repository for a GitHub release asset.
@@ -104,10 +139,8 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
-type AssetContent []byte
-
 func (r *AssetRepository) download(asset Asset, progressBar io.Writer) (AssetContent, error) {
-	resp, err := http.Get(asset.DownloadURL.String())
+	resp, err := http.Get(asset.downloadURL.String())
 	if err != nil {
 		return nil, err
 	}
