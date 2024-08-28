@@ -25,7 +25,7 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 
 	release := newRelease(tag)
 
-	patterns, err := newPatternListFromStringSlice(assetPatterns, execBinaryPatterns)
+	patterns, err := newPatternListFromStringArray(assetPatterns, execBinaryPatterns)
 	if err != nil {
 		return Asset{}, err
 	}

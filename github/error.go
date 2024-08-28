@@ -2,33 +2,38 @@ package github
 
 import "fmt"
 
-// InvalidRepositoryFullNameError is error raised when repository full name is invalid.
-type InvalidRepositoryFullNameError struct {
+// InvalidRepositoryError is error raised when repository full name is invalid.
+type InvalidRepositoryError struct {
 	fullName string
 }
 
-// Error returns an error message.
-func (e *InvalidRepositoryFullNameError) Error() string {
-	return fmt.Sprintf("acceptable repository full name is 'OWNER/NAME' format, but given name was '%s'", e.fullName)
-}
-
-func newInvalidRepositoryFullNameError(fullName string) *InvalidRepositoryFullNameError {
-	return &InvalidRepositoryFullNameError{
+func newInvalidRepositoryError(fullName string) *InvalidRepositoryError {
+	return &InvalidRepositoryError{
 		fullName: fullName,
 	}
 }
 
-type AssetNotFoundError struct{}
-
 // Error returns an error message.
-func (e *AssetNotFoundError) Error() string {
-	return "no asset was found"
+func (e *InvalidRepositoryError) Error() string {
+	return fmt.Sprintf("acceptable repository full name is 'OWNER/NAME' format, but given name was '%s'", e.fullName)
 }
+
+type InvalidPatternError struct{}
+
+func newInvalidPatternError() *InvalidPatternError {
+	return &InvalidPatternError{}
+}
+
+func (e *InvalidPatternError) Error() string {
+	return ""
+}
+
+type AssetNotFoundError struct{}
 
 func newAssetNotFoundError() *AssetNotFoundError {
 	return &AssetNotFoundError{}
 }
 
-///number of asset patterns and exec binary patterns are not same
-
-type NumberOfAssetPatternsAndExecBinaryPatternsAreNotSameError struct{}
+func (e *AssetNotFoundError) Error() string {
+	return "no asset was found"
+}

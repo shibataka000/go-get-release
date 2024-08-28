@@ -1,7 +1,6 @@
 package github
 
 import (
-	"fmt"
 	"regexp"
 )
 
@@ -35,14 +34,14 @@ func (p Pattern) match(asset Asset) bool {
 
 type PatternList []Pattern
 
-func newPatternListFromStringSlice(assets, execBinary []string) (PatternList, error) {
-	if len(assets) != len(execBinary) {
-		return nil, fmt.Errorf("number of asset patterns and exec binary patterns are not same")
+func newPatternListFromStringArray(assets, execBinaries []string) (PatternList, error) {
+	if len(assets) != len(execBinaries) {
+		return nil, newInvalidPatternError()
 	}
 
 	patterns := PatternList{}
 	for i := range assets {
-		pattern, err := newPatternFromString(assets[i], execBinary[i])
+		pattern, err := newPatternFromString(assets[i], execBinaries[i])
 		if err != nil {
 			return nil, err
 		}
