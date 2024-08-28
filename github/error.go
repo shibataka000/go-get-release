@@ -54,14 +54,14 @@ func (e *AssetNotFoundError) Error() string {
 	return "no asset was found"
 }
 
-type UnsupportedFileFormatError struct {
+type UnsupportedMIMEError struct {
 	mime *mimetype.MIME
 }
 
-func newUnsupportedMIMEError(mime *mimetype.MIME) *UnsupportedFileFormatError {
-	return &UnsupportedFileFormatError{mime}
+func newUnsupportedMIMEError(mime *mimetype.MIME) *UnsupportedMIMEError {
+	return &UnsupportedMIMEError{mime}
 }
 
-func (e *UnsupportedFileFormatError) Error() string {
-	return ""
+func (e *UnsupportedMIMEError) Error() string {
+	return fmt.Sprintf("mime type was unsupported: %s", e.mime.String())
 }
