@@ -5,3 +5,13 @@ type ExecBinary struct {
 }
 
 type ExecBinaryContent []byte
+
+type ExecBinaryRepository struct{}
+
+func NewExecBinaryRepository() *ExecBinaryRepository {
+	return &ExecBinaryRepository{}
+}
+
+func (r *ExecBinaryRepository) write(execBinary ExecBinary, content ExecBinaryContent) error {
+	return nil
+}

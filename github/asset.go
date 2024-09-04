@@ -70,7 +70,9 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 		case "application/octet-stream":
 			return ExecBinaryContent(b), nil
 		case "application/x-tar":
+			r, err = newTarReader(r)
 		case "application/zip":
+			r, err = newZipReader(r)
 		case "application/gzip":
 			r, err = gzip.NewReader(r)
 		case "application/x-xz":
@@ -87,6 +89,13 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 			return nil, err
 		}
 	}
+}
+
+func teeReader(r io.Reader) (io.Reader, []byte, error) {
+	var w bytes.Buffer
+	rr := io.TeeReader(r, &w)
+	b, err := io.ReadAll(rr)
+	return &w, b, err
 }
 
 // AssetRepository is a repository for a GitHub release asset.

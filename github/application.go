@@ -2,11 +2,13 @@ package github
 
 import (
 	"context"
+	"os"
 )
 
 // ApplicationService.
 type ApplicationService struct {
-	asset *AssetRepository
+	asset      *AssetRepository
+	execBinary *ExecBinaryRepository
 }
 
 // NewApplicationService returns a new ApplicationService object.
@@ -36,4 +38,16 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 	}
 
 	return assets.find(patterns)
+}
+
+func (a *ApplicationService) Install(asset Asset, execBinary ExecBinary) error {
+	assetContent, err := a.asset.download(asset, os.Stdout)
+	if err != nil {
+		return err
+	}
+	execBinaryContent, err := assetContent.execBinary()
+	if err != nil {
+		return err
+	}
+	return a.execBinary.write(execBinary, execBinaryContent)
 }
