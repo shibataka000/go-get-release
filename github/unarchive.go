@@ -7,19 +7,26 @@ import (
 )
 
 func newTarReader(r io.Reader) (io.Reader, error) {
-	tr := tar.NewReader(r)
-	for {
+	for tr := tar.NewReader(r); ; {
 		header, err := tr.Next()
 		if err != nil {
 			return nil, err
 		}
-		if header.Typeflag == tar.TypeReg && header.Mode == 0x655 {
+		if header.Mode == 0655 {
 			return tr, nil
 		}
 	}
 }
 
-func newZipReader(r io.Reader) (io.Reader, error) {
-	zip.NewReader()
-	return nil, nil
+func newZipReader(r io.ReaderAt, size int64) (io.ReadCloser, error) {
+	zr, err := zip.NewReader(r, size)
+	if err != nil {
+		return nil, err
+	}
+	for _, f := range zr.File {
+		if f.Mode() == 0655 {
+			return f.Open()
+		}
+	}
+	return nil, io.EOF
 }
