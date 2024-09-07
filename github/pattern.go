@@ -36,7 +36,7 @@ type PatternList []Pattern
 
 func newPatternListFromStringArray(assets, execBinaries []string) (PatternList, error) {
 	if len(assets) != len(execBinaries) {
-		return nil, newInvalidPatternError("number of asset patterns and exec binary patterns are not same")
+		return nil, ErrUnpairablePattern
 	}
 
 	patterns := PatternList{}

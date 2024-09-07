@@ -54,7 +54,7 @@ func (al AssetList) find(patterns PatternList) (Asset, error) {
 			}
 		}
 	}
-	return Asset{}, newAssetNotFoundError()
+	return Asset{}, ErrAssetNotFound
 }
 
 type AssetContent []byte
@@ -84,7 +84,7 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 		case "application/octet-stream":
 			return ExecBinaryContent(b.Bytes()), nil
 		default:
-			return nil, newUnsupportedMIMEError(mime)
+			return nil, ErrUnsupportedMIME
 		}
 		if err != nil {
 			return nil, err
