@@ -60,23 +60,29 @@ func (al AssetList) find(patterns PatternList) (Asset, error) {
 type AssetContent []byte
 
 func (a AssetContent) execBinary() (ExecBinaryContent, error) {
-	for b := []byte(a); ; {
-		var r io.Reader = bytes.NewReader(b)
+	var b bytes.Buffer
+
+	if _, err := b.Write(a); err != nil {
+		return nil, err
+	}
+
+	for {
+		var r io.Reader
 		var err error
 
-		mime := mimetype.Detect(b)
+		mime := mimetype.Detect(b.Bytes())
 
 		switch mime.String() {
-		case "application/octet-stream":
-			return ExecBinaryContent(b), nil
 		case "application/x-tar":
-			r, err = newTarReader(r)
+			r, err = newTarReader(&b)
 		case "application/zip":
-			r, err = newZipReader(r, int64(len(b)))
+			r, err = newZipReader(bytes.NewReader(b.Bytes()), int64(b.Len()))
 		case "application/gzip":
-			r, err = gzip.NewReader(r)
+			r, err = gzip.NewReader(&b)
 		case "application/x-xz":
-			r, err = xz.NewReader(r)
+			r, err = xz.NewReader(&b)
+		case "application/octet-stream":
+			return ExecBinaryContent(b.Bytes()), nil
 		default:
 			return nil, newUnsupportedMIMEError(mime)
 		}
@@ -84,8 +90,8 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 			return nil, err
 		}
 
-		b, err = io.ReadAll(r)
-		if err != nil {
+		b.Reset()
+		if _, err := b.ReadFrom(r); err != nil {
 			return nil, err
 		}
 	}
