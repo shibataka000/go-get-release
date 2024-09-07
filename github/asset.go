@@ -33,6 +33,7 @@ func newAsset(id int64, name string) Asset {
 type AssetList []Asset
 
 // find a GitHub release asset which matches any of given patterns.
+// If two or more assets matches, this return asset which match prior pattern.
 func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	for _, p := range patterns {
 		for _, a := range al {
@@ -44,21 +45,26 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	return Asset{}, ErrAssetNotFound
 }
 
-type AssetPattern regexp.Regexp
+// type AssetPattern regexp.Regexp
 
-func (a AssetPattern) match(asset Asset) bool {
-	re := regexp.Regexp(a)
-	return re.Match([]byte(asset.name))
+type AssetPattern struct {
+	regexp regexp.Regexp
 }
 
-func newAssetPatternList(patterns []string) ([]AssetPattern, error) {
-	assets := []AssetPattern{}
+func (a AssetPattern) match(asset Asset) bool {
+	return a.regexp.Match([]byte(asset.name))
+	// re := regexp.Regexp(a)
+	// return re.Match([]byte(asset.name))
+}
+
+func newAssetPatternList(patterns []string) ([]*AssetPattern, error) {
+	assets := []*AssetPattern{}
 	for _, p := range patterns {
 		re, err := regexp.Compile(p)
 		if err != nil {
 			return nil, err
 		}
-		assets = append(assets, AssetPattern(*re))
+		assets = append(assets, re)
 	}
 	return assets, nil
 }
@@ -92,6 +98,7 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 		default:
 			return nil, ErrUnsupportedMIME
 		}
+
 		if err != nil {
 			return nil, err
 		}
