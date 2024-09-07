@@ -6,8 +6,7 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"net/url"
-	"path"
+	"regexp"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/gabriel-vasile/mimetype"
@@ -18,35 +17,23 @@ import (
 
 // Asset represents a GitHub release asset.
 type Asset struct {
-	downloadURL *url.URL
+	id   int64
+	name string
 }
 
 // newAsset returns a new GitHub release asset object.
-func newAsset(downloadURL *url.URL) Asset {
+func newAsset(id int64, name string) Asset {
 	return Asset{
-		downloadURL: downloadURL,
+		id:   id,
+		name: name,
 	}
-}
-
-// newAssetFromString returns a new GitHub release asset object.
-func newAssetFromString(downloadURL string) (Asset, error) {
-	url, err := url.Parse(downloadURL)
-	if err != nil {
-		return Asset{}, err
-	}
-	return newAsset(url), nil
-}
-
-// name returns a name of GitHub release asset.
-func (a Asset) name() string {
-	return path.Base(a.downloadURL.String())
 }
 
 // AssetList represents a list of GitHub release assets.
 type AssetList []Asset
 
 // find a GitHub release asset which matches any of given patterns.
-func (al AssetList) find(patterns PatternList) (Asset, error) {
+func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	for _, p := range patterns {
 		for _, a := range al {
 			if p.match(a) {
@@ -55,6 +42,25 @@ func (al AssetList) find(patterns PatternList) (Asset, error) {
 		}
 	}
 	return Asset{}, ErrAssetNotFound
+}
+
+type AssetPattern regexp.Regexp
+
+func (a AssetPattern) match(asset Asset) bool {
+	re := regexp.Regexp(a)
+	return re.Match([]byte(asset.name))
+}
+
+func newAssetPatternList(patterns []string) ([]AssetPattern, error) {
+	assets := []AssetPattern{}
+	for _, p := range patterns {
+		re, err := regexp.Compile(p)
+		if err != nil {
+			return nil, err
+		}
+		assets = append(assets, AssetPattern(*re))
+	}
+	return assets, nil
 }
 
 type AssetContent []byte
@@ -118,28 +124,20 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
 	assets := AssetList{}
 
-	// Get GitHub release ID.
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.owner, repo.name, release.tag)
 	if err != nil {
 		return nil, err
 	}
-	releaseID := *githubRelease.ID
 
-	// List GitHub release assets.
 	for page := 1; page != 0; {
-		githubAssets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, releaseID, &github.ListOptions{
+		githubAssets, resp, err := r.client.Repositories.ListReleaseAssets(ctx, repo.owner, repo.name, githubRelease.GetID(), &github.ListOptions{
 			Page: page,
 		})
 		if err != nil {
 			return nil, err
 		}
 		for _, githubAsset := range githubAssets {
-			downloadURL := githubAsset.GetBrowserDownloadURL()
-			asset, err := newAssetFromString(downloadURL)
-			if err != nil {
-				return nil, err
-			}
-			assets = append(assets, asset)
+			assets = append(assets, newAsset(githubAsset.GetID(), githubAsset.GetName()))
 		}
 		page = resp.NextPage
 	}
@@ -147,19 +145,22 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
-func (r *AssetRepository) download(asset Asset, progressBar io.Writer) (AssetContent, error) {
-	resp, err := http.Get(asset.downloadURL.String())
+// download a GitHub release asset.
+func (r *AssetRepository) download(ctx context.Context, repo Repository, asset Asset, w io.Writer) (AssetContent, error) {
+	githubAsset, _, err := r.client.Repositories.GetReleaseAsset(ctx, repo.owner, repo.name, asset.id)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
 
-	src := pb.Full.Start64(resp.ContentLength).SetWriter(progressBar).NewProxyReader(resp.Body)
-	dst := new(bytes.Buffer)
-
-	if _, err = io.Copy(dst, src); err != nil {
+	rc, _, err := r.client.Repositories.DownloadReleaseAsset(ctx, repo.owner, repo.name, asset.id, http.DefaultClient)
+	if err != nil {
 		return nil, err
 	}
+	defer rc.Close()
 
-	return AssetContent(dst.Bytes()), nil
+	total := int64(githubAsset.GetSize())
+	pr := pb.Full.Start64(total).SetWriter(w).NewProxyReader(rc)
+	defer pr.Close()
+
+	return io.ReadAll(pr)
 }

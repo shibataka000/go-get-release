@@ -8,25 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAssetName(t *testing.T) {
-	tests := []struct {
-		name  string
-		asset Asset
-	}{
-		{
-			name:  "gh_2.52.0_linux_amd64.tar.gz",
-			asset: mustNewAssetFromString("https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz"),
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			require.Equal(tt.name, tt.asset.name())
-		})
-	}
-}
-
 func TestAssetListFind(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -121,15 +102,4 @@ func TestListAssets(t *testing.T) {
 			require.Equal(tt.assets, assets)
 		})
 	}
-}
-
-// mustNewAssetFromString returns a new GitHub release asset object.
-// Given download URL must be able to be parsed as URL.
-// This gets into a panic if the error is non-nil.
-func mustNewAssetFromString(downloadURL string) Asset {
-	asset, err := newAssetFromString(downloadURL)
-	if err != nil {
-		panic(err)
-	}
-	return asset
 }
