@@ -6,7 +6,8 @@ import (
 	"io"
 )
 
-func newTarReader(r io.Reader) (io.Reader, error) {
+// newExecBinaryReaderFromTar returns a reader to read exec binary from tarball.
+func newExecBinaryReaderFromTar(r io.Reader) (io.Reader, error) {
 	for tr := tar.NewReader(r); ; {
 		header, err := tr.Next()
 		if err != nil {
@@ -18,7 +19,8 @@ func newTarReader(r io.Reader) (io.Reader, error) {
 	}
 }
 
-func newZipReader(r io.ReaderAt, size int64) (io.ReadCloser, error) {
+// newExecBinaryReaderFromZip returns a reader to read exec binary from zip file.
+func newExecBinaryReaderFromZip(r io.ReaderAt, size int64) (io.ReadCloser, error) {
 	zr, err := zip.NewReader(r, size)
 	if err != nil {
 		return nil, err

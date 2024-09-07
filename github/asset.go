@@ -74,9 +74,9 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 
 		switch mime.String() {
 		case "application/x-tar":
-			r, err = newTarReader(&b)
+			r, err = newExecBinaryReaderFromTar(&b)
 		case "application/zip":
-			r, err = newZipReader(bytes.NewReader(b.Bytes()), int64(b.Len()))
+			r, err = newExecBinaryReaderFromZip(bytes.NewReader(b.Bytes()), int64(b.Len()))
 		case "application/gzip":
 			r, err = gzip.NewReader(&b)
 		case "application/x-xz":
