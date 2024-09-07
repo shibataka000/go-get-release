@@ -33,7 +33,7 @@ func newAsset(id int64, name string) Asset {
 type AssetList []Asset
 
 // find a GitHub release asset which matches any of given patterns.
-// If two or more assets matches, this return asset which match prior pattern.
+// If two or more assets match, this returns asset which matches prior pattern.
 func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	for _, p := range patterns {
 		for _, a := range al {
@@ -45,22 +45,34 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	return Asset{}, ErrAssetNotFound
 }
 
-// type AssetPattern regexp.Regexp
-
 type AssetPattern struct {
-	regexp regexp.Regexp
+	regexp *regexp.Regexp
+}
+
+func newAssetPattern(regexp *regexp.Regexp) AssetPattern {
+	return AssetPattern{
+		regexp: regexp,
+	}
+}
+
+func compileAssetPattern(expr string) (AssetPattern, error) {
+	re, err := regexp.Compile(expr)
+	if err != nil {
+		return AssetPattern{}, err
+	}
+	return newAssetPattern(re), nil
 }
 
 func (a AssetPattern) match(asset Asset) bool {
 	return a.regexp.Match([]byte(asset.name))
-	// re := regexp.Regexp(a)
-	// return re.Match([]byte(asset.name))
 }
 
-func newAssetPatternList(patterns []string) ([]*AssetPattern, error) {
-	assets := []*AssetPattern{}
+type AssetPatternList []AssetPattern
+
+func compileAssetPatternList(patterns []string) (AssetPatternList, error) {
+	assets := []AssetPattern{}
 	for _, p := range patterns {
-		re, err := regexp.Compile(p)
+		re, err := compileAssetPattern(p)
 		if err != nil {
 			return nil, err
 		}
