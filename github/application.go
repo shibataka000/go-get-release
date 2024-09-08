@@ -47,10 +47,7 @@ func (a *ApplicationService) FindExecBinary(asset Asset, assetPatterns []string,
 		return ExecBinary{}, err
 	}
 
-	ebpl, err := compileExecBinaryPatternList(execBinaryPatterns)
-	if err != nil {
-		return ExecBinary{}, err
-	}
+	ebpl := newExecBinaryPatternList(execBinaryPatterns)
 
 	return asset.execBinary(apl, ebpl)
 }
