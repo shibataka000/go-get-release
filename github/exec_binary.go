@@ -10,6 +10,12 @@ type ExecBinary struct {
 	name string
 }
 
+func newExecBinary(name string) ExecBinary {
+	return ExecBinary{
+		name: name,
+	}
+}
+
 // ExecBinaryContent represents a executable binary content in GitHub release asset content.
 type ExecBinaryContent []byte
 
@@ -28,10 +34,6 @@ func (r *ExecBinaryRepository) write(meta ExecBinary, content ExecBinaryContent,
 	return nil
 }
 
-type ExecBinaryPattern Pattern
+type ExecBinaryPattern string
 
 type ExecBinaryPatternList []ExecBinaryPattern
-
-func compileExecBinaryPatternList(exprs []string) (ExecBinaryPatternList, error) {
-	return nil, nil
-}

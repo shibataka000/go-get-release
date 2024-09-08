@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/gabriel-vasile/mimetype"
@@ -29,8 +30,12 @@ func newAsset(id int64, name string) Asset {
 	}
 }
 
-func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryPatternList) (ExecBinary, error) {
-	return ExecBinary{}, nil
+func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryPatternList) ExecBinary {
+	index := slices.IndexFunc(assetPatterns, func(p AssetPattern) bool {
+		return p.match(a)
+	})
+	name := assetPatterns[index].expand(string(execBinaryPatterns[index]), a.name)
+	return newExecBinary(name)
 }
 
 // AssetList is a list of [Asset].
@@ -55,6 +60,14 @@ type AssetPattern Pattern
 // match returns true if [AssetPattern] matches a [Asset]'s name.
 func (ap AssetPattern) match(asset Asset) bool {
 	return ap.re.Match([]byte(asset.name))
+}
+
+func (ap AssetPattern) expand(template string, content string) string {
+	result := []byte{}
+	for _, submatches := range ap.re.FindAllStringSubmatchIndex(content, -1) {
+		result = ap.re.ExpandString(result, template, content, submatches)
+	}
+	return string(result)
 }
 
 // AssetPatternList is a list of [AssetPattern].
