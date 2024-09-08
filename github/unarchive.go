@@ -22,7 +22,7 @@ func newExecBinaryReaderFromTar(r io.Reader) (io.Reader, error) {
 
 // newExecBinaryReaderFromZip returns a reader to read exec binary from zip file.
 func newExecBinaryReaderFromZip(r io.Reader) (io.Reader, error) {
-	br, err := readAllAndNewReader(r)
+	br, err := newBytesReader(r)
 	if err != nil {
 		return nil, err
 	}
@@ -39,15 +39,15 @@ func newExecBinaryReaderFromZip(r io.Reader) (io.Reader, error) {
 				return nil, err
 			}
 			defer rc.Close()
-			return readAllAndNewReader(rc)
+			return newBytesReader(rc)
 		}
 	}
 
 	return nil, io.EOF
 }
 
-// readAllAndNewReader reads all data from r and return a pointer of new bytes.Reader object.
-func readAllAndNewReader(r io.Reader) (*bytes.Reader, error) {
+// newBytesReader reads all data from r and return a pointer of new [bytes.Reader] object.
+func newBytesReader(r io.Reader) (*bytes.Reader, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
