@@ -11,10 +11,11 @@ type ApplicationService struct {
 	execBinary *ExecBinaryRepository
 }
 
-// NewApplicationService returns a new ApplicationService object.
-func NewApplicationService(asset *AssetRepository) *ApplicationService {
+// NewApplicationService returns a new [ApplicationService] object.
+func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryRepository) *ApplicationService {
 	return &ApplicationService{
-		asset: asset,
+		asset:      asset,
+		execBinary: execBinary,
 	}
 }
 
@@ -40,9 +41,11 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 	return assets.find(patterns)
 }
 
-func (a *ApplicationService) FindExecBinary(asset Asset, assetPatterns []string, execBinaryPatterns []string) (ExecBinary, error)
+func (a *ApplicationService) FindExecBinary(asset Asset, assetPatterns []string, execBinaryPatterns []string) (ExecBinary, error) {
+	return ExecBinary{}, nil
+}
 
-func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary) error {
+func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string) error {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return err
@@ -58,5 +61,5 @@ func (a *ApplicationService) Install(ctx context.Context, repoFullName string, a
 		return err
 	}
 
-	return a.execBinary.write(execBinary, execBinaryContent)
+	return a.execBinary.write(execBinary, execBinaryContent, dir)
 }

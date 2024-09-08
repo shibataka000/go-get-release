@@ -1,34 +1,47 @@
 package github
 
 import (
+	"context"
+	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
-func TestApplicationServiceSearch(t *testing.T) {
-	// tests, err := readAssetTestCase(t)
-	// require.NoError(t, err)
+func TestApplicationService(t *testing.T) {
+	tests := []struct {
+		name string
 
-	// ctx := context.Background()
-	// app := NewApplicationService(
-	// 	NewAssetRepository(ctx, os.Getenv("GITHUB_TOKEN")),
-	// )
+		repoFullName       string
+		tag                string
+		assetPatterns      []string
+		execBinaryPatterns []string
 
-	// for _, tt := range tests {
-	// 	if !tt.HasExecBinary {
-	// 		continue
-	// 	}
-	// 	name := tt.AssetDownloadURL
-	// 	t.Run(name, func(_ *testing.T) {
-	// 		require := require.New(t)
+		asset      Asset
+		execBinary ExecBinary
+	}{
+		{},
+	}
 
-	// 		except, err := tt.asset()
-	// 		require.NoError(err)
+	ctx := context.Background()
+	app := NewApplicationService(
+		NewAssetRepository(ctx, githubToken),
+		NewExecBinaryRepository(),
+	)
 
-	// 		repoFullName := fmt.Sprintf("%s/%s", tt.Owner, tt.Repository)
-	// 		actual, err := app.FindAsset(ctx, repoFullName, tt.Release, tt.OS, tt.Arch)
-	// 		require.NoError(err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
 
-	// 		require.Equal(except, actual)
-	// 	})
-	// }
+			asset, err := app.FindAsset(ctx, tt.repoFullName, tt.tag, tt.assetPatterns)
+			require.NoError(err)
+			require.Equal(tt.asset, asset)
+
+			execBinary, err := app.FindExecBinary(asset, tt.assetPatterns, tt.execBinaryPatterns)
+			require.NoError(err)
+			require.Equal(tt.execBinary, execBinary)
+
+			file, err := os.CreateTemp("", "")
+		})
+	}
 }

@@ -58,10 +58,6 @@ func TestAssetListFind(t *testing.T) {
 	}
 }
 
-func mustCompileAssetPattern(expr string) AssetPattern {
-	return AssetPattern(newPattern(regexp.MustCompile(expr)))
-}
-
 func TestAssetPatternMatch(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -92,7 +88,11 @@ func TestAssetPatternMatch(t *testing.T) {
 	}
 }
 
-func TestListAssets(t *testing.T) {
+func TestCompileAssetPatternList(t *testing.T) {}
+
+func TestAssetContentExecBinaryContent(t *testing.T) {}
+
+func TestAssetRepositoryList(t *testing.T) {
 	tests := []struct {
 		name    string
 		repo    Repository
@@ -133,10 +133,18 @@ func TestListAssets(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
-			repository := NewAssetRepository(ctx, os.Getenv("GH_TOKEN"))
+			repository := NewAssetRepository(ctx, githubToken)
 			assets, err := repository.list(ctx, tt.repo, tt.release)
 			require.NoError(err)
 			require.Equal(tt.assets, assets)
 		})
 	}
 }
+
+func TestAssetRepositoryDownload(t *testing.T) {}
+
+func mustCompileAssetPattern(expr string) AssetPattern {
+	return AssetPattern(newPattern(regexp.MustCompile(expr)))
+}
+
+var githubToken = os.Getenv("GITHUB_TOKEN")

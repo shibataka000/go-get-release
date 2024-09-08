@@ -32,7 +32,7 @@ func newAsset(id int64, name string) Asset {
 // AssetList is a list of [Asset].
 type AssetList []Asset
 
-// find a [Asset] which matches any of [AssetPattern].
+// find a [Asset] whose name matches any of [AssetPattern].
 // If two or more [Asset] match, this returns a [Asset] which matches prior [AssetPattern].
 func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	for _, p := range patterns {
@@ -73,7 +73,7 @@ func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
 // AssetContent represents a GitHub release asset content.
 type AssetContent []byte
 
-// execBinaryContent returns [ExecBinaryContent] in GitHub release asset content.
+// execBinaryContent returns [ExecBinaryContent] in [AssetContent].
 func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 	var b bytes.Buffer
 
@@ -113,7 +113,7 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 	}
 }
 
-// AssetRepository is a repository for a GitHub release asset.
+// AssetRepository is a repository for [Asset] and [AssetContent].
 type AssetRepository struct {
 	client *github.Client
 }

@@ -17,6 +17,7 @@ func NewCommand() *cobra.Command {
 		tag                string
 		assetPatterns      []string
 		execBinaryPatterns []string
+		dir                string
 		token              string
 	)
 
@@ -27,6 +28,7 @@ func NewCommand() *cobra.Command {
 			ctx := context.Background()
 			app := github.NewApplicationService(
 				github.NewAssetRepository(ctx, token),
+				github.NewExecBinaryRepository(),
 			)
 			asset, err := app.FindAsset(ctx, repoFullName, tag, assetPatterns)
 			if err != nil {
@@ -40,7 +42,7 @@ func NewCommand() *cobra.Command {
 			if !prompter.YN("Are you sure to install executable binary from above GitHub release asset?", true) {
 				return nil
 			}
-			return app.Install(ctx, repoFullName, asset, execBinary)
+			return app.Install(ctx, repoFullName, asset, execBinary, dir)
 		},
 	}
 
@@ -48,7 +50,8 @@ func NewCommand() *cobra.Command {
 	command.Flags().StringVar(&tag, "tag", "", "")
 	command.Flags().StringArrayVar(&assetPatterns, "asset", []string{}, "")
 	command.Flags().StringArrayVar(&execBinaryPatterns, "exec-binary", []string{}, "")
-	command.Flags().StringVar(&token, "token", os.Getenv("GH_TOKEN"), "GitHub token. [$GH_TOKEN]")
+	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory to download files into")
+	command.Flags().StringVar(&token, "token", os.Getenv("GH_TOKEN"), "Authentication token for github.com API requests. [$GH_TOKEN]")
 	command.MarkFlagRequired("repo")        //nolint:errcheck
 	command.MarkFlagRequired("tag")         //nolint:errcheck
 	command.MarkFlagRequired("asset")       //nolint:errcheck
