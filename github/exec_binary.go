@@ -27,3 +27,11 @@ func (r *ExecBinaryRepository) write(meta ExecBinary, content ExecBinaryContent,
 	os.WriteFile(path, content, 0755)
 	return nil
 }
+
+type ExecBinaryPattern Pattern
+
+type ExecBinaryPatternList []ExecBinaryPattern
+
+func compileExecBinaryPatternList(exprs []string) (ExecBinaryPatternList, error) {
+	return nil, nil
+}

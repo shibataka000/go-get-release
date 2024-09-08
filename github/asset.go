@@ -29,6 +29,10 @@ func newAsset(id int64, name string) Asset {
 	}
 }
 
+func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryPatternList) (ExecBinary, error) {
+	return ExecBinary{}, nil
+}
+
 // AssetList is a list of [Asset].
 type AssetList []Asset
 

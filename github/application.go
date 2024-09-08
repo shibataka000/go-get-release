@@ -42,7 +42,17 @@ func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string,
 }
 
 func (a *ApplicationService) FindExecBinary(asset Asset, assetPatterns []string, execBinaryPatterns []string) (ExecBinary, error) {
-	return ExecBinary{}, nil
+	apl, err := compileAssetPatternList(assetPatterns)
+	if err != nil {
+		return ExecBinary{}, err
+	}
+
+	ebpl, err := compileExecBinaryPatternList(execBinaryPatterns)
+	if err != nil {
+		return ExecBinary{}, err
+	}
+
+	return asset.execBinary(apl, ebpl)
 }
 
 func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string) error {
