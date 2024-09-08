@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"slices"
 
 	"github.com/cheggaaa/pb/v3"
@@ -31,10 +32,10 @@ func newAsset(id int64, name string) Asset {
 }
 
 func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryPatternList) ExecBinary {
-	index := slices.IndexFunc(assetPatterns, func(p AssetPattern) bool {
+	i := slices.IndexFunc(assetPatterns, func(p AssetPattern) bool {
 		return p.match(a)
 	})
-	name := assetPatterns[index].expand(string(execBinaryPatterns[index]), a.name)
+	name := assetPatterns[i].expand(string(execBinaryPatterns[i]), a.name)
 	return newExecBinary(name)
 }
 
@@ -55,7 +56,23 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 }
 
 // AssetPattern is regular expression which matches a [Asset]'s name.
-type AssetPattern Pattern
+type AssetPattern struct {
+	re *regexp.Regexp
+}
+
+func newAssetPattern(re *regexp.Regexp) AssetPattern {
+	return AssetPattern{
+		re: re,
+	}
+}
+
+func compileAssetPattern(expr string) (AssetPattern, error) {
+	re, err := regexp.Compile(expr)
+	if err != nil {
+		return AssetPattern{}, err
+	}
+	return newAssetPattern(re), nil
+}
 
 // match returns true if [AssetPattern] matches a [Asset]'s name.
 func (ap AssetPattern) match(asset Asset) bool {
@@ -78,11 +95,11 @@ type AssetPatternList []AssetPattern
 func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
 	apl := AssetPatternList{}
 	for _, expr := range exprs {
-		p, err := compilePattern(expr)
+		ap, err := compileAssetPattern(expr)
 		if err != nil {
 			return nil, err
 		}
-		apl = append(apl, AssetPattern(p))
+		apl = append(apl, ap)
 	}
 	return apl, nil
 }
