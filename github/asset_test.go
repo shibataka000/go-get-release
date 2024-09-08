@@ -144,7 +144,7 @@ func TestAssetRepositoryList(t *testing.T) {
 func TestAssetRepositoryDownload(t *testing.T) {}
 
 func mustCompileAssetPattern(expr string) AssetPattern {
-	return AssetPattern(newPattern(regexp.MustCompile(expr)))
+	return newAssetPattern(regexp.MustCompile(expr))
 }
 
 var githubToken = os.Getenv("GITHUB_TOKEN")
