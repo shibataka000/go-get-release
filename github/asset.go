@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -44,14 +45,19 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	return Asset{}, ErrAssetNotFound
 }
 
+// AssetPattern is regular expression which matches a GitHub release asset name.
 type AssetPattern Pattern
 
+// match returns true if asset pattern matches a GitHub release asset name.
 func (ap AssetPattern) match(asset Asset) bool {
 	return ap.re.Match([]byte(asset.name))
 }
 
+// AssetPatternList is a list of asset pattern.
 type AssetPatternList []AssetPattern
 
+// compileAssetPatternList compiles exprs as a list of regular expression and return a list of asset pattern.
+// exprs must be a list of regular expression.
 func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
 	apl := AssetPatternList{}
 	for _, expr := range exprs {
@@ -64,9 +70,11 @@ func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
 	return apl, nil
 }
 
+// AssetContent represents a GitHub release asset content.
 type AssetContent []byte
 
-func (a AssetContent) execBinary() (ExecBinaryContent, error) {
+// execBinaryContent returns exec binary content in GitHub release asset.
+func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 	var b bytes.Buffer
 
 	if _, err := b.Write(a); err != nil {
@@ -80,22 +88,26 @@ func (a AssetContent) execBinary() (ExecBinaryContent, error) {
 		mime := mimetype.Detect(b.Bytes())
 
 		switch mime.String() {
+		case "application/octet-stream":
+			return ExecBinaryContent(b.Bytes()), nil
 		case "application/x-tar":
 			r, err = newExecBinaryReaderFromTar(&b)
 		case "application/zip":
-			r, err = newExecBinaryReaderFromZip(bytes.NewReader(b.Bytes()), int64(b.Len()))
+			rc, ziperr := newExecBinaryReaderFromZip(bytes.NewReader(b.Bytes()), int64(b.Len()))
+			if ziperr == nil {
+				defer rc.Close()
+			}
+			r, err = rc, ziperr
 		case "application/gzip":
 			r, err = gzip.NewReader(&b)
 		case "application/x-xz":
 			r, err = xz.NewReader(&b)
-		case "application/octet-stream":
-			return ExecBinaryContent(b.Bytes()), nil
 		default:
-			return nil, ErrUnsupportedMIME
+			r, err = nil, fmt.Errorf("%w: %s", ErrUnsupportedMIME, mime.String())
 		}
 
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%w: %w", ErrGettingExecBinaryContentFailure, err)
 		}
 
 		b.Reset()
@@ -147,7 +159,8 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 	return assets, nil
 }
 
-// download a GitHub release asset.
+// download a GitHub release asset content and returns it.
+// This writes progress bar to w.
 func (r *AssetRepository) download(ctx context.Context, repo Repository, asset Asset, w io.Writer) (AssetContent, error) {
 	githubAsset, _, err := r.client.Repositories.GetReleaseAsset(ctx, repo.owner, repo.name, asset.id)
 	if err != nil {

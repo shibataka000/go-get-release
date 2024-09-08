@@ -1,6 +1,7 @@
 package github
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -23,7 +24,7 @@ func newRepository(owner string, name string) Repository {
 func newRepositoryFromFullName(fullName string) (Repository, error) {
 	s := strings.Split(fullName, "/")
 	if len(s) != 2 {
-		return Repository{}, ErrInvalidRepositoryFullName
+		return Repository{}, fmt.Errorf("%w: %s", ErrInvalidRepositoryFullName, fullName)
 	}
 	return newRepository(s[0], s[1]), nil
 }
