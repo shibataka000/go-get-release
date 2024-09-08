@@ -35,8 +35,7 @@ func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns Exe
 	i := slices.IndexFunc(assetPatterns, func(p AssetPattern) bool {
 		return p.match(a)
 	})
-	name := assetPatterns[i].expand(string(execBinaryPatterns[i]), a.name)
-	return newExecBinary(name), nil
+	return execBinaryPatterns[i].execute(a, assetPatterns[i]), nil
 }
 
 // AssetList is a list of [Asset].
