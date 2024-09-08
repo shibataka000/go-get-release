@@ -46,7 +46,7 @@ func newExecBinaryReaderFromZip(r io.Reader) (io.Reader, error) {
 	return nil, io.EOF
 }
 
-// newBytesReader reads all data from r and return a pointer of new [bytes.Reader] object.
+// newBytesReader reads all data from r and return a new [bytes.Reader] object.
 func newBytesReader(r io.Reader) (*bytes.Reader, error) {
 	b, err := io.ReadAll(r)
 	if err != nil {

@@ -31,7 +31,7 @@ func newAsset(id int64, name string) Asset {
 	}
 }
 
-func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryPatternList) (ExecBinary, error) {
+func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryTemplateList) (ExecBinary, error) {
 	i := slices.IndexFunc(assetPatterns, func(p AssetPattern) bool {
 		return p.match(a)
 	})
