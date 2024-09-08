@@ -21,7 +21,7 @@ type Asset struct {
 	name string
 }
 
-// newAsset returns a new GitHub release asset object.
+// newAsset returns a new [Asset] object.
 func newAsset(id int64, name string) Asset {
 	return Asset{
 		id:   id,
@@ -29,11 +29,11 @@ func newAsset(id int64, name string) Asset {
 	}
 }
 
-// AssetList represents a list of GitHub release assets.
+// AssetList is a list of [Asset].
 type AssetList []Asset
 
-// find a GitHub release asset which matches any of given patterns.
-// If two or more assets match, this returns asset which matches prior pattern.
+// find a [Asset] which matches any of [AssetPattern].
+// If two or more [Asset] match, this returns a [Asset] which matches prior [AssetPattern].
 func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	for _, p := range patterns {
 		for _, a := range al {
@@ -45,18 +45,18 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	return Asset{}, ErrAssetNotFound
 }
 
-// AssetPattern is regular expression which matches a GitHub release asset name.
+// AssetPattern is regular expression which matches a [Asset]'s name.
 type AssetPattern Pattern
 
-// match returns true if asset pattern matches a GitHub release asset name.
+// match returns true if [AssetPattern] matches a [Asset]'s name.
 func (ap AssetPattern) match(asset Asset) bool {
 	return ap.re.Match([]byte(asset.name))
 }
 
-// AssetPatternList is a list of asset pattern.
+// AssetPatternList is a list of [AssetPattern].
 type AssetPatternList []AssetPattern
 
-// compileAssetPatternList compiles exprs as a list of regular expression and return a list of asset pattern.
+// compileAssetPatternList compiles exprs as a list of regular expression and return [AssetPatternList].
 // exprs must be a list of regular expression.
 func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
 	apl := AssetPatternList{}
@@ -73,7 +73,7 @@ func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
 // AssetContent represents a GitHub release asset content.
 type AssetContent []byte
 
-// execBinaryContent returns exec binary content in GitHub release asset.
+// execBinaryContent returns [ExecBinaryContent] in GitHub release asset content.
 func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 	var b bytes.Buffer
 
@@ -118,7 +118,7 @@ type AssetRepository struct {
 	client *github.Client
 }
 
-// NewAssetRepository returns a new AssetRepository object.
+// NewAssetRepository returns a new [AssetRepository] object.
 func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	var httpClient *http.Client
 	if token != "" {
@@ -130,7 +130,7 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 	}
 }
 
-// list returns a list of GitHub release assets.
+// list GitHub release assets and returns it.
 func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
 	assets := AssetList{}
 

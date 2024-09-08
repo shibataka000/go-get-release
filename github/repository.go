@@ -11,7 +11,7 @@ type Repository struct {
 	name  string
 }
 
-// newRepository returns a new GitHub repository object.
+// newRepository returns a new [Repository] object.
 func newRepository(owner string, name string) Repository {
 	return Repository{
 		owner: owner,
@@ -19,7 +19,7 @@ func newRepository(owner string, name string) Repository {
 	}
 }
 
-// newRepositoryFromFullName returns a new GitHub repository object from repository full name.
+// newRepositoryFromFullName returns a new [Repository] object from repository full name.
 // Repository full name must be 'OWNER/REPO' format.
 func newRepositoryFromFullName(fullName string) (Repository, error) {
 	s := strings.Split(fullName, "/")
