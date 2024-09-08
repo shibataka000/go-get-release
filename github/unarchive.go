@@ -20,6 +20,7 @@ func newExecBinaryReaderFromTar(r io.Reader) (io.Reader, error) {
 }
 
 // newExecBinaryReaderFromZip returns a reader to read exec binary from zip file.
+// It is the caller's responsibility to close the ReadCloser.
 func newExecBinaryReaderFromZip(r io.ReaderAt, size int64) (io.ReadCloser, error) {
 	zr, err := zip.NewReader(r, size)
 	if err != nil {

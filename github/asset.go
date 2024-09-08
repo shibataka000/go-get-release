@@ -6,7 +6,6 @@ import (
 	"context"
 	"io"
 	"net/http"
-	"regexp"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/gabriel-vasile/mimetype"
@@ -45,40 +44,24 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 	return Asset{}, ErrAssetNotFound
 }
 
-type AssetPattern struct {
-	regexp *regexp.Regexp
-}
+type AssetPattern Pattern
 
-func newAssetPattern(regexp *regexp.Regexp) AssetPattern {
-	return AssetPattern{
-		regexp: regexp,
-	}
-}
-
-func compileAssetPattern(expr string) (AssetPattern, error) {
-	re, err := regexp.Compile(expr)
-	if err != nil {
-		return AssetPattern{}, err
-	}
-	return newAssetPattern(re), nil
-}
-
-func (a AssetPattern) match(asset Asset) bool {
-	return a.regexp.Match([]byte(asset.name))
+func (ap AssetPattern) match(asset Asset) bool {
+	return ap.re.Match([]byte(asset.name))
 }
 
 type AssetPatternList []AssetPattern
 
-func compileAssetPatternList(patterns []string) (AssetPatternList, error) {
-	assets := []AssetPattern{}
-	for _, p := range patterns {
-		re, err := compileAssetPattern(p)
+func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
+	apl := AssetPatternList{}
+	for _, expr := range exprs {
+		p, err := compilePattern(expr)
 		if err != nil {
 			return nil, err
 		}
-		assets = append(assets, re)
+		apl = append(apl, AssetPattern(p))
 	}
-	return assets, nil
+	return apl, nil
 }
 
 type AssetContent []byte
