@@ -93,11 +93,7 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 		case "application/x-tar":
 			r, err = newExecBinaryReaderFromTar(&b)
 		case "application/zip":
-			rc, ziperr := newExecBinaryReaderFromZip(bytes.NewReader(b.Bytes()), int64(b.Len()))
-			if ziperr == nil {
-				defer rc.Close()
-			}
-			r, err = rc, ziperr
+			r, err = newExecBinaryReaderFromZip(&b)
 		case "application/gzip":
 			r, err = gzip.NewReader(&b)
 		case "application/x-xz":

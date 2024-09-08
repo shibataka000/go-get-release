@@ -3,6 +3,7 @@ package github
 import (
 	"archive/tar"
 	"archive/zip"
+	"bytes"
 	"io"
 )
 
@@ -20,16 +21,36 @@ func newExecBinaryReaderFromTar(r io.Reader) (io.Reader, error) {
 }
 
 // newExecBinaryReaderFromZip returns a reader to read exec binary from zip file.
-// It is the caller's responsibility to close the ReadCloser.
-func newExecBinaryReaderFromZip(r io.ReaderAt, size int64) (io.ReadCloser, error) {
-	zr, err := zip.NewReader(r, size)
+func newExecBinaryReaderFromZip(r io.Reader) (io.Reader, error) {
+	br, err := readAllAndNewReader(r)
 	if err != nil {
 		return nil, err
 	}
+
+	zr, err := zip.NewReader(br, br.Size())
+	if err != nil {
+		return nil, err
+	}
+
 	for _, f := range zr.File {
 		if f.Mode() == 0655 {
-			return f.Open()
+			rc, err := f.Open()
+			if err != nil {
+				return nil, err
+			}
+			defer rc.Close()
+			return readAllAndNewReader(rc)
 		}
 	}
+
 	return nil, io.EOF
+}
+
+// readAllAndNewReader reads all data from r and return a pointer of new bytes.Reader object.
+func readAllAndNewReader(r io.Reader) (*bytes.Reader, error) {
+	b, err := io.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
+	return bytes.NewReader(b), nil
 }
