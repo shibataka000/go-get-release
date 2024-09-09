@@ -17,9 +17,6 @@ func newExecBinary(name string) ExecBinary {
 	}
 }
 
-// ExecBinaryContent represents a executable binary content in a GitHub release asset content.
-type ExecBinaryContent []byte
-
 // ExecBinaryTemplate represents a template of [ExecBinary].
 type ExecBinaryTemplate ExecBinary
 
@@ -46,6 +43,9 @@ func newExecBinaryTemplateList(names []string) ExecBinaryTemplateList {
 	}
 	return tmpls
 }
+
+// ExecBinaryContent represents a executable binary content in a GitHub release asset content.
+type ExecBinaryContent []byte
 
 // ExecBinaryRepository is a repository for [ExecBinary] and [ExecBinaryContent].
 type ExecBinaryRepository struct{}
