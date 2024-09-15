@@ -78,7 +78,7 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 		}
 
 		if err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrExtractExecBinaryContentFailure, err)
+			return nil, fmt.Errorf("%w: %w", ErrExtractingExecBinaryContentFailure, err)
 		}
 
 		b.Reset()

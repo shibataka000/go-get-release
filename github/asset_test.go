@@ -2,7 +2,6 @@ package github
 
 import (
 	"context"
-	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -53,6 +52,10 @@ func TestFindAssetInAssetList(t *testing.T) {
 			require.Equal(tt.asset, asset)
 		})
 	}
+}
+
+func TestExtractExecBinaryContentFromAssetContent(t *testing.T) {
+	// todo: implement this.
 }
 
 func TestListAssets(t *testing.T) {
@@ -107,9 +110,3 @@ func TestListAssets(t *testing.T) {
 func TestDownloadAssetContent(t *testing.T) {
 	// todo: implement this.
 }
-
-func TestExtractExecBinaryContentFromAssetContent(t *testing.T) {
-	// todo: implement this.
-}
-
-var githubTokenForTest = os.Getenv("GITHUB_TOKEN")
