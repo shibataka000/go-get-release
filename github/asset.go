@@ -32,23 +32,10 @@ func newAsset(id int64, name string) Asset {
 // AssetList is a list of [Asset].
 type AssetList []Asset
 
-// find a [Asset] whose name matches any of [Pattern].
-// If two or more [Asset] match, this returns a [Asset] which matches prior [Pattern].
-func (al AssetList) find(patterns PatternList) (Asset, error) {
-	for _, p := range patterns {
-		for _, a := range al {
-			if p.match(a) {
-				return a, nil
-			}
-		}
-	}
-	return Asset{}, ErrPatternNotMatched
-}
-
 // AssetContent represents a GitHub release asset content.
 type AssetContent []byte
 
-// execBinaryContent returns [ExecBinaryContent] in [AssetContent].
+// execBinaryContent extracts [ExecBinaryContent] from [AssetContent] and return it.
 func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 	var b bytes.Buffer
 

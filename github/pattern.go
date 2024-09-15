@@ -3,7 +3,6 @@ package github
 import (
 	"bytes"
 	"regexp"
-	"slices"
 	"text/template"
 )
 
@@ -86,13 +85,13 @@ func newPatternListFromStringArray(assets []string, execBinaries []string) (Patt
 	return patterns, nil
 }
 
-// find returns pattern which match given asset first.
-func (pl PatternList) find(asset Asset) (Pattern, error) {
-	index := slices.IndexFunc(pl, func(p Pattern) bool {
-		return p.match(asset)
-	})
-	if index == -1 {
-		return Pattern{}, ErrPatternNotMatched
+func find(assets AssetList, patterns PatternList) (Asset, Pattern, error) {
+	for _, p := range patterns {
+		for _, a := range assets {
+			if p.match(a) {
+				return a, p, nil
+			}
+		}
 	}
-	return pl[index], nil
+	return Asset{}, Pattern{}, ErrPatternNotMatched
 }

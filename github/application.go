@@ -39,16 +39,13 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
-	asset, err := assets.find(patterns)
+
+	asset, pattern, err := find(assets, patterns)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
 
 	// Find a executable binary.
-	pattern, err := patterns.find(asset)
-	if err != nil {
-		return Asset{}, ExecBinary{}, err
-	}
 	execBinary, err := pattern.apply(asset)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
