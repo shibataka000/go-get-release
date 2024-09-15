@@ -2,6 +2,6 @@ package github
 
 import "testing"
 
-func ExecBinaryRepositoryWrite(t *testing.T) {
+func TestWriteExecBinaryContent(t *testing.T) {
 	// todo: implement this.
 }

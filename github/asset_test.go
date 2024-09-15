@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAssetListFind(t *testing.T) {
+func TestFindAsset(t *testing.T) {
 	tests := []struct {
 		name     string
 		assets   AssetList
@@ -55,11 +55,11 @@ func TestAssetListFind(t *testing.T) {
 	}
 }
 
-func TestAssetContentExecBinaryContent(t *testing.T) {
+func TestExtractExecBinaryContentFromAssetContent(t *testing.T) {
 	// todo: implement this.
 }
 
-func TestAssetRepositoryList(t *testing.T) {
+func TestListAssets(t *testing.T) {
 	tests := []struct {
 		name    string
 		repo    Repository
@@ -108,7 +108,7 @@ func TestAssetRepositoryList(t *testing.T) {
 	}
 }
 
-func TestAssetRepositoryDownload(t *testing.T) {
+func TestDownloadAssetContent(t *testing.T) {
 	// todo: implement this.
 }
 
