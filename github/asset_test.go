@@ -100,7 +100,7 @@ func TestListAssets(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
-			repository := NewAssetRepository(ctx, githubToken)
+			repository := NewAssetRepository(ctx, githubTokenForTest)
 			assets, err := repository.list(ctx, tt.repo, tt.release)
 			require.NoError(err)
 			require.Equal(tt.assets, assets)
@@ -112,4 +112,4 @@ func TestDownloadAssetContent(t *testing.T) {
 	// todo: implement this.
 }
 
-var githubToken = os.Getenv("GITHUB_TOKEN")
+var githubTokenForTest = os.Getenv("GITHUB_TOKEN")
