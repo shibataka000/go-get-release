@@ -108,8 +108,8 @@ func TestDownloadAssetContent(t *testing.T) {
 	// todo: implement this.
 }
 
-var githubTokenForTest = os.Getenv("GITHUB_TOKEN")
-
 func TestExtractExecBinaryContentFromAssetContent(t *testing.T) {
 	// todo: implement this.
 }
+
+var githubTokenForTest = os.Getenv("GITHUB_TOKEN")

@@ -48,10 +48,14 @@ func NewCommand() *cobra.Command {
 	command.Flags().StringArrayVar(&execBinaryPatterns, "exec-binary", []string{}, "")
 	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory to download files into")
 	command.Flags().StringVar(&token, "token", os.Getenv("GH_TOKEN"), "Authentication token for github.com API requests. [$GH_TOKEN]")
-	command.MarkFlagRequired("repo")        //nolint:errcheck
-	command.MarkFlagRequired("tag")         //nolint:errcheck
-	command.MarkFlagRequired("asset")       //nolint:errcheck
-	command.MarkFlagRequired("exec-binary") //nolint:errcheck
+
+	requiredFlags := []string{"repo", "tag", "asset", "exec-binary"}
+
+	for _, flag := range requiredFlags {
+		if err := command.MarkFlagRequired(flag); err != nil {
+			panic(err)
+		}
+	}
 
 	return command
 }

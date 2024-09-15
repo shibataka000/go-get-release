@@ -9,5 +9,5 @@ var (
 	ErrPatternNotMatched               = errors.New("no pattern was matched to any release asset name")
 	ErrUnexpectedMIME                  = errors.New("unexpected mime type")
 	ErrExtractExecBinaryContentFailure = errors.New("extracting exec binary content from release asset content was failed")
-	ErrUnpairablePattern               = errors.New("the number of asset pattern and the number of exec binary pattern are not same")
+	ErrUnpairablePattern               = errors.New("the number of asset pattern and the number of exec binary pattern were not same")
 )

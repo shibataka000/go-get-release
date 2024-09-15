@@ -19,7 +19,9 @@ func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryReposit
 	}
 }
 
-// FindAsset returns a GitHub release asset which matches given pattern.
+// Find returns a GitHub release asset which matches given pattern.
+// assetPatterns  must be a regular expression of GitHub release asset name and compilable by [regexp.Compile].
+// execBinaryPatterns must be a template of executable binary name and parsable by [text/template.Template.Parse].
 func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, assetPatterns []string, execBinaryPatterns []string) (Asset, ExecBinary, error) {
 	// New objects.
 	repo, err := newRepositoryFromFullName(repoFullName)
