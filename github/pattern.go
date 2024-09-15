@@ -1,6 +1,7 @@
 package github
 
 import (
+	"bytes"
 	"regexp"
 	"slices"
 	"text/template"
@@ -52,7 +53,13 @@ func (p Pattern) match(asset Asset) bool {
 }
 
 func (p Pattern) apply(asset Asset) (ExecBinary, error) {
-	return ExecBinary{}, nil
+	var b bytes.Buffer
+	submatch := p.asset.FindStringSubmatch(asset.name)
+	err := p.execBinary.Execute(&b, submatch)
+	if err != nil {
+		return ExecBinary{}, err
+	}
+	return newExecBinary(b.String()), nil
 }
 
 // PatternList is a list of [Pattern].
