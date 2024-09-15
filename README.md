@@ -7,6 +7,7 @@ I want to only install executable binary, don't want to build executable binary 
 ## Usage
 
 ### Install executable binary from GitHub release asset
+
 ```
 go-get-release <owner>/<repo>=<tag>
 ```
@@ -34,6 +35,24 @@ go-get-release go-get-release
 `go-get-release` install executable binary to `$GOHOME/bin` by default.
 
 ## Install
+
 ```
 go install github.com/shibataka000/go-get-release@master
 ```
+
+## To Do
+
+- [ ] application.go
+- [ ] application_test.go
+- [ ] asset.go
+- [ ] asset_test.go
+- [ ] error.go
+- [ ] exec_binary.go
+- [ ] exec_binary_test.go
+- [ ] pattern.go
+- [ ] pattern_test.go
+- [x] release.go
+- [x] repository.go
+- [x] repository_test.go
+- [x] unarchive.go
+- [x] unarchive_test.go
