@@ -20,35 +20,37 @@ func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryReposit
 }
 
 // FindAsset returns a GitHub release asset which matches given pattern.
-func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, assetPatterns []string, execBinaryTemplates []string) (Asset, ExecBinary, error) {
+func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, assetPatterns []string, execBinaryPatterns []string) (Asset, ExecBinary, error) {
+	// New objects.
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
-
 	release := newRelease(tag)
-
-	patterns, err := newPatternList(assetPatterns, execBinaryTemplates)
+	patterns, err := newPatternListFromStringArray(assetPatterns, execBinaryPatterns)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
 
+	// Find a GitHub release asset.
 	assets, err := a.asset.list(ctx, repo, release)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
-
 	asset, err := assets.find(patterns)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
 
+	// Find a executable binary.
 	pattern, err := patterns.find(asset)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
-
-	execBinary, err := pattern.renderExecBinary(asset)
+	execBinary, err := pattern.apply(asset)
+	if err != nil {
+		return Asset{}, ExecBinary{}, err
+	}
 
 	return asset, execBinary, nil
 }
