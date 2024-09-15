@@ -20,36 +20,37 @@ func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryReposit
 }
 
 // FindAsset returns a GitHub release asset which matches given pattern.
-func (a *ApplicationService) FindAsset(ctx context.Context, repoFullName string, tag string, assetPatterns []string) (Asset, error) {
+func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, assetPatterns []string, execBinaryTemplates []string) (Asset, ExecBinary, error) {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
-		return Asset{}, err
+		return Asset{}, ExecBinary{}, err
 	}
 
 	release := newRelease(tag)
 
-	patterns, err := compileAssetPatternList(assetPatterns)
+	patterns, err := newPatternList(assetPatterns, execBinaryTemplates)
 	if err != nil {
-		return Asset{}, err
+		return Asset{}, ExecBinary{}, err
 	}
 
 	assets, err := a.asset.list(ctx, repo, release)
 	if err != nil {
-		return Asset{}, err
+		return Asset{}, ExecBinary{}, err
 	}
 
-	return assets.find(patterns)
-}
-
-func (a *ApplicationService) FindExecBinary(asset Asset, assetPatterns []string, execBinaryPatterns []string) (ExecBinary, error) {
-	apl, err := compileAssetPatternList(assetPatterns)
+	asset, err := assets.find(patterns)
 	if err != nil {
-		return ExecBinary{}, err
+		return Asset{}, ExecBinary{}, err
 	}
 
-	ebpl := newExecBinaryTemplateList(execBinaryPatterns)
+	pattern, err := patterns.find(asset)
+	if err != nil {
+		return Asset{}, ExecBinary{}, err
+	}
 
-	return asset.execBinary(apl, ebpl)
+	execBinary, err := pattern.renderExecBinary(asset)
+
+	return asset, execBinary, nil
 }
 
 func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string) error {

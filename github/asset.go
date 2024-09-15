@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"regexp"
-	"slices"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/gabriel-vasile/mimetype"
@@ -31,19 +29,12 @@ func newAsset(id int64, name string) Asset {
 	}
 }
 
-func (a Asset) execBinary(assetPatterns AssetPatternList, execBinaryPatterns ExecBinaryTemplateList) (ExecBinary, error) {
-	i := slices.IndexFunc(assetPatterns, func(p AssetPattern) bool {
-		return p.match(a)
-	})
-	return execBinaryPatterns[i].execute(a, assetPatterns[i]), nil
-}
-
 // AssetList is a list of [Asset].
 type AssetList []Asset
 
 // find a [Asset] whose name matches any of [AssetPattern].
 // If two or more [Asset] match, this returns a [Asset] which matches prior [AssetPattern].
-func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
+func (al AssetList) find(patterns PatternList) (Asset, error) {
 	for _, p := range patterns {
 		for _, a := range al {
 			if p.match(a) {
@@ -52,55 +43,6 @@ func (al AssetList) find(patterns []AssetPattern) (Asset, error) {
 		}
 	}
 	return Asset{}, ErrAssetNotFound
-}
-
-// AssetPattern is regular expression which matches a [Asset]'s name.
-type AssetPattern struct {
-	re *regexp.Regexp
-}
-
-func newAssetPattern(re *regexp.Regexp) AssetPattern {
-	return AssetPattern{
-		re: re,
-	}
-}
-
-func compileAssetPattern(expr string) (AssetPattern, error) {
-	re, err := regexp.Compile(expr)
-	if err != nil {
-		return AssetPattern{}, err
-	}
-	return newAssetPattern(re), nil
-}
-
-// match returns true if [AssetPattern] matches a [Asset]'s name.
-func (ap AssetPattern) match(asset Asset) bool {
-	return ap.re.Match([]byte(asset.name))
-}
-
-func (ap AssetPattern) expand(template string, content string) string {
-	result := []byte{}
-	for _, submatches := range ap.re.FindAllStringSubmatchIndex(content, -1) {
-		result = ap.re.ExpandString(result, template, content, submatches)
-	}
-	return string(result)
-}
-
-// AssetPatternList is a list of [AssetPattern].
-type AssetPatternList []AssetPattern
-
-// compileAssetPatternList compiles exprs as a list of regular expression and return [AssetPatternList].
-// exprs must be a list of regular expression.
-func compileAssetPatternList(exprs []string) (AssetPatternList, error) {
-	apl := AssetPatternList{}
-	for _, expr := range exprs {
-		ap, err := compileAssetPattern(expr)
-		if err != nil {
-			return nil, err
-		}
-		apl = append(apl, ap)
-	}
-	return apl, nil
 }
 
 // AssetContent represents a GitHub release asset content.

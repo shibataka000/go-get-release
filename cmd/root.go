@@ -30,11 +30,7 @@ func NewCommand() *cobra.Command {
 				github.NewAssetRepository(ctx, token),
 				github.NewExecBinaryRepository(),
 			)
-			asset, err := app.FindAsset(ctx, repoFullName, tag, assetPatterns)
-			if err != nil {
-				return err
-			}
-			execBinary, err := app.FindExecBinary(asset, assetPatterns, execBinaryPatterns)
+			asset, execBinary, err := app.Find(ctx, repoFullName, tag, assetPatterns, execBinaryPatterns)
 			if err != nil {
 				return err
 			}
