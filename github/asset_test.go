@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestFindAsset(t *testing.T) {
+func TestFindAssetInAssetList(t *testing.T) {
 	tests := []struct {
 		name     string
 		assets   AssetList
@@ -53,10 +53,6 @@ func TestFindAsset(t *testing.T) {
 			require.Equal(tt.asset, asset)
 		})
 	}
-}
-
-func TestExtractExecBinaryContentFromAssetContent(t *testing.T) {
-	// todo: implement this.
 }
 
 func TestListAssets(t *testing.T) {
@@ -113,3 +109,7 @@ func TestDownloadAssetContent(t *testing.T) {
 }
 
 var githubTokenForTest = os.Getenv("GITHUB_TOKEN")
+
+func TestExtractExecBinaryContentFromAssetContent(t *testing.T) {
+	// todo: implement this.
+}

@@ -39,7 +39,7 @@ func TestPatternApply(t *testing.T) {
 	// todo: implement this.
 }
 
-func TestFindPattern(t *testing.T) {
+func TestFindPatternInPatternList(t *testing.T) {
 	tests := []struct {
 		name     string
 		patterns PatternList

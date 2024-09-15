@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-func TestApplicationServiceFind(t *testing.T) {
+func TestFind(t *testing.T) {
 }
 
-func TestApplicationServiceInstall(t *testing.T) {
+func TestInstall(t *testing.T) {
 }
