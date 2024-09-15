@@ -12,21 +12,33 @@ type Pattern struct {
 	execBinary *template.Template
 }
 
-func newPattern(assetPattern string, execBinaryPattern string) (Pattern, error) {
-	asset, err := regexp.Compile(assetPattern)
-	if err != nil {
-		return Pattern{}, err
-	}
-
-	execBinary, err := template.New("ExecBinary").Parse(execBinaryPattern)
-	if err != nil {
-		return Pattern{}, err
-	}
-
+func newPattern(asset *regexp.Regexp, execBinary *template.Template) Pattern {
 	return Pattern{
 		asset:      asset,
 		execBinary: execBinary,
-	}, nil
+	}
+}
+
+func newPatternFromString(asset string, execBinary string) (Pattern, error) {
+	re, err := regexp.Compile(asset)
+	if err != nil {
+		return Pattern{}, err
+	}
+
+	tmpl, err := template.New("ExecBinary").Parse(execBinary)
+	if err != nil {
+		return Pattern{}, err
+	}
+
+	return newPattern(re, tmpl), nil
+}
+
+func mustNewPatternFromString(asset string, execBinary string) Pattern {
+	p, err := newPatternFromString(asset, execBinary)
+	if err != nil {
+		panic(err)
+	}
+	return p
 }
 
 func (p Pattern) match(asset Asset) bool {
@@ -39,15 +51,15 @@ func (p Pattern) renderExecBinary(asset Asset) (ExecBinary, error) {
 
 type PatternList []Pattern
 
-func newPatternList(assetPatterns []string, execBinaryPatterns []string) (PatternList, error) {
-	if len(assetPatterns) != len(execBinaryPatterns) {
+func newPatternList(assets []string, execBinaries []string) (PatternList, error) {
+	if len(assets) != len(execBinaries) {
 		return nil, errors.New("")
 	}
 
 	patterns := PatternList{}
 
-	for i := range assetPatterns {
-		p, err := newPattern(assetPatterns[i], execBinaryPatterns[i])
+	for i := range assets {
+		p, err := newPatternFromString(assets[i], execBinaries[i])
 		if err != nil {
 			return nil, err
 		}

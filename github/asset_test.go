@@ -3,7 +3,6 @@ package github
 import (
 	"context"
 	"os"
-	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -13,7 +12,7 @@ func TestAssetListFind(t *testing.T) {
 	tests := []struct {
 		name     string
 		assets   AssetList
-		patterns AssetPatternList
+		patterns PatternList
 		asset    Asset
 	}{
 		{
@@ -41,10 +40,8 @@ func TestAssetListFind(t *testing.T) {
 				newAsset(0, "gh_2.52.0_windows_amd64.zip"),
 				newAsset(0, "gh_2.52.0_windows_arm64.zip"),
 			},
-			patterns: AssetPatternList{
-				mustCompileAssetPattern("gh_.+_linux_amd64.tar.gz"),
-			},
-			asset: newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			patterns: PatternList{},
+			asset:    newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 		},
 	}
 
@@ -61,19 +58,19 @@ func TestAssetListFind(t *testing.T) {
 func TestAssetPatternMatch(t *testing.T) {
 	tests := []struct {
 		name    string
-		pattern AssetPattern
+		pattern Pattern
 		asset   Asset
 		match   bool
 	}{
 		{
 			name:    "gh_2.52.0_linux_amd64.tar.gz",
-			pattern: mustCompileAssetPattern("gh_.+_linux_amd64.tar.gz"),
+			pattern: Pattern{},
 			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			match:   true,
 		},
 		{
 			name:    "gh_2.52.0_windows_amd64.zip",
-			pattern: mustCompileAssetPattern("gh_.+_linux_amd64.tar.gz"),
+			pattern: Pattern{},
 			asset:   newAsset(0, "gh_2.52.0_windows_amd64.zip"),
 			match:   false,
 		},
@@ -139,12 +136,6 @@ func TestAssetRepositoryList(t *testing.T) {
 			require.Equal(tt.assets, assets)
 		})
 	}
-}
-
-func TestAssetRepositoryDownload(t *testing.T) {}
-
-func mustCompileAssetPattern(expr string) AssetPattern {
-	return newAssetPattern(regexp.MustCompile(expr))
 }
 
 var githubToken = os.Getenv("GITHUB_TOKEN")
