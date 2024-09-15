@@ -32,8 +32,8 @@ func newAsset(id int64, name string) Asset {
 // AssetList is a list of [Asset].
 type AssetList []Asset
 
-// find a [Asset] whose name matches any of [AssetPattern].
-// If two or more [Asset] match, this returns a [Asset] which matches prior [AssetPattern].
+// find a [Asset] whose name matches any of [Pattern].
+// If two or more [Asset] match, this returns a [Asset] which matches prior [Pattern].
 func (al AssetList) find(patterns PatternList) (Asset, error) {
 	for _, p := range patterns {
 		for _, a := range al {
