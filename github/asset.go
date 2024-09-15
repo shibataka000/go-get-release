@@ -66,9 +66,9 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 		case "application/octet-stream":
 			return ExecBinaryContent(b.Bytes()), nil
 		case "application/x-tar":
-			r, err = newExecBinaryReaderFromTar(&b)
+			r, err = newExecBinaryReaderInTar(&b)
 		case "application/zip":
-			r, err = newExecBinaryReaderFromZip(&b)
+			r, err = newExecBinaryReaderInZip(&b)
 		case "application/gzip":
 			r, err = gzip.NewReader(&b)
 		case "application/x-xz":
