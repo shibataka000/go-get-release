@@ -31,6 +31,5 @@ func NewExecBinaryRepository() *ExecBinaryRepository {
 // write [ExecBinaryContent] to file in given directory.
 func (r *ExecBinaryRepository) write(meta ExecBinary, content ExecBinaryContent, dir string) error {
 	path := filepath.Join(dir, meta.name)
-	os.WriteFile(path, content, 0755)
-	return nil
+	return os.WriteFile(path, content, 0755)
 }

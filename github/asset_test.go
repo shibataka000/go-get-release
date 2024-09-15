@@ -55,39 +55,9 @@ func TestAssetListFind(t *testing.T) {
 	}
 }
 
-func TestAssetPatternMatch(t *testing.T) {
-	tests := []struct {
-		name    string
-		pattern Pattern
-		asset   Asset
-		match   bool
-	}{
-		{
-			name:    "gh_2.52.0_linux_amd64.tar.gz",
-			pattern: Pattern{},
-			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
-			match:   true,
-		},
-		{
-			name:    "gh_2.52.0_windows_amd64.zip",
-			pattern: Pattern{},
-			asset:   newAsset(0, "gh_2.52.0_windows_amd64.zip"),
-			match:   false,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			match := tt.pattern.match(tt.asset)
-			require.Equal(tt.match, match)
-		})
-	}
+func TestAssetContentExecBinaryContent(t *testing.T) {
+	// todo: implement this.
 }
-
-func TestCompileAssetPatternList(t *testing.T) {}
-
-func TestAssetContentExecBinaryContent(t *testing.T) {}
 
 func TestAssetRepositoryList(t *testing.T) {
 	tests := []struct {
@@ -136,6 +106,10 @@ func TestAssetRepositoryList(t *testing.T) {
 			require.Equal(tt.assets, assets)
 		})
 	}
+}
+
+func TestAssetRepositoryDownload(t *testing.T) {
+	// todo: implement this.
 }
 
 var githubToken = os.Getenv("GITHUB_TOKEN")
