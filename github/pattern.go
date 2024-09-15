@@ -1,7 +1,6 @@
 package github
 
 import (
-	"errors"
 	"regexp"
 	"slices"
 	"text/template"
@@ -64,7 +63,7 @@ type PatternList []Pattern
 // The number of assets and the number of execBinaries must be same.
 func newPatternListFromStringArray(assets []string, execBinaries []string) (PatternList, error) {
 	if len(assets) != len(execBinaries) {
-		return nil, errors.New("")
+		return nil, ErrUnpairablePattern
 	}
 
 	patterns := PatternList{}
@@ -86,7 +85,7 @@ func (pl PatternList) find(asset Asset) (Pattern, error) {
 		return p.match(asset)
 	})
 	if index == -1 {
-		return Pattern{}, errors.New("")
+		return Pattern{}, ErrPatternNotMatched
 	}
 	return pl[index], nil
 }

@@ -42,7 +42,7 @@ func (al AssetList) find(patterns PatternList) (Asset, error) {
 			}
 		}
 	}
-	return Asset{}, ErrAssetNotFound
+	return Asset{}, ErrPatternNotMatched
 }
 
 // AssetContent represents a GitHub release asset content.
@@ -74,11 +74,11 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 		case "application/x-xz":
 			r, err = xz.NewReader(&b)
 		default:
-			r, err = nil, fmt.Errorf("%w: %s", ErrUnsupportedMIME, mime.String())
+			r, err = nil, fmt.Errorf("%w: %s", ErrUnexpectedMIME, mime.String())
 		}
 
 		if err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrGettingExecBinaryContentFailure, err)
+			return nil, fmt.Errorf("%w: %w", ErrExtractExecBinaryContentFailure, err)
 		}
 
 		b.Reset()
