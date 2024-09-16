@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"io"
 	"os"
 	"os/exec"
 	"testing"
@@ -19,21 +20,25 @@ func TestInstall(t *testing.T) {
 
 func TestFindAndInstallOnLinuxAmd64(t *testing.T) {
 	tests := []struct {
-		name string
-
-		repoFullName       string
-		tag                string
-		assetPatterns      []string
-		execBinaryPatterns []string
+		repoFullName string
+		tag          string
 
 		asset      Asset
 		execBinary ExecBinary
 
 		test *exec.Cmd
-	}{}
+	}{
+		{
+			repoFullName: "aquasecurity/trivy",
+			tag:          "v0.53.0",
+			asset:        newAsset(0, "trivy_0.53.0_Linux-64bit.tar.gz"),
+			execBinary:   newExecBinary("trivy"),
+			test:         exec.Command("./trivy", "version"),
+		},
+	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run(tt.repoFullName, func(t *testing.T) {
 			require := require.New(t)
 			ctx := context.Background()
 
@@ -41,7 +46,7 @@ func TestFindAndInstallOnLinuxAmd64(t *testing.T) {
 			require.NoError(err)
 			defer os.RemoveAll(dir)
 
-			t.Setenv("PATH", dir)
+			tt.test.Dir = dir
 
 			require.Error(tt.test.Run(), "executable binary was already installed")
 
@@ -50,10 +55,10 @@ func TestFindAndInstallOnLinuxAmd64(t *testing.T) {
 				NewExecBinaryRepository(),
 			)
 
-			asset, execBinary, err := app.Find(ctx, tt.repoFullName, tt.tag, tt.assetPatterns, tt.execBinaryPatterns)
+			asset, execBinary, err := app.Find(ctx, tt.repoFullName, tt.tag, DefaultAssetPatterns, DefaultExecBinaryPatterns)
 			require.NoError(err)
 
-			err = app.Install(ctx, tt.repoFullName, asset, execBinary, dir)
+			err = app.Install(ctx, tt.repoFullName, asset, execBinary, dir, io.Discard)
 			require.NoError(err)
 
 			require.NoError(tt.test.Run())

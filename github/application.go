@@ -2,7 +2,7 @@ package github
 
 import (
 	"context"
-	"os"
+	"io"
 )
 
 // ApplicationService.
@@ -54,13 +54,13 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 	return asset, execBinary, nil
 }
 
-func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string) error {
+func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string, w io.Writer) error {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return err
 	}
 
-	assetContent, err := a.asset.download(ctx, repo, asset, os.Stdout)
+	assetContent, err := a.asset.download(ctx, repo, asset, w)
 	if err != nil {
 		return err
 	}
@@ -72,3 +72,12 @@ func (a *ApplicationService) Install(ctx context.Context, repoFullName string, a
 
 	return a.execBinary.write(execBinary, execBinaryContent, dir)
 }
+
+var (
+	DefaultAssetPatterns = []string{
+		"trivy_0.53.0_Linux-64bit.tar.gz",
+	}
+	DefaultExecBinaryPatterns = []string{
+		"trivy",
+	}
+)

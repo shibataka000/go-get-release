@@ -50,7 +50,7 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 		mime := mimetype.Detect(b.Bytes())
 
 		switch mime.String() {
-		case "application/octet-stream":
+		case "application/octet-stream", "application/x-executable":
 			return ExecBinaryContent(b.Bytes()), nil
 		case "application/x-tar":
 			r, err = newExecBinaryReaderInTar(&b)
@@ -68,10 +68,11 @@ func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
 			return nil, fmt.Errorf("%w: %w", ErrExtractingExecBinaryContentFailure, err)
 		}
 
-		b.Reset()
-		if _, err := b.ReadFrom(r); err != nil {
+		var bb bytes.Buffer
+		if _, err := bb.ReadFrom(r); err != nil {
 			return nil, err
 		}
+		b = bb
 	}
 }
 

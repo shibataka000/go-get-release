@@ -38,7 +38,7 @@ func NewCommand() *cobra.Command {
 			if !prompter.YN("Are you sure to install executable binary from above GitHub release asset?", true) {
 				return nil
 			}
-			return app.Install(ctx, repoFullName, asset, execBinary, dir)
+			return app.Install(ctx, repoFullName, asset, execBinary, dir, os.Stdout)
 		},
 	}
 

@@ -14,7 +14,7 @@ func newExecBinaryReaderInTar(r io.Reader) (io.Reader, error) {
 		if err != nil {
 			return nil, err
 		}
-		if header.Mode == 0655 {
+		if header.Mode == 0755 {
 			return tr, nil
 		}
 	}
@@ -33,7 +33,7 @@ func newExecBinaryReaderInZip(r io.Reader) (io.Reader, error) {
 	}
 
 	for _, f := range zr.File {
-		if f.Mode() == 0655 {
+		if f.Mode() == 0755 {
 			rc, err := f.Open()
 			if err != nil {
 				return nil, err
