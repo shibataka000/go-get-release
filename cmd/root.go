@@ -22,7 +22,7 @@ func NewCommand() *cobra.Command {
 
 	command := &cobra.Command{
 		Use:   "gh-release-install",
-		Short: "Install executable binary from GitHub release asset",
+		Short: "Install executable binary from GitHub release asset.",
 		RunE: func(_ *cobra.Command, _ []string) error {
 			ctx := context.Background()
 			app := github.NewApplicationService(
@@ -44,10 +44,10 @@ func NewCommand() *cobra.Command {
 	}
 
 	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "GitHub repository name. This should be OWNER/REPO format.")
-	command.Flags().StringVar(&tag, "tag", "", "GitHub release tag")
+	command.Flags().StringVar(&tag, "tag", "", "GitHub release tag.")
 	command.Flags().StringToStringVar(&patterns, "pattern", github.DefaultPatterns, "")
-	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory where executable binary will be installed into")
-	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests")
+	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory where executable binary will be installed into.")
+	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests.")
 
 	requiredFlags := []string{"repo", "tag"}
 
