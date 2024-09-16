@@ -42,12 +42,12 @@ func NewCommand() *cobra.Command {
 		},
 	}
 
-	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "Select GitHub repository using the OWNER/REPO format")
+	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "GitHub repository name using the OWNER/REPO format")
 	command.Flags().StringVar(&tag, "tag", "", "")
 	command.Flags().StringArrayVar(&assetPatterns, "asset", []string{}, "")
 	command.Flags().StringArrayVar(&execBinaryPatterns, "exec-binary", []string{}, "")
-	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory to download files into")
-	command.Flags().StringVar(&token, "token", os.Getenv("GH_TOKEN"), "Authentication token for github.com API requests. [$GH_TOKEN]")
+	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory to install executable binary into")
+	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests.")
 
 	requiredFlags := []string{"repo", "tag", "asset", "exec-binary"}
 
