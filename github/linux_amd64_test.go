@@ -173,7 +173,7 @@ func TestFindAndInstallOnLinuxAmd64(t *testing.T) {
 				NewExecBinaryRepository(),
 			)
 
-			asset, execBinary, err := app.Find(ctx, tt.repoFullName, tt.tag, DefaultAssetPatterns, DefaultExecBinaryPatterns)
+			asset, execBinary, err := app.Find(ctx, tt.repoFullName, tt.tag, DefaultPatterns)
 			require.NoError(err)
 			require.Equal(tt.asset, asset)
 			require.Equal(tt.execBinary, execBinary)

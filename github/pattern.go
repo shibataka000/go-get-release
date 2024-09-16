@@ -7,8 +7,7 @@ import (
 )
 
 var (
-	DefaultAssetPatterns      = []string{}
-	DefaultExecBinaryPatterns = []string{}
+	DefaultPatterns = map[string]string{}
 )
 
 // Pattern represents a pair of regular expression of GitHub release asset name and template of executable binary name.
