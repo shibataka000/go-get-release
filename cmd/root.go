@@ -42,14 +42,14 @@ func NewCommand() *cobra.Command {
 		},
 	}
 
-	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "GitHub repository name using the OWNER/REPO format")
-	command.Flags().StringVar(&tag, "tag", "", "")
-	command.Flags().StringArrayVar(&assetPatterns, "asset", []string{}, "")
-	command.Flags().StringArrayVar(&execBinaryPatterns, "exec-binary", []string{}, "")
-	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory to install executable binary into")
-	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests.")
+	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "GitHub repository name. This must be OWNER/REPO format.")
+	command.Flags().StringVar(&tag, "tag", "", "GitHub release tag.")
+	command.Flags().StringArrayVar(&assetPatterns, "asset", []string{}, "GitHub release asset name.")
+	command.Flags().StringArrayVar(&execBinaryPatterns, "exec-binary", []string{}, "Executable binary name.")
+	command.Flags().StringVarP(&dir, "dir", "D", ".", "")
+	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests")
 
-	requiredFlags := []string{"repo", "tag", "asset", "exec-binary"}
+	requiredFlags := []string{"repo", "tag"}
 
 	for _, flag := range requiredFlags {
 		if err := command.MarkFlagRequired(flag); err != nil {
