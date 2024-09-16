@@ -56,3 +56,37 @@ go install github.com/shibataka000/go-get-release@master
 - [x] repository_test.go
 - [x] unarchive.go
 - [x] unarchive_test.go
+
+# Test
+
+- [x] ~~aquasecurity/tfsec~~
+- [x] aquasecurity/trivy
+- [ ] argoproj/argo-cd
+- [ ] argoproj/argo-rollouts
+- [ ] argoproj/argo-workflows
+- [ ] aws/amazon-ec2-instance-selector
+- [ ] bitnami-labs/sealed-secrets
+- [ ] buildpacks/pack
+- [ ] CircleCI-Public/circleci-cli
+- [ ] cli/cli
+- [ ] docker/buildx
+- [ ] docker/compose
+- [x] ~~docker/machine~~
+- [x] ~~docker/scan-cli-plugin~~
+- [ ] fluxcd/flux2
+- [ ] getsops/sops
+- [ ] goodwithtech/dockle
+- [x] ~~hashicorp/terraform~~
+- [x] ~~helm/helm~~
+- [x] ~~istio/istio~~
+- [x] ~~kubernetes/kubernetes~~
+- [ ] mikefarah/yq
+- [ ] open-policy-agent/conftest
+- [ ] open-policy-agent/gatekeeper
+- [ ] open-policy-agent/opa
+- [ ] openshift-pipelines/pipelines-as-code
+- [ ] protocolbuffers/protobuf
+- [ ] snyk/cli
+- [ ] starship/starship
+- [ ] tektoncd/cli
+- [ ] viaduct-ai/kustomize-sops
