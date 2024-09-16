@@ -89,7 +89,7 @@ func TestFindAndInstallOnLinuxAmd64(t *testing.T) {
 			tag:          "v3.9.0",
 			asset:        newAsset(176438234, "sops-v3.9.0.linux.amd64"),
 			execBinary:   newExecBinary("sops"),
-			test:         exec.Command("sops"),
+			test:         exec.Command("./sops"),
 		},
 		{
 			repoFullName: "goodwithtech/dockle",

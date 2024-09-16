@@ -24,8 +24,8 @@ var (
 		mustNewPatternFromString("gator-v3.16.3-linux-amd64.tar.gz", "gator"),
 		mustNewPatternFromString("opa_linux_amd64", "opa"),
 		mustNewPatternFromString("protoc-27.2-linux-x86_64.zip", "protoc"),
-		mustNewPatternFromString("snyk-linux", "snyc"),
-		mustNewPatternFromString("starship-x86_64-unknown-linux-gnu.tar.gz", "ksops_4.3.2_Linux_x86_64.tar.gz"),
+		mustNewPatternFromString("snyk-linux", "snyk"),
+		mustNewPatternFromString("starship-x86_64-unknown-linux-gnu.tar.gz", "starship"),
 	}
 )
 
