@@ -6,6 +6,11 @@ import (
 	"text/template"
 )
 
+var (
+	DefaultAssetPatterns      = []string{}
+	DefaultExecBinaryPatterns = []string{}
+)
+
 // Pattern represents a pair of regular expression of GitHub release asset name and template of executable binary name.
 type Pattern struct {
 	asset      *regexp.Regexp
