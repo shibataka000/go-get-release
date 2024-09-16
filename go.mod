@@ -10,7 +10,6 @@ require (
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	github.com/ulikunitz/xz v0.5.12
-	golang.org/x/oauth2 v0.21.0
 )
 
 require (
