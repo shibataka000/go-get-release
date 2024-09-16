@@ -20,7 +20,7 @@ func newRepository(owner string, name string) Repository {
 }
 
 // newRepositoryFromFullName returns a new [Repository] object from repository full name.
-// Repository full name must be 'OWNER/REPO' format.
+// Repository full name should be 'OWNER/REPO' format.
 func newRepositoryFromFullName(fullName string) (Repository, error) {
 	s := strings.Split(fullName, "/")
 	if len(s) != 2 {

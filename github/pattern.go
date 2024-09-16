@@ -26,8 +26,8 @@ func newPattern(asset *regexp.Regexp, execBinary *template.Template) Pattern {
 }
 
 // newPatternFromString returns a new [Pattern] object.
-// asset must be a regular expression of GitHub release asset name and compilable by [regexp.Compile].
-// execBinary must be a template of executable binary name and parsable by [text/template.Template.Parse].
+// asset should be a regular expression of GitHub release asset name and compilable by [regexp.Compile].
+// execBinary should be a template of executable binary name and parsable by [text/template.Template.Parse].
 func newPatternFromString(asset string, execBinary string) (Pattern, error) {
 	re, err := regexp.Compile(asset)
 	if err != nil {
@@ -71,7 +71,7 @@ type PatternList []Pattern
 
 // newPatternListFromStringArray returns a new [PatternList] object.
 // See [newPatternFromString] for more details.
-// The number of assets and the number of execBinaries must be same.
+// The number of assets and the number of execBinaries should be same.
 func newPatternListFromStringArray(assets []string, execBinaries []string) (PatternList, error) {
 	if len(assets) != len(execBinaries) {
 		return nil, ErrUnpairablePattern
