@@ -12,7 +12,6 @@ import (
 	"github.com/gabriel-vasile/mimetype"
 	"github.com/google/go-github/v62/github"
 	"github.com/ulikunitz/xz"
-	"golang.org/x/oauth2"
 )
 
 // Asset represents a GitHub release asset.
@@ -83,13 +82,12 @@ type AssetRepository struct {
 
 // NewAssetRepository returns a new [AssetRepository] object.
 func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
-	var httpClient *http.Client
+	client := github.NewClient(http.DefaultClient)
 	if token != "" {
-		tokenSource := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: token})
-		httpClient = oauth2.NewClient(ctx, tokenSource)
+		client = client.WithAuthToken(token)
 	}
 	return &AssetRepository{
-		client: github.NewClient(httpClient),
+		client: client,
 	}
 }
 
