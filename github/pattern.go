@@ -52,12 +52,12 @@ func mustNewPatternFromString(asset string, execBinary string) Pattern {
 
 // match returns true if pattern matches given asset name.
 func (p Pattern) match(asset Asset) bool {
-	return p.asset.Match([]byte(asset.name))
+	return p.asset.Match([]byte(asset.Name))
 }
 
 func (p Pattern) apply(asset Asset) (ExecBinary, error) {
 	var b bytes.Buffer
-	submatch := p.asset.FindStringSubmatch(asset.name)
+	submatch := p.asset.FindStringSubmatch(asset.Name)
 	err := p.execBinary.Execute(&b, submatch)
 	if err != nil {
 		return ExecBinary{}, err

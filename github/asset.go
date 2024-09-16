@@ -17,14 +17,14 @@ import (
 // Asset represents a GitHub release asset.
 type Asset struct {
 	id   int64
-	name string
+	Name string
 }
 
 // newAsset returns a new [Asset] object.
 func newAsset(id int64, name string) Asset {
 	return Asset{
 		id:   id,
-		name: name,
+		Name: name,
 	}
 }
 

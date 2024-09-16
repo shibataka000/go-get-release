@@ -47,8 +47,8 @@ go install github.com/shibataka000/go-get-release@master
 - [ ] asset.go
 - [ ] asset_test.go
 - [ ] error.go
-- [ ] exec_binary.go
-- [ ] exec_binary_test.go
+- [x] exec_binary.go
+- [x] exec_binary_test.go
 - [ ] pattern.go
 - [ ] pattern_test.go
 - [x] release.go
