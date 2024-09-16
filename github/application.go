@@ -25,14 +25,14 @@ func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryReposit
 // assetPatterns should be a list of regular expression. The GitHub release asset whose name matches with some of these patterns will be returned.
 // execBinaryPatterns should be a list of template. This is template for executable binary name.
 // i'th elements
-func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, pattern map[string]string) (Asset, ExecBinary, error) {
+func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, patterns map[string]string) (Asset, ExecBinary, error) {
 	// New objects.
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
 	release := newRelease(tag)
-	patterns, err := newPatternListFromStringArray(assetPatterns, execBinaryPatterns)
+	pl, err := newPatternListFromStringMap(patterns)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
@@ -43,7 +43,7 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 		return Asset{}, ExecBinary{}, err
 	}
 
-	asset, pattern, err := find(assets, patterns)
+	asset, pattern, err := find(assets, pl)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}

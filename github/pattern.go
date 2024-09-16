@@ -71,22 +71,16 @@ type PatternList []Pattern
 // newPatternListFromStringArray returns a new [PatternList] object.
 // See [newPatternFromString] for more details.
 // The number of assets and the number of execBinaries should be same.
-func newPatternListFromStringArray(assets []string, execBinaries []string) (PatternList, error) {
-	if len(assets) != len(execBinaries) {
-		return nil, ErrUnpairablePattern
-	}
-
-	patterns := PatternList{}
-
-	for i := range assets {
-		p, err := newPatternFromString(assets[i], execBinaries[i])
+func newPatternListFromStringMap(patterns map[string]string) (PatternList, error) {
+	pl := PatternList{}
+	for asset, execBinary := range patterns {
+		p, err := newPatternFromString(asset, execBinary)
 		if err != nil {
 			return nil, err
 		}
-		patterns = append(patterns, p)
+		pl = append(pl, p)
 	}
-
-	return patterns, nil
+	return pl, nil
 }
 
 func find(assets AssetList, patterns PatternList) (Asset, Pattern, error) {

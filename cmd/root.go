@@ -34,8 +34,8 @@ func NewCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			fmt.Println(asset)
-			if !prompter.YN("Are you sure to install executable binary from above GitHub release asset?", true) {
+			message := fmt.Sprintf("Do you want to install %s from https://github.com/%s/releases/download/%s/%s ?", execBinary.Name, repoFullName, tag, asset.Name)
+			if !prompter.YN(message, true) {
 				return nil
 			}
 			return app.Install(ctx, repoFullName, asset, execBinary, dir, os.Stdout)
@@ -47,7 +47,7 @@ func NewCommand() *cobra.Command {
 	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "GitHub repository name. This should be OWNER/REPO format.")
 	command.Flags().StringVar(&tag, "tag", "", "GitHub release tag")
 	command.Flags().StringToStringVar(&patterns, "pattern", map[string]string{}, "")
-	command.Flags().StringVarP(&dir, "dir", "D", ".", "")
+	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory where executable binary will be installed into")
 	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests")
 
 	requiredFlags := []string{"repo", "tag"}
