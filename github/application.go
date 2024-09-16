@@ -19,11 +19,12 @@ func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryReposit
 	}
 }
 
-// Find a GitHub release asset and executable binary in it and returns them.
-// repoFullName should be a repository name. Its format should be OWNER/REPO.
+// Find a GitHub release asset and an executable binary in it and returns them.
+// repoFullName should be a repository full name. It should be OWNER/REPO format.
 // tag should be a release tag.
 // assetPatterns should be a list of regular expression. The GitHub release asset whose name matches with some of these patterns will be returned.
 // execBinaryPatterns should be a list of template. This is template for executable binary name.
+// i'th elements
 func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, assetPatterns []string, execBinaryPatterns []string) (Asset, ExecBinary, error) {
 	// New objects.
 	repo, err := newRepositoryFromFullName(repoFullName)

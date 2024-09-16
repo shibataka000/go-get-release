@@ -40,6 +40,8 @@ func NewCommand() *cobra.Command {
 			}
 			return app.Install(ctx, repoFullName, asset, execBinary, dir, os.Stdout)
 		},
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	command.Flags().StringVarP(&repoFullName, "repo", "R", "", "GitHub repository name. This should be OWNER/REPO format.")
