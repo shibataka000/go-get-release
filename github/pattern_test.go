@@ -38,3 +38,12 @@ func TestPatternMatch(t *testing.T) {
 func TestPatternApply(t *testing.T) {
 	// todo: implement this.
 }
+
+// mustNewPatternFromString is like [newPatternFromString] but panics if arguments cannot be parsed.
+func mustNewPatternFromString(asset string, execBinary string) Pattern {
+	p, err := newPatternFromString(asset, execBinary)
+	if err != nil {
+		panic(err)
+	}
+	return p
+}

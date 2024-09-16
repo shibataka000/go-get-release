@@ -41,15 +41,6 @@ func newPatternFromString(asset string, execBinary string) (Pattern, error) {
 	return newPattern(re, tmpl), nil
 }
 
-// mustNewPatternFromString is like [newPatternFromString] but panics if arguments cannot be parsed.
-func mustNewPatternFromString(asset string, execBinary string) Pattern {
-	p, err := newPatternFromString(asset, execBinary)
-	if err != nil {
-		panic(err)
-	}
-	return p
-}
-
 // match returns true if pattern matches given asset name.
 func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.Name))
