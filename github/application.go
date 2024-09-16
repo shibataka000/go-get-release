@@ -72,12 +72,3 @@ func (a *ApplicationService) Install(ctx context.Context, repoFullName string, a
 
 	return a.execBinary.write(execBinary, execBinaryContent, dir)
 }
-
-var (
-	DefaultAssetPatterns = []string{
-		"trivy_0.53.0_Linux-64bit.tar.gz",
-	}
-	DefaultExecBinaryPatterns = []string{
-		"trivy",
-	}
-)
