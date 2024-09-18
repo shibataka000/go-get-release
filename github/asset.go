@@ -34,8 +34,8 @@ type AssetList []Asset
 // AssetContent represents a GitHub release asset content.
 type AssetContent []byte
 
-// execBinaryContent extracts [ExecBinaryContent] from [AssetContent] and return it.
-func (a AssetContent) execBinaryContent() (ExecBinaryContent, error) {
+// extract [ExecBinaryContent] from [AssetContent] and return it.
+func (a AssetContent) extract() (ExecBinaryContent, error) {
 	var b bytes.Buffer
 
 	if _, err := b.Write(a); err != nil {

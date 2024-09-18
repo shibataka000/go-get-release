@@ -65,7 +65,7 @@ func (a *ApplicationService) Install(ctx context.Context, repoFullName string, a
 		return err
 	}
 
-	execBinaryContent, err := assetContent.execBinaryContent()
+	execBinaryContent, err := assetContent.extract()
 	if err != nil {
 		return err
 	}
