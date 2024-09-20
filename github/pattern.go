@@ -46,7 +46,7 @@ func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.Name))
 }
 
-func (p Pattern) apply(asset Asset) (ExecBinary, error) {
+func (p Pattern) render(asset Asset) (ExecBinary, error) {
 	var b bytes.Buffer
 	submatch := p.asset.FindStringSubmatch(asset.Name)
 	err := p.execBinary.Execute(&b, submatch)
@@ -54,6 +54,13 @@ func (p Pattern) apply(asset Asset) (ExecBinary, error) {
 		return ExecBinary{}, err
 	}
 	return newExecBinary(b.String()), nil
+}
+
+func (p Pattern) priority(asset Asset) int {
+	if p.match(asset) {
+		return len(p.asset.String())
+	}
+	return 0
 }
 
 // PatternList is a list of [Pattern].
@@ -75,12 +82,19 @@ func newPatternListFromStringMap(patterns map[string]string) (PatternList, error
 }
 
 func find(assets AssetList, patterns PatternList) (Asset, Pattern, error) {
+	var foundAsset Asset
+	var foundPattern Pattern
+	var priority = 0
+
 	for _, p := range patterns {
 		for _, a := range assets {
-			if p.match(a) {
-				return a, p, nil
+			if p.match(a) && priority < p.priority(a) {
+				foundAsset, foundPattern, priority = a, p, p.priority(a)
 			}
 		}
 	}
-	return Asset{}, Pattern{}, ErrPatternNotMatched
+	if priority == 0 {
+		return Asset{}, Pattern{}, ErrPatternNotMatched
+	}
+	return foundAsset, foundPattern, nil
 }
