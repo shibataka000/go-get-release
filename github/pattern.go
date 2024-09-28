@@ -74,7 +74,13 @@ func (p Pattern) priority(asset Asset) int {
 	if !p.match(asset) {
 		return 0
 	}
-	return 0
+
+	submatch := p.asset.FindStringSubmatch(asset.Name)
+	priority := len(submatch[0])
+	for i := 1; i < len(submatch); i++ {
+		priority = priority - len(submatch[i])
+	}
+	return priority
 }
 
 // PatternList is a list of [Pattern].

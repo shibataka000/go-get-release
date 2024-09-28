@@ -75,9 +75,9 @@ func TestPatternPriority(t *testing.T) {
 		},
 		{
 			name:     "SubMatch",
-			pattern:  mustNewPatternFromString("gh_.+_linux_amd64.tar.gz", "gh"),
+			pattern:  mustNewPatternFromString("(.+)_linux_amd64.tar.gz", "gh"),
 			asset:    newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
-			priority: len("gh__linux_amd64.tar.gz"),
+			priority: len("_linux_amd64.tar.gz"),
 		},
 		{
 			name:     "NotMatch",
