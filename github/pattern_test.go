@@ -35,8 +35,29 @@ func TestPatternMatch(t *testing.T) {
 	}
 }
 
-func TestPatternApply(t *testing.T) {
-	// todo: implement this.
+func TestPatternExecute(t *testing.T) {
+	tests := []struct {
+		name       string
+		pattern    Pattern
+		asset      Asset
+		execBinary ExecBinary
+	}{
+		{
+			name:       "gh_2.52.0_linux_amd64.tar.gz",
+			pattern:    mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			execBinary: newExecBinary("gh"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			execBinary, err := tt.pattern.execute(tt.asset)
+			require.NoError(err)
+			require.Equal(tt.execBinary, execBinary)
+		})
+	}
 }
 
 // mustNewPatternFromString is like [newPatternFromString] but panics if arguments cannot be parsed.

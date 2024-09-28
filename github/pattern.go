@@ -28,17 +28,17 @@ func newPattern(asset *regexp.Regexp, execBinary *template.Template) Pattern {
 // asset should be a regular expression of GitHub release asset name and compilable by [regexp.Compile].
 // execBinary should be a template of executable binary name and parsable by [text/template.Template.Parse].
 func newPatternFromString(asset string, execBinary string) (Pattern, error) {
-	re, err := regexp.Compile(asset)
+	a, err := regexp.Compile(asset)
 	if err != nil {
 		return Pattern{}, err
 	}
 
-	tmpl, err := template.New(execBinary).Parse(execBinary)
+	b, err := template.New("ExecBinaryName").Parse(execBinary)
 	if err != nil {
 		return Pattern{}, err
 	}
 
-	return newPattern(re, tmpl), nil
+	return newPattern(a, b), nil
 }
 
 // match returns true if pattern matches given asset name.
