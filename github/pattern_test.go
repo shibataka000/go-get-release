@@ -59,3 +59,56 @@ func TestPatternExecute(t *testing.T) {
 		})
 	}
 }
+
+func TestPatternPriority(t *testing.T) {
+	tests := []struct {
+		name     string
+		pattern  Pattern
+		asset    Asset
+		priority int
+	}{
+		{
+			name:    "gh_2.52.0_linux_amd64.tar.gz",
+			pattern: mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			priority := tt.pattern.priority(tt.asset)
+			require.Equal(tt.priority, priority)
+		})
+	}
+}
+
+func TestFindAssetAndPattern(t *testing.T) {
+	tests := []struct {
+		name     string
+		assets   AssetList
+		patterns PatternList
+		asset    Asset
+		pattern  Pattern
+		err      error
+	}{
+		{
+			name:    "gh_2.52.0_linux_amd64.tar.gz",
+			pattern: mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			asset, pattern, err := find(tt.assets, tt.patterns)
+			if tt.err == nil {
+				require.NoError(err)
+				require.Equal(tt.asset, asset)
+				require.Equal(tt.pattern, pattern)
+			} else {
+				require.ErrorIs(tt.err, err)
+			}
+		})
+	}
+}
