@@ -46,7 +46,7 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 	}
 
 	// Find a executable binary.
-	execBinary, err := pattern.render(asset)
+	execBinary, err := pattern.execute(asset)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}

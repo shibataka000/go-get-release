@@ -46,7 +46,8 @@ func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.Name))
 }
 
-func (p Pattern) render(asset Asset) (ExecBinary, error) {
+// execute applies a pattern to given asset and returns [ExecBinary] object.
+func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	var b bytes.Buffer
 	submatch := p.asset.FindStringSubmatch(asset.Name)
 	err := p.execBinary.Execute(&b, submatch)
@@ -56,6 +57,8 @@ func (p Pattern) render(asset Asset) (ExecBinary, error) {
 	return newExecBinary(b.String()), nil
 }
 
+// priority returns priority.
+// Pattern with bigger priority is prioritized over pattern with smaller priority.
 func (p Pattern) priority(asset Asset) int {
 	if p.match(asset) {
 		return len(p.asset.String())
@@ -66,9 +69,9 @@ func (p Pattern) priority(asset Asset) int {
 // PatternList is a list of [Pattern].
 type PatternList []Pattern
 
-// newPatternListFromStringArray returns a new [PatternList] object.
-// See [newPatternFromString] for more details.
-// The number of assets and the number of execBinaries should be same.
+// newPatternListFromStringMap returns a new [PatternList] object.
+// Keys of map should be regular expressions of GitHub release asset name and compilable by [regexp.Compile].
+// Values of map should be templates of executable binary name and parsable by [text/template.Template.Parse].
 func newPatternListFromStringMap(patterns map[string]string) (PatternList, error) {
 	pl := PatternList{}
 	for asset, execBinary := range patterns {
@@ -81,6 +84,7 @@ func newPatternListFromStringMap(patterns map[string]string) (PatternList, error
 	return pl, nil
 }
 
+// find [Asset] which matches [Pattern] with biggest priority and returns [Asset] and [Pattern].
 func find(assets AssetList, patterns PatternList) (Asset, Pattern, error) {
 	var foundAsset Asset
 	var foundPattern Pattern
