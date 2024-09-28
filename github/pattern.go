@@ -2,7 +2,6 @@ package github
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 	"text/template"
 )
@@ -60,7 +59,6 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	}
 
 	var b bytes.Buffer
-	fmt.Println(data)
 	err := p.execBinary.Execute(&b, data)
 	if err != nil {
 		return ExecBinary{}, err
