@@ -2,6 +2,7 @@ package github
 
 import (
 	"bytes"
+	"fmt"
 	"regexp"
 	"text/template"
 )
@@ -50,15 +51,16 @@ func (p Pattern) match(asset Asset) bool {
 // execute applies a template of executable binary name to values of named capturing group in regular expression of GitHub release asset name and returns [ExecBinary] object.
 func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	data := map[string]string{}
-	submatch := p.asset.FindSubmatch([]byte(asset.Name))
+	submatch := p.asset.FindStringSubmatch(asset.Name)
 	for _, name := range p.asset.SubexpNames() {
 		index := p.asset.SubexpIndex(name)
 		if index >= 0 && index < len(submatch) {
-			data[name] = string(submatch[index])
+			data[name] = submatch[index]
 		}
 	}
 
 	var b bytes.Buffer
+	fmt.Println(data)
 	err := p.execBinary.Execute(&b, data)
 	if err != nil {
 		return ExecBinary{}, err
@@ -69,8 +71,8 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 // priority returns priority of pattern.
 // Pattern with bigger priority is prioritized over pattern with smaller priority.
 func (p Pattern) priority(asset Asset) int {
-	if p.match(asset) {
-		return len(p.asset.String())
+	if !p.match(asset) {
+		return 0
 	}
 	return 0
 }
