@@ -7,6 +7,7 @@ import (
 )
 
 var (
+	// DefaultPatterns is recommended patterns. This is overwrite for each platform.
 	DefaultPatterns = map[string]string{}
 )
 
