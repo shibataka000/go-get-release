@@ -68,8 +68,22 @@ func TestPatternPriority(t *testing.T) {
 		priority int
 	}{
 		{
-			name:    "gh_2.52.0_linux_amd64.tar.gz",
-			pattern: mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+			name:     "FullyMatch",
+			pattern:  mustNewPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh"),
+			asset:    newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			priority: len("gh_2.52.0_linux_amd64.tar.gz"),
+		},
+		{
+			name:     "SubMatch",
+			pattern:  mustNewPatternFromString("gh_.+_linux_amd64.tar.gz", "gh"),
+			asset:    newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			priority: len("gh__linux_amd64.tar.gz"),
+		},
+		{
+			name:     "NotMatch",
+			pattern:  mustNewPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh"),
+			asset:    newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
+			priority: 0,
 		},
 	}
 
