@@ -48,9 +48,17 @@ func (p Pattern) match(asset Asset) bool {
 
 // execute applies a pattern to given asset and returns [ExecBinary] object.
 func (p Pattern) execute(asset Asset) (ExecBinary, error) {
+	submatch := p.asset.FindSubmatch([]byte(asset.Name))
+	data := map[string]string{}
+	for _, name := range p.asset.SubexpNames() {
+		index := p.asset.SubexpIndex(name)
+		if index >= 0 && index < len(submatch) {
+			data[name] = string(submatch[index])
+		}
+	}
+
 	var b bytes.Buffer
-	submatch := p.asset.FindStringSubmatch(asset.Name)
-	err := p.execBinary.Execute(&b, submatch)
+	err := p.execBinary.Execute(&b, data)
 	if err != nil {
 		return ExecBinary{}, err
 	}
