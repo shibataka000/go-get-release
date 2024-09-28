@@ -42,15 +42,15 @@ func newPatternFromString(asset string, execBinary string) (Pattern, error) {
 	return newPattern(a, b), nil
 }
 
-// match returns true if pattern matches given asset name.
+// match returns true if regular expression of GitHub release asset name in pattern matches given GitHub release asset name.
 func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.Name))
 }
 
-// execute applies a pattern to given asset and returns [ExecBinary] object.
+// execute applies a template of executable binary name to values of named capturing group in regular expression of GitHub release asset name and returns [ExecBinary] object.
 func (p Pattern) execute(asset Asset) (ExecBinary, error) {
-	submatch := p.asset.FindSubmatch([]byte(asset.Name))
 	data := map[string]string{}
+	submatch := p.asset.FindSubmatch([]byte(asset.Name))
 	for _, name := range p.asset.SubexpNames() {
 		index := p.asset.SubexpIndex(name)
 		if index >= 0 && index < len(submatch) {
@@ -66,7 +66,7 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	return newExecBinary(b.String()), nil
 }
 
-// priority returns priority.
+// priority returns priority of pattern.
 // Pattern with bigger priority is prioritized over pattern with smaller priority.
 func (p Pattern) priority(asset Asset) int {
 	if p.match(asset) {
