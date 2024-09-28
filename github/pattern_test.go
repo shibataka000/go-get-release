@@ -59,8 +59,3 @@ func TestPatternExecute(t *testing.T) {
 		})
 	}
 }
-
-// mustNewPatternFromString is like [newPatternFromString] but panics if arguments cannot be parsed.
-func mustNewPatternFromString(asset string, execBinary string) Pattern {
-	return must(newPatternFromString(asset, execBinary))
-}
