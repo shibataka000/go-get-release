@@ -59,6 +59,7 @@ func (a AssetContent) extract() (ExecBinaryContent, error) {
 			}
 		}
 	}
+
 	return ExecBinaryContent(b), nil
 }
 
