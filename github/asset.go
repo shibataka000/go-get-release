@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 
 	"github.com/cheggaaa/pb/v3"
 	"github.com/gabriel-vasile/mimetype"
@@ -36,42 +37,50 @@ type AssetContent []byte
 
 // extract [ExecBinaryContent] from [AssetContent] and return it.
 func (a AssetContent) extract() (ExecBinaryContent, error) {
-	var b bytes.Buffer
-
-	if _, err := b.Write(a); err != nil {
-		return nil, err
-	}
+	b := []byte(a)
+	execBinaryMimes := []string{"application/octet-stream", "application/x-executable"}
 
 	for {
-		var r io.Reader
-		var err error
-
-		mime := mimetype.Detect(b.Bytes())
-
-		switch mime.String() {
-		case "application/octet-stream", "application/x-executable":
-			return ExecBinaryContent(b.Bytes()), nil
-		case "application/x-tar":
-			r, err = newExecBinaryReaderInTar(&b)
-		case "application/zip":
-			r, err = newExecBinaryReaderInZip(&b)
-		case "application/gzip":
-			r, err = gzip.NewReader(&b)
-		case "application/x-xz":
-			r, err = xz.NewReader(&b)
-		default:
-			r, err = nil, fmt.Errorf("%w: %s", ErrUnexpectedMIME, mime.String())
+		mime := mimetype.Detect(b)
+		if slices.Contains(execBinaryMimes, mime.String()) {
+			break
 		}
-
+		r, c, err := newReaderToExtract(b)
 		if err != nil {
-			return nil, fmt.Errorf("%w: %w", ErrExtractingExecBinaryContentFailure, err)
-		}
-
-		var bb bytes.Buffer
-		if _, err := bb.ReadFrom(r); err != nil {
 			return nil, err
 		}
-		b = bb
+		b, err = io.ReadAll(r)
+		if err != nil {
+			return nil, err
+		}
+		if c != nil {
+			if err := c.Close(); err != nil {
+				return nil, err
+			}
+		}
+	}
+	return ExecBinaryContent(b), nil
+}
+
+func newReaderToExtract(b []byte) (io.Reader, io.Closer, error) {
+	br := bytes.NewReader(b)
+	mime := mimetype.Detect(b)
+
+	switch mime.String() {
+	case "application/gzip":
+		r, err := gzip.NewReader(br)
+		return r, nil, err
+	case "application/x-xz":
+		r, err := xz.NewReader(br)
+		return r, nil, err
+	case "application/x-tar":
+		r, err := newExecBinaryReaderInTar(br)
+		return r, nil, err
+	case "application/zip":
+		r, err := newExecBinaryReaderInZip(br, br.Size())
+		return r, r, err
+	default:
+		return nil, nil, fmt.Errorf("%w: %s", ErrUnexpectedMIME, mime.String())
 	}
 }
 
