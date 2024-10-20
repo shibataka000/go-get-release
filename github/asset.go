@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"slices"
 
 	"github.com/cheggaaa/pb/v3"
@@ -17,16 +18,25 @@ import (
 
 // Asset represents a GitHub release asset.
 type Asset struct {
-	id   int64
-	Name string
+	id          int64
+	DownloadURL *url.URL
 }
 
 // newAsset returns a new [Asset] object.
-func newAsset(id int64, name string) Asset {
+func newAsset(id int64, downloadURL *url.URL) Asset {
 	return Asset{
-		id:   id,
-		Name: name,
+		id:          id,
+		DownloadURL: downloadURL,
 	}
+}
+
+// newAssetFromString returns a new [Asset] object.
+func newAssetFromString(id int64, downloadURL string) (Asset, error) {
+	parsed, err := url.Parse(downloadURL)
+	if err != nil {
+		return Asset{}, err
+	}
+	return newAsset(id, parsed), nil
 }
 
 // AssetList is a list of [Asset].

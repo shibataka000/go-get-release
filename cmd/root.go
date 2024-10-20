@@ -33,7 +33,7 @@ func NewCommand() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			message := fmt.Sprintf("Do you want to install %s from https://github.com/%s/releases/download/%s/%s ?", execBinary.Name, repoFullName, tag, asset.Name)
+			message := fmt.Sprintf("Do you want to install %s from %s ?", execBinary.Name, asset.DownloadURL.String())
 			if !prompter.YN(message, true) {
 				return nil
 			}
