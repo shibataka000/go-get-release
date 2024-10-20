@@ -75,8 +75,14 @@ func TestPatternExecute(t *testing.T) {
 		execBinary ExecBinary
 	}{
 		{
-			name:       "gh",
+			name:       "NamedCapturingGroup",
 			pattern:    mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			execBinary: newExecBinary("gh"),
+		},
+		{
+			name:       "CapturingGroup",
+			pattern:    mustNewPatternFromString(`(\w+)_[\d\.]+_linux_amd64.tar.gz`, `{{index . "1"}}`),
 			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			execBinary: newExecBinary("gh"),
 		},
