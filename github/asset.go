@@ -38,13 +38,8 @@ type AssetContent []byte
 // extract [ExecBinaryContent] from [AssetContent] and return it.
 func (a AssetContent) extract() (ExecBinaryContent, error) {
 	b := []byte(a)
-	execBinaryMimes := []string{"application/octet-stream", "application/x-executable"}
 
-	for {
-		mime := mimetype.Detect(b)
-		if slices.Contains(execBinaryMimes, mime.String()) {
-			break
-		}
+	for !isOctetStream(b) {
 		r, c, err := newReaderToExtract(b)
 		if err != nil {
 			return nil, err
@@ -61,6 +56,12 @@ func (a AssetContent) extract() (ExecBinaryContent, error) {
 	}
 
 	return ExecBinaryContent(b), nil
+}
+
+func isOctetStream(b []byte) bool {
+	expect := []string{"application/octet-stream", "application/x-executable"}
+	mime := mimetype.Detect(b)
+	return slices.Contains(expect, mime.String())
 }
 
 func newReaderToExtract(b []byte) (io.Reader, io.Closer, error) {
