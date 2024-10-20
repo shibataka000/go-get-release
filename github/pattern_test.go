@@ -35,6 +35,38 @@ func TestPatternMatch(t *testing.T) {
 	}
 }
 
+func TestPatternPriority(t *testing.T) {
+	tests := []struct {
+		name     string
+		pattern  Pattern
+		priority int
+	}{
+		{
+			name:     "gh_2.52.0_linux_amd64.tar.gz",
+			pattern:  mustNewPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh"),
+			priority: len("gh_2"),
+		},
+		{
+			name:     "gh_.*_linux_amd64.tar.gz",
+			pattern:  mustNewPatternFromString("gh_.*_linux_amd64.tar.gz", "gh"),
+			priority: len("gh_"),
+		},
+		{
+			name:     ".*_linux_amd64.tar.gz",
+			pattern:  mustNewPatternFromString(".*_linux_amd64.tar.gz", "gh"),
+			priority: len(""),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			require := require.New(t)
+			priority := tt.pattern.priority()
+			require.Equal(tt.priority, priority)
+		})
+	}
+}
+
 func TestPatternExecute(t *testing.T) {
 	tests := []struct {
 		name       string
@@ -56,42 +88,6 @@ func TestPatternExecute(t *testing.T) {
 			execBinary, err := tt.pattern.execute(tt.asset)
 			require.NoError(err)
 			require.Equal(tt.execBinary, execBinary)
-		})
-	}
-}
-
-func TestPatternPriority(t *testing.T) {
-	tests := []struct {
-		name     string
-		pattern  Pattern
-		asset    Asset
-		priority int
-	}{
-		{
-			name:     "FullyMatch",
-			pattern:  mustNewPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh"),
-			asset:    newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
-			priority: len("gh_2.52.0_linux_amd64.tar.gz"),
-		},
-		{
-			name:     "SubMatch",
-			pattern:  mustNewPatternFromString("(.+)_linux_amd64.tar.gz", "gh"),
-			asset:    newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
-			priority: len("_linux_amd64.tar.gz"),
-		},
-		{
-			name:     "NotMatch",
-			pattern:  mustNewPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh"),
-			asset:    newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
-			priority: 0,
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			require := require.New(t)
-			priority := tt.pattern.priority(tt.asset)
-			require.Equal(tt.priority, priority)
 		})
 	}
 }

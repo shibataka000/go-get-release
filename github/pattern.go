@@ -3,6 +3,7 @@ package github
 import (
 	"bytes"
 	"regexp"
+	"strconv"
 	"text/template"
 )
 
@@ -50,10 +51,24 @@ func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.Name))
 }
 
-// execute applies a template of executable binary name to values of named capturing group in regular expression of GitHub release asset name and returns [ExecBinary] object.
+// priority returns a literal prefix length of regular expression of GitHub release asset name as priority of pattern.
+// Pattern with bigger priority is prioritized over pattern with smaller priority.
+func (p Pattern) priority() int {
+	prefix, _ := p.asset.LiteralPrefix()
+	return len(prefix)
+}
+
+// execute applies a template of executable binary name to values of capturing group in regular expression of GitHub release asset name and returns [ExecBinary] object.
 func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	data := map[string]string{}
 	submatch := p.asset.FindStringSubmatch(asset.Name)
+
+	// Construct data from capturing group.
+	for i := range submatch {
+		data[strconv.Itoa(i)] = submatch[i]
+	}
+
+	// Construct data from named capturing group.
 	for _, name := range p.asset.SubexpNames() {
 		index := p.asset.SubexpIndex(name)
 		if index >= 0 && index < len(submatch) {
@@ -61,28 +76,13 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 		}
 	}
 
+	// Apply a template to data.
 	var b bytes.Buffer
 	if err := p.execBinary.Execute(&b, data); err != nil {
 		return ExecBinary{}, err
 	}
+
 	return newExecBinary(b.String()), nil
-}
-
-// priority returns priority of pattern.
-// Pattern with bigger priority is prioritized over pattern with smaller priority.
-// This excludes strings matching capturing groups from GitHub release asset name and returns a number of rest characters.
-// This does not support nested capturing group.
-func (p Pattern) priority(asset Asset) int {
-	if !p.match(asset) {
-		return 0
-	}
-
-	submatch := p.asset.FindStringSubmatch(asset.Name)
-	priority := len(submatch[0])
-	for i := 1; i < len(submatch); i++ {
-		priority = priority - len(submatch[i])
-	}
-	return priority
 }
 
 // PatternList is a list of [Pattern].
@@ -111,8 +111,8 @@ func find(assets AssetList, patterns PatternList) (Asset, Pattern, error) {
 
 	for _, p := range patterns {
 		for _, a := range assets {
-			if p.match(a) && priority < p.priority(a) {
-				foundAsset, foundPattern, priority = a, p, p.priority(a)
+			if p.match(a) && priority < p.priority() {
+				foundAsset, foundPattern, priority = a, p, p.priority()
 			}
 		}
 	}
