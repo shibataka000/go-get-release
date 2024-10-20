@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestFind(t *testing.T) {
+func TestAppFind(t *testing.T) {
 	// todo: implement this.
 }
 
