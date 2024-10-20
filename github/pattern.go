@@ -109,7 +109,7 @@ func find(assets AssetList, patterns PatternList) (Asset, Pattern, error) {
 	// Sort patterns.
 	cloned := slices.Clone(patterns)
 	slices.SortFunc(cloned, func(p1, p2 Pattern) int {
-		return p1.priority() - p2.priority()
+		return p2.priority() - p1.priority()
 	})
 
 	// Find asset and pattern.

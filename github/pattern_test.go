@@ -105,12 +105,19 @@ func TestFind(t *testing.T) {
 		patterns PatternList
 		asset    Asset
 		pattern  Pattern
-		err      error
 	}{
 		{
-			name:    "gh_2.52.0_linux_amd64.tar.gz",
-			pattern: mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+			name: "PatternWithHigherPriorityIsPrioritizedOverPatternWithLowerPriority",
+			assets: AssetList{
+				newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+				newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
+			},
+			patterns: PatternList{
+				mustNewPatternFromString(`.+_linux_amd64.tar.gz`, "gh"),
+				mustNewPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh"),
+			},
 			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			pattern: mustNewPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh"),
 		},
 	}
 
@@ -118,13 +125,9 @@ func TestFind(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			require := require.New(t)
 			asset, pattern, err := find(tt.assets, tt.patterns)
-			if tt.err == nil {
-				require.NoError(err)
-				require.Equal(tt.asset, asset)
-				require.Equal(tt.pattern, pattern)
-			} else {
-				require.ErrorIs(tt.err, err)
-			}
+			require.NoError(err)
+			require.Equal(tt.asset, asset)
+			require.Equal(tt.pattern, pattern)
 		})
 	}
 }
