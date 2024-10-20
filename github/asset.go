@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"path"
 	"slices"
 
 	"github.com/cheggaaa/pb/v3"
@@ -37,6 +38,10 @@ func newAssetFromString(id int64, downloadURL string) (Asset, error) {
 		return Asset{}, err
 	}
 	return newAsset(id, parsed), nil
+}
+
+func (a Asset) name() string {
+	return path.Base(a.DownloadURL.String())
 }
 
 // AssetList is a list of [Asset].
@@ -129,7 +134,11 @@ func (r *AssetRepository) list(ctx context.Context, repo Repository, release Rel
 			return nil, err
 		}
 		for _, githubAsset := range githubAssets {
-			assets = append(assets, newAsset(githubAsset.GetID(), githubAsset.GetName()))
+			asset, err := newAssetFromString(githubAsset.GetID(), githubAsset.GetBrowserDownloadURL())
+			if err != nil {
+				return nil, err
+			}
+			assets = append(assets, asset)
 		}
 		page = resp.NextPage
 	}
