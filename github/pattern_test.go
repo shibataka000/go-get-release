@@ -14,13 +14,13 @@ func TestPatternMatch(t *testing.T) {
 		match   bool
 	}{
 		{
-			name:    "gh_2.52.0_linux_amd64.tar.gz",
+			name:    "Match",
 			pattern: mustNewPatternFromString("gh_.*_linux_amd64.tar.gz", "gh"),
 			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			match:   true,
 		},
 		{
-			name:    "gh_2.52.0_linux_arm64.tar.gz",
+			name:    "NotMatch",
 			pattern: mustNewPatternFromString("gh_.*_linux_amd64.tar.gz", "gh"),
 			asset:   newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
 			match:   false,
@@ -43,7 +43,7 @@ func TestPatternExecute(t *testing.T) {
 		execBinary ExecBinary
 	}{
 		{
-			name:       "gh_2.52.0_linux_amd64.tar.gz",
+			name:       "gh",
 			pattern:    mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
 			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			execBinary: newExecBinary("gh"),

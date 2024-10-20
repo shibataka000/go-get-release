@@ -50,7 +50,7 @@ func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.Name))
 }
 
-// execute applies a template of executable binary name to values of capturing group in regular expression of GitHub release asset name and returns [ExecBinary] object.
+// execute applies a template of executable binary name to values of named capturing group in regular expression of GitHub release asset name and returns [ExecBinary] object.
 func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	data := map[string]string{}
 	submatch := p.asset.FindStringSubmatch(asset.Name)
@@ -62,8 +62,7 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	}
 
 	var b bytes.Buffer
-	err := p.execBinary.Execute(&b, data)
-	if err != nil {
+	if err := p.execBinary.Execute(&b, data); err != nil {
 		return ExecBinary{}, err
 	}
 	return newExecBinary(b.String()), nil

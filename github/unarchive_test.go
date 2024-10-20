@@ -4,10 +4,10 @@ import (
 	"testing"
 )
 
-func TestReadExecBinaryInTar(t *testing.T) {
+func TestNewExecBinaryReaderInTar(t *testing.T) {
 	// todo: implement this.
 }
 
-func TestReadExecBinaryInZip(t *testing.T) {
+func TestNewExecBinaryReaderInZip(t *testing.T) {
 	// todo: implement this.
 }
