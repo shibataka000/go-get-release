@@ -15,13 +15,13 @@ func TestPatternMatch(t *testing.T) {
 	}{
 		{
 			name:    "Match",
-			pattern: mustNewPatternFromString("gh_.*_linux_amd64.tar.gz", "gh"),
+			pattern: must(newPatternFromString("gh_.*_linux_amd64.tar.gz", "gh")),
 			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			match:   true,
 		},
 		{
 			name:    "NotMatch",
-			pattern: mustNewPatternFromString("gh_.*_linux_amd64.tar.gz", "gh"),
+			pattern: must(newPatternFromString("gh_.*_linux_amd64.tar.gz", "gh")),
 			asset:   newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
 			match:   false,
 		},
@@ -43,17 +43,17 @@ func TestPatternPriority(t *testing.T) {
 	}{
 		{
 			name:     "gh_2.52.0_linux_amd64.tar.gz",
-			pattern:  mustNewPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh"),
+			pattern:  must(newPatternFromString("gh_2.52.0_linux_amd64.tar.gz", "gh")),
 			priority: len("gh_2"),
 		},
 		{
 			name:     "gh_.*_linux_amd64.tar.gz",
-			pattern:  mustNewPatternFromString("gh_.*_linux_amd64.tar.gz", "gh"),
+			pattern:  must(newPatternFromString("gh_.*_linux_amd64.tar.gz", "gh")),
 			priority: len("gh_"),
 		},
 		{
 			name:     ".*_linux_amd64.tar.gz",
-			pattern:  mustNewPatternFromString(".*_linux_amd64.tar.gz", "gh"),
+			pattern:  must(newPatternFromString(".*_linux_amd64.tar.gz", "gh")),
 			priority: len(""),
 		},
 	}
@@ -76,13 +76,13 @@ func TestPatternExecute(t *testing.T) {
 	}{
 		{
 			name:       "CapturingGroup",
-			pattern:    mustNewPatternFromString(`(\w+)_[\d\.]+_linux_amd64.tar.gz`, `{{index . "1"}}`),
+			pattern:    must(newPatternFromString(`(\w+)_[\d\.]+_linux_amd64.tar.gz`, `{{index . "1"}}`)),
 			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			execBinary: newExecBinary("gh"),
 		},
 		{
 			name:       "NamedCapturingGroup",
-			pattern:    mustNewPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}"),
+			pattern:    must(newPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}")),
 			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
 			execBinary: newExecBinary("gh"),
 		},
@@ -113,11 +113,11 @@ func TestFind(t *testing.T) {
 				newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
 			},
 			patterns: PatternList{
-				mustNewPatternFromString(`.+_linux_amd64.tar.gz`, "gh"),
-				mustNewPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh"),
+				must(newPatternFromString(`.+_linux_amd64.tar.gz`, "gh")),
+				must(newPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh")),
 			},
 			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
-			pattern: mustNewPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh"),
+			pattern: must(newPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh")),
 		},
 	}
 
