@@ -22,7 +22,7 @@ func NewApplicationService(asset *AssetRepository, execBinary *ExecBinaryReposit
 // Find a GitHub release asset and an executable binary in it and returns them.
 // repoFullName should be a repository full name. It should be OWNER/REPO format.
 // tag should be a release tag.
-func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, patterns map[string]string) (Asset, ExecBinary, error) {
+func (app *ApplicationService) Find(ctx context.Context, repoFullName string, tag string, patterns map[string]string) (Asset, ExecBinary, error) {
 	// New objects.
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
@@ -35,7 +35,7 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 	}
 
 	// Find a GitHub release asset.
-	assets, err := a.asset.list(ctx, repo, release)
+	assets, err := app.asset.list(ctx, repo, release)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}
@@ -54,13 +54,13 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 	return asset, execBinary, nil
 }
 
-func (a *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string, w io.Writer) error {
+func (app *ApplicationService) Install(ctx context.Context, repoFullName string, asset Asset, execBinary ExecBinary, dir string, w io.Writer) error {
 	repo, err := newRepositoryFromFullName(repoFullName)
 	if err != nil {
 		return err
 	}
 
-	assetContent, err := a.asset.download(ctx, repo, asset, w)
+	assetContent, err := app.asset.download(ctx, repo, asset, w)
 	if err != nil {
 		return err
 	}
@@ -70,5 +70,5 @@ func (a *ApplicationService) Install(ctx context.Context, repoFullName string, a
 		return err
 	}
 
-	return a.execBinary.write(execBinary, execBinaryContent, dir)
+	return app.execBinary.write(execBinary, execBinaryContent, dir)
 }
