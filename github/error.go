@@ -1,8 +1,6 @@
 package github
 
-import (
-	"errors"
-)
+import "errors"
 
 var (
 	// ErrInvalidRepositoryFullName is returned when given repository full name is not 'OWNER/REPO' format.
