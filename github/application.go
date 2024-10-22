@@ -29,7 +29,7 @@ func (a *ApplicationService) Find(ctx context.Context, repoFullName string, tag 
 		return Asset{}, ExecBinary{}, err
 	}
 	release := newRelease(tag)
-	pl, err := newPatternListFromStringMap(patterns)
+	pl, err := newPatternArrayFromStringMap(patterns)
 	if err != nil {
 		return Asset{}, ExecBinary{}, err
 	}

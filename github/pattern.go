@@ -79,9 +79,9 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	return newExecBinary(b.String()), nil
 }
 
-// newPatternListFromStringMap returns a new [PatternList] object.
+// newPatternArrayFromStringMap returns a new array of [Pattern] objects.
 // Map's keys should be regular expressions of GitHub release asset name and values should be templates of executable binary name.
-func newPatternListFromStringMap(patterns map[string]string) ([]Pattern, error) {
+func newPatternArrayFromStringMap(patterns map[string]string) ([]Pattern, error) {
 	ps := []Pattern{}
 	for asset, execBinary := range patterns {
 		p, err := newPatternFromString(asset, execBinary)
