@@ -43,6 +43,20 @@ func newPatternFromString(asset string, execBinary string) (Pattern, error) {
 	return newPattern(a, b), nil
 }
 
+// newPatternArrayFromStringMap returns a new array of [Pattern] objects.
+// Map's keys should be regular expressions of GitHub release asset name and values should be templates of executable binary name.
+func newPatternArrayFromStringMap(patterns map[string]string) ([]Pattern, error) {
+	ps := []Pattern{}
+	for asset, execBinary := range patterns {
+		p, err := newPatternFromString(asset, execBinary)
+		if err != nil {
+			return nil, err
+		}
+		ps = append(ps, p)
+	}
+	return ps, nil
+}
+
 // match returns true if regular expression of GitHub release asset name matches given GitHub release asset name.
 func (p Pattern) match(asset Asset) bool {
 	return p.asset.Match([]byte(asset.name()))
@@ -77,20 +91,6 @@ func (p Pattern) execute(asset Asset) (ExecBinary, error) {
 	}
 
 	return newExecBinary(b.String()), nil
-}
-
-// newPatternArrayFromStringMap returns a new array of [Pattern] objects.
-// Map's keys should be regular expressions of GitHub release asset name and values should be templates of executable binary name.
-func newPatternArrayFromStringMap(patterns map[string]string) ([]Pattern, error) {
-	ps := []Pattern{}
-	for asset, execBinary := range patterns {
-		p, err := newPatternFromString(asset, execBinary)
-		if err != nil {
-			return nil, err
-		}
-		ps = append(ps, p)
-	}
-	return ps, nil
 }
 
 // find [Asset] and [Pattern] which match and returns them.
