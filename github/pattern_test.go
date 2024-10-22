@@ -16,13 +16,13 @@ func TestPatternMatch(t *testing.T) {
 		{
 			name:    "Match",
 			pattern: must(newPatternFromString("gh_.*_linux_amd64.tar.gz", "gh")),
-			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			asset:   must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
 			match:   true,
 		},
 		{
 			name:    "NotMatch",
 			pattern: must(newPatternFromString("gh_.*_linux_amd64.tar.gz", "gh")),
-			asset:   newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
+			asset:   must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_arm64.tar.gz")),
 			match:   false,
 		},
 	}
@@ -77,13 +77,13 @@ func TestPatternExecute(t *testing.T) {
 		{
 			name:       "CapturingGroup",
 			pattern:    must(newPatternFromString(`(\w+)_[\d\.]+_linux_amd64.tar.gz`, `{{index . "1"}}`)),
-			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			asset:      must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
 			execBinary: newExecBinary("gh"),
 		},
 		{
 			name:       "NamedCapturingGroup",
 			pattern:    must(newPatternFromString(`(?P<name>\w+)_[\d\.]+_linux_amd64.tar.gz`, "{{.name}}")),
-			asset:      newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			asset:      must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
 			execBinary: newExecBinary("gh"),
 		},
 	}
@@ -101,22 +101,22 @@ func TestPatternExecute(t *testing.T) {
 func TestFind(t *testing.T) {
 	tests := []struct {
 		name     string
-		assets   AssetList
-		patterns PatternList
+		assets   []Asset
+		patterns []Pattern
 		asset    Asset
 		pattern  Pattern
 	}{
 		{
 			name: "PatternWithHigherPriorityIsPrioritizedOverPatternWithLowerPriority",
 			assets: AssetList{
-				newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
-				newAsset(0, "gh_2.52.0_linux_arm64.tar.gz"),
+				must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
+				must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_arm64.tar.gz")),
 			},
-			patterns: PatternList{
+			patterns: []Pattern{
 				must(newPatternFromString(`.+_linux_amd64.tar.gz`, "gh")),
 				must(newPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh")),
 			},
-			asset:   newAsset(0, "gh_2.52.0_linux_amd64.tar.gz"),
+			asset:   must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
 			pattern: must(newPatternFromString(`gh_.+_linux_amd64.tar.gz`, "gh")),
 		},
 	}
