@@ -108,7 +108,7 @@ func TestFind(t *testing.T) {
 	}{
 		{
 			name: "PatternWithHigherPriorityIsPrioritizedOverPatternWithLowerPriority",
-			assets: AssetList{
+			assets: []Asset{
 				must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_amd64.tar.gz")),
 				must(newAssetFromString(0, "https://github.com/cli/cli/releases/download/v2.52.0/gh_2.52.0_linux_arm64.tar.gz")),
 			},

@@ -44,9 +44,6 @@ func (a Asset) name() string {
 	return path.Base(a.DownloadURL.String())
 }
 
-// AssetList is a list of [Asset].
-type AssetList []Asset
-
 // AssetContent represents a GitHub release asset content.
 type AssetContent []byte
 
@@ -118,8 +115,8 @@ func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
 }
 
 // list GitHub release assets and returns it.
-func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) (AssetList, error) {
-	assets := AssetList{}
+func (r *AssetRepository) list(ctx context.Context, repo Repository, release Release) ([]Asset, error) {
+	assets := []Asset{}
 
 	githubRelease, _, err := r.client.Repositories.GetReleaseByTag(ctx, repo.owner, repo.name, release.tag)
 	if err != nil {
