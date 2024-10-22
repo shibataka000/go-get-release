@@ -8,5 +8,5 @@ var (
 	// ErrUnexpectedMIME is returned when MIME of release asset content is unexpected.
 	ErrUnexpectedMIME = errors.New("unexpected mime type")
 	// ErrNoPatternAndAssetMatched is returned when no pattern and release asset name are matched.
-	ErrNoPatternAndAssetMatched = errors.New("no pattern and release asset name were matched")
+	ErrNoPatternAndAssetMatched = errors.New("no pattern and release asset name were matched") // fixme
 )

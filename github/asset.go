@@ -51,7 +51,7 @@ type AssetContent []byte
 func (a AssetContent) extract() (ExecBinaryContent, error) {
 	b := []byte(a)
 
-	for !isOctetStream(b) {
+	for !isExecBinaryContent(b) {
 		r, c, err := newReaderToExtract(b)
 		if err != nil {
 			return nil, err
@@ -70,7 +70,7 @@ func (a AssetContent) extract() (ExecBinaryContent, error) {
 	return ExecBinaryContent(b), nil
 }
 
-func isOctetStream(b []byte) bool {
+func isExecBinaryContent(b []byte) bool {
 	expect := []string{"application/octet-stream", "application/x-executable"}
 	mime := mimetype.Detect(b)
 	return slices.Contains(expect, mime.String())
@@ -105,12 +105,8 @@ type AssetRepository struct {
 
 // NewAssetRepository returns a new [AssetRepository] object.
 func NewAssetRepository(ctx context.Context, token string) *AssetRepository {
-	client := github.NewClient(http.DefaultClient)
-	if token != "" {
-		client = client.WithAuthToken(token)
-	}
 	return &AssetRepository{
-		client: client,
+		client: github.NewClient(http.DefaultClient).WithAuthToken(token),
 	}
 }
 

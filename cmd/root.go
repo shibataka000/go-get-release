@@ -49,7 +49,7 @@ func NewCommand() *cobra.Command {
 	command.Flags().StringVarP(&dir, "dir", "D", ".", "Directory where executable binary will be installed into.")
 	command.Flags().StringVar(&token, "token", "", "Authentication token for GitHub API requests.")
 
-	requiredFlags := []string{"repo", "tag"}
+	requiredFlags := []string{"repo", "tag", "token"}
 
 	for _, flag := range requiredFlags {
 		if err := command.MarkFlagRequired(flag); err != nil {
