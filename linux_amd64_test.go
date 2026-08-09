@@ -164,6 +164,18 @@ func TestApplicationServiceForLinuxAmd64(t *testing.T) {
 			test: exec.Command("./terraform", "version"),
 		},
 		{
+			repo: "hashicorp/tfctl-cli",
+			tag:  "v0.4.0",
+			asset: Asset{
+				id:          0,
+				downloadURL: must(url.Parse("https://releases.hashicorp.com/tfctl/0.4.0/tfctl_0.4.0_linux_amd64.zip")),
+			},
+			execBinary: ExecBinary{
+				name: "tfctl",
+			},
+			test: exec.Command("./tfctl", "version"),
+		},
+		{
 			repo: "helm/helm",
 			tag:  "v3.16.2",
 			asset: Asset{

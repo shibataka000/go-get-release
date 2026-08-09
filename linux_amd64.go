@@ -14,7 +14,8 @@ var (
 
 		// These are recommended patterns for specific repository whose release assets are hosted on server other than GitHub.
 		// These should start with literals containing host to avoid conflict with other patterns.
-		`https://dl\.k8s\.io/release/.+/bin/linux/amd64/kubectl`:         "kubectl",
-		`https://cdn\.teleport\.dev/teleport-v.+-linux-amd64-bin.tar.gz`: "tsh",
+		`https://dl\.k8s\.io/release/.+/bin/linux/amd64/kubectl`:              "kubectl",
+		`https://cdn\.teleport\.dev/teleport-v.+-linux-amd64-bin\.tar\.gz`:    "tsh",
+		`https://releases\.hashicorp\.com/tfctl/.+/tfctl_.+_linux_amd64\.zip`: "tfctl",
 	}
 )

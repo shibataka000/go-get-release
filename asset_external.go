@@ -30,6 +30,14 @@ var externalAssetTemplates = map[Repository][]ExternalAssetTemplate{
 	}: {
 		must(parseExternalAssetTemplate("https://releases.hashicorp.com/terraform/{{.SemVer}}/terraform_{{.SemVer}}_linux_amd64.zip")),
 	},
+	// https://github.com/hashicorp/tfctl-cli
+	{
+		host:  "github.com",
+		owner: "hashicorp",
+		name:  "tfctl-cli",
+	}: {
+		must(parseExternalAssetTemplate("https://releases.hashicorp.com/tfctl/{{.SemVer}}/tfctl_{{.SemVer}}_linux_amd64.zip")),
+	},
 	// https://github.com/helm/helm
 	{
 		host:  "github.com",
