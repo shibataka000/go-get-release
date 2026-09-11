@@ -9,7 +9,7 @@ require (
 	github.com/google/go-github/v67 v67.0.0
 	github.com/spf13/cobra v1.10.2
 	github.com/stretchr/testify v1.12.1
-	github.com/ulikunitz/xz v0.5.15
+	github.com/ulikunitz/xz v0.5.16
 	golang.org/x/mod v0.38.0
 )
 
